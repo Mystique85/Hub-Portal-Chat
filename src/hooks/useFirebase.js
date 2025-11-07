@@ -8,6 +8,7 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { CREATOR_ADDRESS } from '../utils/constants';
 
 export const useFirebase = (address) => {
   const [currentUser, setCurrentUser] = useState(null);
