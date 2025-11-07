@@ -1,8 +1,10 @@
-// src/components/layout/Header.jsx
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import HelpTooltip from './HelpTooltip';
+import { ADMIN_ADDRESSES } from '../../utils/constants';
 
 const Header = ({ currentUser, totalUnreadCount }) => {
+  const isAdmin = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
+
   return (
     <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-6 flex-shrink-0">
       <div className="flex justify-between items-center">
@@ -28,6 +30,11 @@ const Header = ({ currentUser, totalUnreadCount }) => {
           
           {/* User Stats */}
           <div className="flex items-center gap-3">
+            {isAdmin && (
+              <span className="px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-xl border border-purple-400/50">
+                👑 ADMIN
+              </span>
+            )}
             <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
               💎 HC: {currentUser?.balance || '0'}
             </span>

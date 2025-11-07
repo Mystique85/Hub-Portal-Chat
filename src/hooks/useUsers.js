@@ -5,7 +5,11 @@ import {
   query, 
   orderBy, 
   onSnapshot,
-  where
+  where,
+  doc,
+  getDoc,
+  setDoc,
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
@@ -14,6 +18,8 @@ export const useUsers = (address, currentUser) => {
   const [allUsers, setAllUsers] = useState([]);
   const [unreadCounts, setUnreadCounts] = useState({});
   const [privateChats, setPrivateChats] = useState([]);
+  const [messageListeners, setMessageListeners] = useState({});
+  const [readStatus, setReadStatus] = useState({});
 
   useEffect(() => {
     if (!address || !db) return;
@@ -56,29 +62,133 @@ export const useUsers = (address, currentUser) => {
       setPrivateChats(chatsData);
     });
 
+    // Załaduj read status z Firestore
+    const loadReadStatus = async () => {
+      try {
+        const readStatusDoc = await getDoc(doc(db, 'user_read_status', address.toLowerCase()));
+        if (readStatusDoc.exists()) {
+          setReadStatus(readStatusDoc.data().readStatus || {});
+        }
+      } catch (error) {
+        console.error('Error loading read status:', error);
+      }
+    };
+    
+    loadReadStatus();
+
     return () => {
       unsubscribeUsers();
       unsubscribePrivateChats();
+      // Cleanup message listeners
+      Object.values(messageListeners).forEach(unsubscribe => unsubscribe());
     };
   }, [address]);
 
-  // Calculate unread counts
+  // Calculate unread counts - POPRAWIONA WERSJA Z PERSISTENT STATUS
   useEffect(() => {
-    if (!privateChats.length || !address || !allUsers.length) return;
+    if (!privateChats.length || !address || !db) return;
 
     const newUnreadCounts = {};
+    const newMessageListeners = {};
     
     privateChats.forEach(chat => {
       const otherParticipant = chat.participants.find(p => p !== address.toLowerCase());
       
       if (otherParticipant) {
-        // Tutaj możesz dodać logikę obliczania nieprzeczytanych wiadomości
-        newUnreadCounts[otherParticipant] = 0;
+        // Subskrybuj do wiadomości w tym chacie
+        const messagesQuery = query(
+          collection(db, 'private_chats', chat.id, 'messages'),
+          orderBy('timestamp', 'desc')
+        );
+        
+        const unsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+          const messages = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          
+          // Pobierz ostatni przeczytany timestamp dla tego chatu
+          const chatReadStatus = readStatus[chat.id];
+          const lastReadTimestamp = chatReadStatus?.lastReadTimestamp;
+          
+          // Licz nieprzeczytane wiadomości (tylko te po ostatnim przeczytaniu)
+          const unread = messages.filter(msg => {
+            // Wiadomość od innego użytkownika
+            const isFromOtherUser = msg.sender !== address.toLowerCase();
+            // Wiadomość jest nowsza niż ostatni przeczytany timestamp
+            const isUnread = !lastReadTimestamp || 
+              (msg.timestamp && msg.timestamp.toDate() > lastReadTimestamp.toDate());
+            
+            return isFromOtherUser && isUnread;
+          }).length;
+          
+          setUnreadCounts(prev => ({
+            ...prev, 
+            [otherParticipant]: unread
+          }));
+        });
+        
+        newMessageListeners[chat.id] = unsubscribe;
       }
     });
     
-    setUnreadCounts(newUnreadCounts);
-  }, [privateChats, address, allUsers]);
+    setMessageListeners(prev => ({
+      ...prev,
+      ...newMessageListeners
+    }));
+
+    return () => {
+      Object.values(newMessageListeners).forEach(unsubscribe => unsubscribe());
+    };
+  }, [privateChats, address, readStatus]);
+
+  // Funkcja do oznaczania wiadomości jako przeczytane (PERSISTENT)
+  const markAsRead = async (userAddress) => {
+    if (!address || !userAddress) return;
+    
+    // Znajdź chat z tym użytkownikiem
+    const chat = privateChats.find(chat => 
+      chat.participants.includes(userAddress.toLowerCase())
+    );
+    
+    if (!chat) return;
+    
+    try {
+      const now = serverTimestamp();
+      
+      // Zaktualizuj read status w Firestore
+      const readStatusRef = doc(db, 'user_read_status', address.toLowerCase());
+      await setDoc(readStatusRef, {
+        userId: address.toLowerCase(),
+        readStatus: {
+          ...readStatus,
+          [chat.id]: {
+            lastReadTimestamp: now,
+            lastReadAt: new Date().toISOString()
+          }
+        }
+      }, { merge: true });
+      
+      // Zaktualizuj stan lokalny
+      setReadStatus(prev => ({
+        ...prev,
+        [chat.id]: {
+          lastReadTimestamp: now,
+          lastReadAt: new Date().toISOString()
+        }
+      }));
+      
+      // Resetuj licznik lokalnie
+      setUnreadCounts(prev => ({
+        ...prev,
+        [userAddress.toLowerCase()]: 0
+      }));
+      
+      console.log(`📨 Oznaczono wiadomości od ${userAddress} jako przeczytane`);
+    } catch (error) {
+      console.error('Error marking as read:', error);
+    }
+  };
 
   const totalUnreadCount = Object.values(unreadCounts).reduce((sum, count) => sum + count, 0);
 
@@ -87,6 +197,7 @@ export const useUsers = (address, currentUser) => {
     allUsers,
     unreadCounts,
     totalUnreadCount,
-    privateChats
+    privateChats,
+    markAsRead
   };
 };

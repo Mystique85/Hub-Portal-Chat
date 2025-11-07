@@ -1,16 +1,65 @@
-// src/components/layout/HelpTooltip.jsx
 import { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { translations, getBrowserLanguage } from '../../utils/translations';
+import { ADMIN_ADDRESSES } from '../../utils/constants';
+import { useAccount } from 'wagmi';
 
 const HelpTooltip = () => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [expandedSection, setExpandedSection] = useState(null);
   const [language, setLanguage] = useState(getBrowserLanguage());
   const tooltipRef = useRef(null);
+  const { address } = useAccount();
 
   const t = translations[language];
   const helpSections = t.sections;
+
+  // SPRAWDŹ CZY UŻYTKOWNIK JEST ADMINEM
+  const isAdmin = address && ADMIN_ADDRESSES.includes(address.toLowerCase());
+
+  // DODAJEMY NOWĄ SEKCJĘ DLA ADMINÓW
+  const adminFormattingSection = {
+    id: 'admin-formatting',
+    icon: '🔗',
+    title: language === 'pl' ? 'Formatowanie Linków (Admin)' : 'Link Formatting (Admin)',
+    content: language === 'pl' ? 
+      `📋 INSTRUKCJE FORMATOWANIA LINKÓW
+
+Użyj składni: [typ|tekst|url]
+
+Dostępne typy linków:
+• [tweet|Twój tekst|https://x.com/...] → 📢 Twój tekst
+• [video|Twój tekst|https://youtube.com/...] → 🎥 Twój tekst  
+• [doc|Twój tekst|https://docs.com/...] → 📚 Twój tekst
+• [discord|Twój tekst|https://discord.gg/...] → 🎮 Twój tekst
+• [announce|Twój tekst|https://...] → 📢 Twój tekst
+• [link|Twój tekst|https://...] → 🔗 Twój tekst
+
+Przykłady:
+• [tweet|Nowe ogłoszenie|https://x.com/hub/123]
+• [video|Obejrzyj tutorial|https://youtube.com/watch?v=abc123]
+• [doc|Dokumentacja HUB|https://docs.hub.com]` 
+      : 
+      `📋 LINK FORMATTING INSTRUCTIONS
+
+Use syntax: [type|text|url]
+
+Available link types:
+• [tweet|Your text|https://x.com/...] → 📢 Your text
+• [video|Your text|https://youtube.com/...] → 🎥 Your text  
+• [doc|Your text|https://docs.com/...] → 📚 Your text
+• [discord|Your text|https://discord.gg/...] → 🎮 Your text
+• [announce|Your text|https://...] → 📢 Your text
+• [link|Your text|https://...] → 🔗 Your text
+
+Examples:
+• [tweet|New announcement|https://x.com/hub/123]
+• [video|Watch tutorial|https://youtube.com/watch?v=abc123]
+• [doc|HUB Documentation|https://docs.hub.com]`
+  };
+
+  // POŁĄCZ SEKCJE - DODAJ SEKCJĘ ADMINA NA POCZĄTKU
+  const allSections = isAdmin ? [adminFormattingSection, ...helpSections] : helpSections;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -64,7 +113,7 @@ const HelpTooltip = () => {
                 </h3>
                 <p className="text-gray-400 text-lg">
                   {expandedSection 
-                    ? helpSections.find(s => s.id === expandedSection)?.title
+                    ? allSections.find(s => s.id === expandedSection)?.title
                     : t.selectSection
                   }
                 </p>
@@ -123,23 +172,34 @@ const HelpTooltip = () => {
                 
                 <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl p-8">
                   <div className="flex items-center gap-4 mb-6">
-                    <div className="w-16 h-16 bg-cyan-500/20 rounded-2xl flex items-center justify-center text-2xl">
-                      {helpSections.find(s => s.id === expandedSection)?.icon}
+                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl ${
+                      expandedSection === 'admin-formatting'
+                        ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20'
+                        : 'bg-cyan-500/20'
+                    }`}>
+                      {allSections.find(s => s.id === expandedSection)?.icon}
                     </div>
                     <div>
-                      <h4 className="text-2xl font-bold text-cyan-400">
-                        {helpSections.find(s => s.id === expandedSection)?.title}
+                      <h4 className={`text-2xl font-bold ${
+                        expandedSection === 'admin-formatting' ? 'text-purple-400' : 'text-cyan-400'
+                      }`}>
+                        {allSections.find(s => s.id === expandedSection)?.title}
+                        {expandedSection === 'admin-formatting' && (
+                          <span className="text-purple-300 text-sm ml-2">👑</span>
+                        )}
                       </h4>
                       <p className="text-gray-400">
-                        {t.section} {expandedSection} {t.of} {helpSections.length}
+                        {t.section} {expandedSection} {t.of} {allSections.length}
                       </p>
                     </div>
                   </div>
 
                   <div className="text-gray-300 text-lg leading-relaxed space-y-4">
-                    {helpSections.find(s => s.id === expandedSection)?.content.split('\n').map((line, lineIndex) => (
+                    {allSections.find(s => s.id === expandedSection)?.content.split('\n').map((line, lineIndex) => (
                       <div key={lineIndex} className="flex items-start gap-3">
-                        <span className="text-cyan-400 text-xl mt-1">•</span>
+                        <span className={`text-xl mt-1 ${
+                          expandedSection === 'admin-formatting' ? 'text-purple-400' : 'text-cyan-400'
+                        }`}>•</span>
                         <span className="flex-1">{line}</span>
                       </div>
                     ))}
@@ -149,12 +209,12 @@ const HelpTooltip = () => {
                   <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-700/50">
                     <button
                       onClick={() => {
-                        const currentIndex = helpSections.findIndex(s => s.id === expandedSection);
+                        const currentIndex = allSections.findIndex(s => s.id === expandedSection);
                         if (currentIndex > 0) {
-                          setExpandedSection(helpSections[currentIndex - 1].id);
+                          setExpandedSection(allSections[currentIndex - 1].id);
                         }
                       }}
-                      disabled={expandedSection === helpSections[0].id}
+                      disabled={expandedSection === allSections[0].id}
                       className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-400 hover:text-white hover:border-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       {t.previous}
@@ -162,12 +222,12 @@ const HelpTooltip = () => {
                     
                     <button
                       onClick={() => {
-                        const currentIndex = helpSections.findIndex(s => s.id === expandedSection);
-                        if (currentIndex < helpSections.length - 1) {
-                          setExpandedSection(helpSections[currentIndex + 1].id);
+                        const currentIndex = allSections.findIndex(s => s.id === expandedSection);
+                        if (currentIndex < allSections.length - 1) {
+                          setExpandedSection(allSections[currentIndex + 1].id);
                         }
                       }}
-                      disabled={expandedSection === helpSections[helpSections.length - 1].id}
+                      disabled={expandedSection === allSections[allSections.length - 1].id}
                       className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-400 hover:text-white hover:border-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     >
                       {t.next}
@@ -179,30 +239,47 @@ const HelpTooltip = () => {
               // WIDOK LISTY SEKCJI
               <div className="p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {helpSections.map((section) => (
+                  {allSections.map((section) => (
                     <button
                       key={section.id}
                       onClick={() => setExpandedSection(section.id)}
-                      className="bg-gray-700/60 border border-gray-600/50 rounded-2xl p-6 transition-all hover:border-cyan-500/50 hover:bg-gray-700/80 hover:transform hover:scale-[1.02] text-left group"
+                      className={`bg-gray-700/60 border rounded-2xl p-6 transition-all hover:border-cyan-500/50 hover:bg-gray-700/80 hover:transform hover:scale-[1.02] text-left group ${
+                        section.id === 'admin-formatting' 
+                          ? 'border-purple-500/50 bg-purple-500/10' 
+                          : 'border-gray-600/50'
+                      }`}
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform ${
+                          section.id === 'admin-formatting'
+                            ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20'
+                            : 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20'
+                        }`}>
                           {section.icon}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="w-6 h-6 bg-cyan-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                              {section.id}
+                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                              section.id === 'admin-formatting' ? 'bg-purple-500' : 'bg-cyan-500'
+                            }`}>
+                              {section.id === 'admin-formatting' ? 'A' : section.id}
                             </span>
-                            <h4 className="text-cyan-400 font-semibold text-lg">
+                            <h4 className={`font-semibold text-lg ${
+                              section.id === 'admin-formatting' ? 'text-purple-400' : 'text-cyan-400'
+                            }`}>
                               {section.title}
+                              {section.id === 'admin-formatting' && (
+                                <span className="text-purple-300 text-sm ml-2">👑</span>
+                              )}
                             </h4>
                           </div>
                           <p className="text-gray-400 text-sm">
                             {language === 'pl' ? 'Kliknij aby poznać szczegóły...' : 'Click to learn more...'}
                           </p>
                         </div>
-                        <div className="text-gray-400 group-hover:text-cyan-400 transition-colors">
+                        <div className={`transition-colors ${
+                          section.id === 'admin-formatting' ? 'text-purple-400' : 'text-gray-400'
+                        } group-hover:text-cyan-400`}>
                           <span className="text-xl">→</span>
                         </div>
                       </div>
