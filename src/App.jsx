@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -36,14 +35,16 @@ function App() {
     showNicknameModal, 
     setShowNicknameModal,
     registerUser,
-    updateUserLastSeen 
+    updateUserLastSeen,
+    deleteMessage // DODANE: funkcja usuwania wiadomości
   } = useFirebase(address);
 
   const { 
     onlineUsers, 
     allUsers, 
     unreadCounts,
-    totalUnreadCount 
+    totalUnreadCount,
+    markAsRead // DODANE: funkcja oznaczania jako przeczytane
   } = useUsers(address, currentUser);
 
   const {
@@ -177,6 +178,7 @@ function App() {
           <PublicChat 
             currentUser={userWithBalance}
             onUpdateLastSeen={updateUserLastSeen}
+            onDeleteMessage={deleteMessage} // DODANE: przekazanie funkcji usuwania
           />
         </div>
 
@@ -186,6 +188,7 @@ function App() {
             activeDMChat={activeDMChat}
             currentUser={userWithBalance}
             onClose={closeDMChat}
+            onMarkAsRead={markAsRead} // DODANE: przekazanie funkcji oznaczania jako przeczytane
           />
         )}
       </div>

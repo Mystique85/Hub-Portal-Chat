@@ -1,14 +1,14 @@
-// src/hooks/useFirebase.js
 import { useState, useEffect } from 'react';
 import { 
   doc, 
   getDoc, 
   setDoc, 
   updateDoc, 
+  deleteDoc,
   serverTimestamp 
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { CREATOR_ADDRESS } from '../utils/constants';
+import { CREATOR_ADDRESS, ADMIN_ADDRESSES } from '../utils/constants';
 
 export const useFirebase = (address) => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -81,11 +81,30 @@ export const useFirebase = (address) => {
     }
   };
 
+  // DODANA FUNKCJA: Usuwanie wiadomości (tylko dla adminów)
+  const deleteMessage = async (messageId) => {
+    if (!address || !ADMIN_ADDRESSES.includes(address.toLowerCase())) {
+      alert('Only admins can delete messages');
+      return false;
+    }
+
+    try {
+      await deleteDoc(doc(db, 'messages', messageId));
+      console.log('✅ Message deleted successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Error deleting message:', error);
+      alert('Failed to delete message: ' + error.message);
+      return false;
+    }
+  };
+
   return {
     currentUser,
     showNicknameModal,
     setShowNicknameModal,
     registerUser,
-    updateUserLastSeen
+    updateUserLastSeen,
+    deleteMessage // DODANE: funkcja usuwania
   };
 };

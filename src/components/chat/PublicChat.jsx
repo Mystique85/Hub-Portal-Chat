@@ -1,4 +1,3 @@
-// src/components/chat/PublicChat.jsx - POPRAWIONA WERSJA
 import { useState, useEffect, useRef } from 'react';
 import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
@@ -6,7 +5,7 @@ import { db } from '../../config/firebase';
 import MessageList from './MessageList';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../utils/constants';
 
-const PublicChat = ({ currentUser, onUpdateLastSeen }) => {
+const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -111,6 +110,14 @@ const PublicChat = ({ currentUser, onUpdateLastSeen }) => {
     }
   };
 
+  // DODANA FUNKCJA: Obsługa usuwania wiadomości
+  const handleDeleteMessage = async (messageId) => {
+    if (onDeleteMessage) {
+      return await onDeleteMessage(messageId);
+    }
+    return false;
+  };
+
   return (
     <section className="flex-1 flex flex-col p-6 min-h-0">
       {/* Messages List */}
@@ -118,6 +125,7 @@ const PublicChat = ({ currentUser, onUpdateLastSeen }) => {
         <MessageList 
           messages={messages}
           currentUser={currentUser}
+          onDeleteMessage={handleDeleteMessage} // DODANE: przekazanie funkcji usuwania
         />
         <div ref={messagesEndRef} />
       </div>

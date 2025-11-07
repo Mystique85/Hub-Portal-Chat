@@ -1,7 +1,6 @@
-// src/components/chat/MessageList.jsx
 import MessageItem from './MessageItem';
 
-const MessageList = ({ messages, currentUser }) => {
+const MessageList = ({ messages, currentUser, onDeleteMessage }) => {
   if (messages.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -15,12 +14,13 @@ const MessageList = ({ messages, currentUser }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-5xl px-6 w-full">
       {messages.map(msg => (
         <MessageItem 
           key={msg.id} 
           msg={msg}
           currentUser={currentUser}
+          onDeleteMessage={onDeleteMessage}
         />
       ))}
     </div>

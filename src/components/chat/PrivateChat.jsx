@@ -1,4 +1,3 @@
-// src/components/chat/PrivateChat.jsx
 import { useState, useEffect, useRef } from 'react';
 import { 
   collection, 
@@ -11,8 +10,9 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
+import { ADMIN_ADDRESSES } from '../../utils/constants';
 
-const PrivateChat = ({ activeDMChat, currentUser, onClose }) => {
+const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
   const [privateMessages, setPrivateMessages] = useState([]);
   const [privateMessageInput, setPrivateMessageInput] = useState('');
   const [isSendingPrivate, setIsSendingPrivate] = useState(false);
@@ -21,6 +21,14 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose }) => {
 
   useEffect(() => {
     if (!activeDMChat || !db) return;
+
+    // OZNACZ JAKO PRZECZYTANE gdy otwieramy chat
+    const otherParticipant = Object.keys(activeDMChat.participantNames)
+      .find(key => key !== currentUser.walletAddress.toLowerCase());
+    
+    if (otherParticipant && onMarkAsRead) {
+      onMarkAsRead(otherParticipant);
+    }
 
     const privateMessagesQuery = query(
       collection(db, 'private_chats', activeDMChat.id, 'messages'),
@@ -81,6 +89,9 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose }) => {
   const otherParticipant = Object.keys(activeDMChat.participantNames)
     .find(key => key !== currentUser.walletAddress.toLowerCase());
 
+  // SPRAWDŹ CZY TO ADMIN
+  const isOtherAdmin = ADMIN_ADDRESSES.includes(otherParticipant?.toLowerCase());
+
   return (
     <div className="w-96 bg-gray-800/50 backdrop-blur-xl border-l border-gray-700/50 flex flex-col h-full">
       {/* Chat Header */}
@@ -90,8 +101,13 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose }) => {
             {activeDMChat.participantAvatars[otherParticipant]}
           </div>
           <div>
-            <div className="text-white font-semibold">
+            <div className="text-white font-semibold flex items-center gap-2">
               {activeDMChat.participantNames[otherParticipant]}
+              {isOtherAdmin && (
+                <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium">
+                  ADMIN
+                </span>
+              )}
             </div>
             <div className="text-green-400 text-sm">Online</div>
           </div>
