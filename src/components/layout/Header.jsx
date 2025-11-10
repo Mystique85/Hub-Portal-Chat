@@ -1,6 +1,7 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import HelpTooltip from './HelpTooltip';
 import Donation from './Donation';
+import CeloHub from './CeloHub';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
 
 const Header = ({ currentUser, totalUnreadCount }) => {
@@ -31,6 +32,9 @@ const Header = ({ currentUser, totalUnreadCount }) => {
           
           {/* User Stats */}
           <div className="flex items-center gap-3">
+            {/* Celo Hub Resources */}
+            <CeloHub />
+            
             {/* Support Project Button - dla wszystkich */}
             <Donation />
             
