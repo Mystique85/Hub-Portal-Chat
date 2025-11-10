@@ -1,5 +1,6 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import HelpTooltip from './HelpTooltip';
+import Donation from './Donation';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
 
 const Header = ({ currentUser, totalUnreadCount }) => {
@@ -30,11 +31,9 @@ const Header = ({ currentUser, totalUnreadCount }) => {
           
           {/* User Stats */}
           <div className="flex items-center gap-3">
-            {isAdmin && (
-              <span className="px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-xl border border-purple-400/50">
-                👑 ADMIN
-              </span>
-            )}
+            {/* Support Project Button - dla wszystkich */}
+            <Donation />
+            
             <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
               💎 HC: {currentUser?.balance || '0'}
             </span>
