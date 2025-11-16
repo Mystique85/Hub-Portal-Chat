@@ -1,6 +1,8 @@
 // src/components/layout/Sidebar.jsx
+import { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import UserList from '../users/UserList';
+import { ADMIN_ADDRESSES } from '../../utils/constants';
 
 const Sidebar = ({
   currentUser,
@@ -13,9 +15,24 @@ const Sidebar = ({
   onStartPrivateChat,
   activeDMChat
 }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAdminDropdown, setShowAdminDropdown] = useState(false);
+
+  const filteredUsers = (activeTab === 'online' ? onlineUsers : allUsers).filter(user =>
+    user.nickname?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const admins = allUsers.filter(user => 
+    ADMIN_ADDRESSES.includes(user.walletAddress?.toLowerCase())
+  ).map(admin => ({
+    ...admin,
+    isOnline: onlineUsers.some(onlineUser => 
+      onlineUser.walletAddress === admin.walletAddress
+    )
+  }));
+
   return (
     <div className="w-80 bg-gray-800/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col h-full overflow-hidden">
-      {/* Header */}
       <div className="p-6 border-b border-gray-700/50 flex-shrink-0">
         <div className="flex items-center justify-center gap-3 mb-3">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
@@ -40,7 +57,6 @@ const Sidebar = ({
         </div>
       </div>
 
-      {/* Current User Info */}
       <div className="p-4 border-b border-gray-700/50 flex-shrink-0">
         {currentUser && (
           <div className="flex items-center gap-3 p-3 bg-gray-700/30 rounded-xl border border-gray-600/50">
@@ -61,7 +77,63 @@ const Sidebar = ({
         )}
       </div>
 
-      {/* Tabs - FINALNA WERSJA */}
+      {admins.length > 0 && (
+        <div className="p-4 border-b border-gray-700/50 flex-shrink-0 relative">
+          <button
+            onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+            className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/50 rounded-xl text-white hover:bg-purple-500/30 transition-all"
+          >
+            <div className="flex items-center gap-2">
+              <span>👑</span>
+              <span>Message Admin</span>
+            </div>
+            <span className={`transform transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`}>
+              ▼
+            </span>
+          </button>
+
+          {showAdminDropdown && (
+            <div className="absolute top-full left-4 right-4 mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-lg z-20 max-h-48 overflow-y-auto">
+              {admins.map(admin => (
+                <div
+                  key={admin.walletAddress}
+                  onClick={() => {
+                    onStartPrivateChat(admin);
+                    setShowAdminDropdown(false);
+                  }}
+                  className="flex items-center gap-2 p-2 hover:bg-gray-700/50 cursor-pointer transition-all border-b border-gray-700/50 last:border-b-0"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-xs">
+                    {admin.avatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-white text-sm font-medium truncate flex items-center gap-1">
+                      {admin.nickname}
+                      <span className="text-purple-400 text-xs font-medium">
+                        Admin
+                      </span>
+                    </div>
+                    <div className="text-gray-400 text-xs flex items-center gap-1">
+                      {admin.isOnline ? (
+                        <>
+                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                          Online
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                          Offline
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="p-4 border-b border-gray-700/50 flex-shrink-0">
         <div className="flex bg-gray-700/50 rounded-xl p-1 border border-gray-600/50">
           <button 
@@ -72,7 +144,7 @@ const Sidebar = ({
             }`}
             onClick={() => setActiveTab('online')}
           >
-            🟢 Online ({onlineUsers.length})
+            🟢 Online
           </button>
           <button 
             className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
@@ -82,32 +154,40 @@ const Sidebar = ({
             }`}
             onClick={() => setActiveTab('all')}
           >
-            👥 All Users ({allUsers.length})
+            👥 All Users
           </button>
         </div>
       </div>
 
-      {/* User List - FINALNA WERSJA */}
       <div className="flex-1 overflow-hidden flex flex-col p-4">
+        <div className="mb-3 flex-shrink-0">
+          <input
+            type="text"
+            placeholder="🔍 Search users..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          />
+        </div>
+
         <h4 className="text-gray-400 text-sm font-semibold mb-3 flex-shrink-0">
           {activeTab === 'online' 
-            ? `🟢 Online Now (${onlineUsers.length})` 
-            : `👥 All Registered Users (${allUsers.length})`
+            ? `🟢 Online Now (${filteredUsers.length})` 
+            : `👥 All Registered Users (${filteredUsers.length})`
           }
         </h4>
         
         <UserList
-          users={activeTab === 'online' ? onlineUsers : allUsers}
+          users={filteredUsers}
           currentUser={currentUser}
           unreadCounts={unreadCounts}
           onlineUsers={onlineUsers}
           onStartPrivateChat={onStartPrivateChat}
           activeDMChat={activeDMChat}
-          isOnlineList={activeTab === 'online'} // Nowy prop!
+          isOnlineList={activeTab === 'online'}
         />
       </div>
 
-      {/* Footer */}
       <div className="p-4 border-t border-gray-700/50 flex-shrink-0 space-y-3">
         <div className="flex justify-between items-center p-3 bg-gray-700/30 rounded-xl border border-gray-600/50">
           <span className="text-gray-400 text-sm">Daily Rewards:</span>
