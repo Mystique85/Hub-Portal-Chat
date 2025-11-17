@@ -182,7 +182,7 @@ function App() {
             activeDMChat={activeDMChat}
           />
           
-          <div className="flex-1 overflow-hidden bg-gray-900/50">
+          <div className="flex-1 overflow-auto bg-gray-900/50">
             {mobileView === 'public' && (
               <PublicChat 
                 currentUser={userWithBalance}
