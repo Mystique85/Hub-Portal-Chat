@@ -1,0 +1,36 @@
+{
+  "frame": {
+    "name": "HUB Chat",
+    "version": "1",
+    "iconUrl": "https://emerald-gentle-buzzard-313.mypinata.cloud/ipfs/bafybeiekz7v3asugy657ddwrngotothz2xvh35rcnqmjgnxtdzn62rapqq",
+    "homeUrl": "https://hub-portal-chat.vercel.app/",
+    "imageUrl": "https://emerald-gentle-buzzard-313.mypinata.cloud/ipfs/bafybeiekz7v3asugy657ddwrngotothz2xvh35rcnqmjgnxtdzn62rapqq",
+    "buttonTitle": "Open HUB Chat",
+    "splashImageUrl": "https://emerald-gentle-buzzard-313.mypinata.cloud/ipfs/bafybeiekz7v3asugy657ddwrngotothz2xvh35rcnqmjgnxtdzn62rapqq",
+    "splashBackgroundColor": "#1a1f2e",
+    "subtitle": "Connect and share instantly",
+    "description": "Web3 social chat platform with token rewards. Connect with community, private messaging, and earn rewards on Celo blockchain.",
+    "screenshotUrls": [
+      "https://emerald-gentle-buzzard-313.mypinata.cloud/ipfs/bafybeibytlb7g7z442vrhfj7e3gg2keknrmcnt7bln5nc4v4dvccirbebu"
+    ],
+    "primaryCategory": "social",
+    "tags": [
+      "web3",
+      "social",
+      "celo",
+      "messaging",
+      "airdrops"
+    ],
+    "heroImageUrl": "https://emerald-gentle-buzzard-313.mypinata.cloud/ipfs/bafybeiekz7v3asugy657ddwrngotothz2xvh35rcnqmjgnxtdzn62rapqq",
+    "tagline": "Chat, Connect and Earn in Web3",
+    "ogTitle": "HUB Chat - Social Platform",
+    "ogDescription": "Decentralized social chat with token rewards on Celo blockchain",
+    "ogImageUrl": "https://emerald-gentle-buzzard-313.mypinata.cloud/ipfs/bafybeiekz7v3asugy657ddwrngotothz2xvh35rcnqmjgnxtdzn62rapqq",
+    "castShareUrl": "https://warpcast.com/~/compose?text=Check+out+HUB+Chat+-+Web3+social+platform+with+token+rewards+on+Celo+blockchain"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjQ1MjU4NiwidHlwZSI6ImF1dGgiLCJrZXkiOiIweDFBNmMxOUVGMmMxRkY3MDMzMThmRGQwZmM1NkRDMDQ2RTQ1MjFiODcifQ",
+    "payload": "eyJkb21haW4iOiJodHRwczovL2h1Yi1wb3J0YWwtY2hhdC52ZXJjZWwuYXBwLyJ9",
+    "signature": "jx/bj6OLAlCX+SUMMuBKbp03yxgS901uvQNaCdXBNrIFnqRtEo8cPjNbGPwFNvoMbIiTtmRBI5x2FJjdL6WWpxw="
+  }
+}
