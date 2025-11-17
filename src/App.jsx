@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { sdk } from '@farcaster/miniapp-sdk';
 
 import NetworkBackground from './components/layout/NetworkBackground';
 import Sidebar from './components/layout/Sidebar';
@@ -28,6 +29,18 @@ function App() {
   const [showUserStats, setShowUserStats] = useState(false);
   const [activeTab, setActiveTab] = useState('online');
   
+  // DODANE: Inicjalizacja Farcaster Mini App
+  useEffect(() => {
+    (async () => {
+      try {
+        await sdk.actions.ready();
+        console.log('✅ Farcaster Mini App ready!');
+      } catch (error) {
+        console.error('❌ Farcaster init error:', error);
+      }
+    })();
+  }, []);
+
   const { 
     currentUser, 
     showNicknameModal, 
