@@ -71,6 +71,16 @@ function App() {
     remaining
   } : null;
 
+  // ===== Dodany kod do ukrywania splash screen =====
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      import('@farcaster/frame-sdk').then(({ sdk }) => {
+        sdk.actions.ready();
+      });
+    }
+  }, []);
+  // ==================================================
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -181,7 +191,6 @@ function App() {
             activeDMChat={activeDMChat}
           />
           
-          {/* JEDYNA ZMIANA: overflow-auto → min-h-0 */}
           <div className="flex-1 min-h-0 bg-gray-900/50">
             {mobileView === 'public' && (
               <PublicChat 
