@@ -34,8 +34,28 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
     return () => unsubscribeMessages();
   }, []);
 
+  // JEDYNA ZMIANA: Poprawione scrollowanie
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const scrollToBottom = () => {
+      if (messagesEndRef.current) {
+        // Scroll z offsetem - uwzględniając input
+        messagesEndRef.current.scrollIntoView({ 
+          behavior: 'auto',
+          block: 'end',
+          inline: 'nearest'
+        });
+      }
+    };
+    
+    // Kilkukrotne scrollowanie dla pewności
+    scrollToBottom();
+    const timer1 = setTimeout(scrollToBottom, 200);
+    const timer2 = setTimeout(scrollToBottom, 500);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
   }, [messages]);
 
   useEffect(() => {
@@ -112,9 +132,9 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
   };
 
   return (
-    <section className={`flex flex-col h-full min-h-0 ${isMobile ? 'p-3' : 'p-6'}`}> {/* ← DODAJ min-h-0 */}
+    <section className={`flex flex-col h-full min-h-0 ${isMobile ? 'p-3' : 'p-6'}`}>
       {/* Messages List - scrollable */}
-      <div className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'mb-3' : 'mb-4'}`}> {/* ← DODAJ min-h-0 */}
+      <div className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'mb-3' : 'mb-4'}`}>
         <MessageList 
           messages={messages}
           currentUser={currentUser}

@@ -6,6 +6,16 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Funkcja do formatowania daty
+  const formatMessageTime = (timestamp) => {
+    if (!timestamp?.toDate) return 'Now';
+    
+    const messageDate = timestamp.toDate();
+    
+    // ZAWSZE pokazuj dzień.miesiąc godzina:minuta
+    return `${messageDate.getDate().toString().padStart(2, '0')}.${(messageDate.getMonth() + 1).toString().padStart(2, '0')} ${messageDate.getHours().toString().padStart(2, '0')}:${messageDate.getMinutes().toString().padStart(2, '0')}`;
+  };
+
   // Funkcja do przetwarzania linków - TYLKO dla adminów
   const processMessageForEmbeds = (text, isAdmin) => {
     if (!isAdmin) return text;
@@ -119,10 +129,9 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage }) => {
               </span>
             )}
           </div>
+          {/* ZMIENIONE: Użyj nowej funkcji formatującej */}
           <span className="text-gray-400 text-sm">
-            {msg.timestamp?.toDate ? 
-              msg.timestamp.toDate().toLocaleTimeString() : 
-              'Just now'}
+            {formatMessageTime(msg.timestamp)}
           </span>
         </div>
       </div>
