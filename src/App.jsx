@@ -27,7 +27,7 @@ function App() {
   const [mobileView, setMobileView] = useState('public');
   const [showUserStats, setShowUserStats] = useState(false);
   const [activeTab, setActiveTab] = useState('online');
-  
+
   const { 
     currentUser, 
     showNicknameModal, 
@@ -71,6 +71,19 @@ function App() {
     remaining
   } : null;
 
+  // =============================
+  // Splash screen ready for Farcaster
+  // =============================
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      import('@farcaster/frame-sdk')
+        .then(({ sdk }) => {
+          sdk.actions.ready();
+        })
+        .catch((err) => console.error('Farcaster SDK failed to load:', err));
+    }
+  }, []);
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -107,49 +120,27 @@ function App() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 relative">
         <NetworkBackground />
-        
         <div className="text-center bg-gray-800/70 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-12 max-w-md w-full relative z-10">
           <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center">
-            <img 
-              src="/hublogo.svg" 
-              alt="HUB Portal" 
-              className="w-12 h-12"
-            />
+            <img src="/hublogo.svg" alt="HUB Portal" className="w-12 h-12"/>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-4">
-            HUB Portal
-          </h1>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-4">HUB Portal</h1>
           <p className="text-gray-400 text-lg mb-8">Decentralized Social Chat on Celo</p>
-          
           <div className="flex justify-center mb-8">
             <ConnectButton />
           </div>
-          
           <div className="flex justify-center gap-4 flex-wrap mt-8">
-            <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-300 text-sm">
-              💎 Earn HC Tokens
-            </span>
-            <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-300 text-sm">
-              🔒 Private Messages
-            </span>
+            <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-300 text-sm">💎 Earn HC Tokens</span>
+            <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-300 text-sm">🔒 Private Messages</span>
             <LoginHelpTooltip />
           </div>
         </div>
-
         <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center z-10">
           <div className="flex items-center gap-4 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30 rounded-2xl px-6 py-3">
-            <img 
-              src="/hublogo.svg" 
-              alt="HUB Ecosystem" 
-              className="w-6 h-6"
-            />
+            <img src="/hublogo.svg" alt="HUB Ecosystem" className="w-6 h-6"/>
             <div className="text-left">
-              <p className="text-gray-400 text-xs font-light">
-                © 2025 HUB Ecosystem. All rights reserved.
-              </p>
-              <p className="text-gray-500 text-xs">
-                Project by <span className="text-cyan-400 font-medium">@Mysticpol</span>
-              </p>
+              <p className="text-gray-400 text-xs font-light">© 2025 HUB Ecosystem. All rights reserved.</p>
+              <p className="text-gray-500 text-xs">Project by <span className="text-cyan-400 font-medium">@Mysticpol</span></p>
             </div>
           </div>
         </div>
@@ -160,7 +151,6 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white overflow-hidden">
       <NetworkBackground />
-      
       {toastNotification && (
         <ToastNotification 
           notification={toastNotification}
@@ -168,7 +158,6 @@ function App() {
           onClose={() => setToastNotification(null)}
         />
       )}
-
       {isMobile ? (
         <div className="flex flex-col h-screen relative z-10 overflow-hidden">
           <Header
@@ -180,8 +169,6 @@ function App() {
             onUserStatsClick={() => setShowUserStats(true)}
             activeDMChat={activeDMChat}
           />
-          
-          {/* JEDYNA ZMIANA: overflow-auto → min-h-0 */}
           <div className="flex-1 min-h-0 bg-gray-900/50">
             {mobileView === 'public' && (
               <PublicChat 
@@ -191,7 +178,6 @@ function App() {
                 isMobile={true}
               />
             )}
-            
             {mobileView === 'users' && (
               <Sidebar
                 isMobile={true}
@@ -207,7 +193,6 @@ function App() {
                 onMobileViewChange={setMobileView}
               />
             )}
-            
             {mobileView === 'private' && activeDMChat && (
               <PrivateChat
                 activeDMChat={activeDMChat}
@@ -224,25 +209,16 @@ function App() {
               <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl w-full max-w-sm">
                 <div className="flex items-center justify-between p-4 border-b border-gray-700">
                   <h3 className="text-lg font-bold text-cyan-400">My Profile</h3>
-                  <button 
-                    onClick={() => setShowUserStats(false)}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    ✕
-                  </button>
+                  <button onClick={() => setShowUserStats(false)} className="text-gray-400 hover:text-white">✕</button>
                 </div>
-                
                 <div className="p-4">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-xl">
-                      {currentUser?.avatar}
-                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-xl">{currentUser?.avatar}</div>
                     <div>
                       <div className="text-white font-semibold">{currentUser?.nickname}</div>
                       <div className="text-gray-400 text-sm">{address?.slice(0, 8)}...{address?.slice(-6)}</div>
                     </div>
                   </div>
-                  
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="bg-gray-700/50 rounded-xl p-3 text-center">
                       <div className="text-cyan-400 font-bold">{balance || '0'}</div>
@@ -253,17 +229,10 @@ function App() {
                       <div className="text-gray-400 text-xs">Rewards Left</div>
                     </div>
                   </div>
-                  
                   <div className="space-y-2">
-                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
-                      💝 Support Project
-                    </button>
-                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
-                      🌐 Celo Ecosystem Hub
-                    </button>
-                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
-                      ❓ Quick Guide
-                    </button>
+                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">💝 Support Project</button>
+                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">🌐 Celo Ecosystem Hub</button>
+                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">❓ Quick Guide</button>
                   </div>
                 </div>
               </div>
@@ -283,20 +252,14 @@ function App() {
             onStartPrivateChat={startPrivateChat}
             activeDMChat={activeDMChat}
           />
-
           <div className="flex-1 flex flex-col bg-gray-900/50 min-w-0">
-            <Header 
-              currentUser={userWithBalance}
-              totalUnreadCount={totalUnreadCount}
-            />
-            
+            <Header currentUser={userWithBalance} totalUnreadCount={totalUnreadCount}/>
             <PublicChat 
               currentUser={userWithBalance}
               onUpdateLastSeen={updateUserLastSeen}
               onDeleteMessage={deleteMessage}
             />
           </div>
-
           {activeDMChat && (
             <PrivateChat
               activeDMChat={activeDMChat}
