@@ -1,42 +1,41 @@
-import { useState } from 'react';
+// App.js
+import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-// Layout Components
 import NetworkBackground from './components/layout/NetworkBackground';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import LoginHelpTooltip from './components/layout/LoginHelpTooltip';
 
-// Chat Components
 import PublicChat from './components/chat/PublicChat';
 import PrivateChat from './components/chat/PrivateChat';
 
-// Modal Components
 import NicknameModal from './components/modals/NicknameModal';
 import PrivateChatModal from './components/modals/PrivateChatModal';
 import ToastNotification from './components/modals/ToastNotification';
 
-// Hooks
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
 import { useChat } from './hooks/useChat';
 import { useWeb3 } from './hooks/useWeb3';
 
-// Utils
 import { AVAILABLE_AVATARS } from './utils/constants';
 
 function App() {
   const { isConnected, address } = useAccount();
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileView, setMobileView] = useState('public');
+  const [showUserStats, setShowUserStats] = useState(false);
+  const [activeTab, setActiveTab] = useState('online');
   
-  // Custom Hooks
   const { 
     currentUser, 
     showNicknameModal, 
     setShowNicknameModal,
     registerUser,
     updateUserLastSeen,
-    deleteMessage // DODANE: funkcja usuwania wiadomości
+    deleteMessage
   } = useFirebase(address);
 
   const { 
@@ -44,7 +43,7 @@ function App() {
     allUsers, 
     unreadCounts,
     totalUnreadCount,
-    markAsRead // DODANE: funkcja oznaczania jako przeczytane
+    markAsRead
   } = useUsers(address, currentUser);
 
   const {
@@ -62,26 +61,47 @@ function App() {
 
   const { balance, remaining } = useWeb3(address);
 
-  // Local State
-  const [activeTab, setActiveTab] = useState('online');
   const [privateMessage, setPrivateMessage] = useState('');
   const [nicknameInput, setNicknameInput] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('🐶');
   const [toastNotification, setToastNotification] = useState(null);
 
-  // Update user data with balance
   const userWithBalance = currentUser ? {
     ...currentUser,
     balance,
     remaining
   } : null;
 
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (activeDMChat && isMobile) {
+      setMobileView('private');
+    }
+  }, [activeDMChat, isMobile]);
+
   const openChatFromToast = async (userId) => {
     const user = allUsers.find(u => u.walletAddress === userId);
     if (user) {
       await startPrivateChat(user);
       setToastNotification(null);
+      if (isMobile) setMobileView('private');
     }
+  };
+
+  const handleStartPrivateChat = async (user) => {
+    await startPrivateChat(user);
+    if (isMobile) setMobileView('private');
+  };
+
+  const handleCloseDMChat = () => {
+    closeDMChat();
+    if (isMobile) setMobileView('public');
   };
 
   if (!isConnected) {
@@ -102,12 +122,10 @@ function App() {
           </h1>
           <p className="text-gray-400 text-lg mb-8">Decentralized Social Chat on Celo</p>
           
-          {/* Connect Button - teraz sam */}
           <div className="flex justify-center mb-8">
             <ConnectButton />
           </div>
           
-          {/* Feature boxes - ZASTĄPIONY 🌍 Celo Network z ❓ Quick Start */}
           <div className="flex justify-center gap-4 flex-wrap mt-8">
             <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-300 text-sm">
               💎 Earn HC Tokens
@@ -115,7 +133,6 @@ function App() {
             <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-300 text-sm">
               🔒 Private Messages
             </span>
-            {/* ZASTĄPIONE: 🌍 Celo Network -> ❓ Quick Start */}
             <LoginHelpTooltip />
           </div>
         </div>
@@ -145,7 +162,6 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white overflow-hidden">
       <NetworkBackground />
       
-      {/* Toast Notifications */}
       {toastNotification && (
         <ToastNotification 
           notification={toastNotification}
@@ -154,46 +170,144 @@ function App() {
         />
       )}
 
-      <div className="flex h-screen relative z-10">
-        {/* Sidebar */}
-        <Sidebar
-          currentUser={userWithBalance}
-          onlineUsers={onlineUsers}
-          allUsers={allUsers}
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          totalUnreadCount={totalUnreadCount}
-          unreadCounts={unreadCounts}
-          onStartPrivateChat={startPrivateChat}
-          activeDMChat={activeDMChat}
-        />
-
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col bg-gray-900/50 min-w-0">
-          <Header 
+      {isMobile ? (
+        <div className="flex flex-col h-screen relative z-10">
+          <Header
+            isMobile={true}
             currentUser={userWithBalance}
             totalUnreadCount={totalUnreadCount}
+            mobileView={mobileView}
+            onMobileViewChange={setMobileView}
+            onUserStatsClick={() => setShowUserStats(true)}
+            activeDMChat={activeDMChat}
           />
           
-          <PublicChat 
-            currentUser={userWithBalance}
-            onUpdateLastSeen={updateUserLastSeen}
-            onDeleteMessage={deleteMessage} // DODANE: przekazanie funkcji usuwania
-          />
+          <div className="flex-1 overflow-hidden bg-gray-900/50">
+            {mobileView === 'public' && (
+              <PublicChat 
+                currentUser={userWithBalance}
+                onUpdateLastSeen={updateUserLastSeen}
+                onDeleteMessage={deleteMessage}
+                isMobile={true}
+              />
+            )}
+            
+            {mobileView === 'users' && (
+              <Sidebar
+                isMobile={true}
+                currentUser={userWithBalance}
+                onlineUsers={onlineUsers}
+                allUsers={allUsers}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                totalUnreadCount={totalUnreadCount}
+                unreadCounts={unreadCounts}
+                onStartPrivateChat={handleStartPrivateChat}
+                activeDMChat={activeDMChat}
+                onMobileViewChange={setMobileView}
+              />
+            )}
+            
+            {mobileView === 'private' && activeDMChat && (
+              <PrivateChat
+                activeDMChat={activeDMChat}
+                currentUser={userWithBalance}
+                onClose={handleCloseDMChat}
+                onMarkAsRead={markAsRead}
+                isMobile={true}
+              />
+            )}
+          </div>
+
+          {showUserStats && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl w-full max-w-sm">
+                <div className="flex items-center justify-between p-4 border-b border-gray-700">
+                  <h3 className="text-lg font-bold text-cyan-400">My Profile</h3>
+                  <button 
+                    onClick={() => setShowUserStats(false)}
+                    className="text-gray-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                </div>
+                
+                <div className="p-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-xl">
+                      {currentUser?.avatar}
+                    </div>
+                    <div>
+                      <div className="text-white font-semibold">{currentUser?.nickname}</div>
+                      <div className="text-gray-400 text-sm">{address?.slice(0, 8)}...{address?.slice(-6)}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="bg-gray-700/50 rounded-xl p-3 text-center">
+                      <div className="text-cyan-400 font-bold">{balance || '0'}</div>
+                      <div className="text-gray-400 text-xs">HC Balance</div>
+                    </div>
+                    <div className="bg-gray-700/50 rounded-xl p-3 text-center">
+                      <div className="text-cyan-400 font-bold">{remaining || '0'}/10</div>
+                      <div className="text-gray-400 text-xs">Rewards Left</div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
+                      💝 Support Project
+                    </button>
+                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
+                      🌐 Celo Ecosystem Hub
+                    </button>
+                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
+                      ❓ Quick Guide
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-
-        {/* Private Chat Panel */}
-        {activeDMChat && (
-          <PrivateChat
-            activeDMChat={activeDMChat}
+      ) : (
+        <div className="flex h-screen relative z-10">
+          <Sidebar
             currentUser={userWithBalance}
-            onClose={closeDMChat}
-            onMarkAsRead={markAsRead} // DODANE: przekazanie funkcji oznaczania jako przeczytane
+            onlineUsers={onlineUsers}
+            allUsers={allUsers}
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            totalUnreadCount={totalUnreadCount}
+            unreadCounts={unreadCounts}
+            onStartPrivateChat={startPrivateChat}
+            activeDMChat={activeDMChat}
           />
-        )}
-      </div>
 
-      {/* Modals */}
+          <div className="flex-1 flex flex-col bg-gray-900/50 min-w-0">
+            <Header 
+              currentUser={userWithBalance}
+              totalUnreadCount={totalUnreadCount}
+            />
+            
+            <PublicChat 
+              currentUser={userWithBalance}
+              onUpdateLastSeen={updateUserLastSeen}
+              onDeleteMessage={deleteMessage}
+            />
+          </div>
+
+          {activeDMChat && (
+            <PrivateChat
+              activeDMChat={activeDMChat}
+              currentUser={userWithBalance}
+              onClose={closeDMChat}
+              onMarkAsRead={markAsRead}
+            />
+          )}
+        </div>
+      )}
+
       {showNicknameModal && (
         <NicknameModal
           currentUser={currentUser}
