@@ -1,4 +1,4 @@
-// src/components/layout/Sidebar.jsx
+// Sidebar.jsx
 import { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import UserList from '../users/UserList';
@@ -13,7 +13,9 @@ const Sidebar = ({
   totalUnreadCount,
   unreadCounts,
   onStartPrivateChat,
-  activeDMChat
+  activeDMChat,
+  isMobile = false,
+  onMobileViewChange
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAdminDropdown, setShowAdminDropdown] = useState(false);
@@ -31,6 +33,102 @@ const Sidebar = ({
     )
   }));
 
+  if (isMobile) {
+    return (
+      <div className="h-full flex flex-col bg-gray-900/50">
+        <div className="p-4 border-b border-gray-700/50">
+          <div className="flex bg-gray-700/50 rounded-xl p-1 border border-gray-600/50 mb-4">
+            <button 
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'online' 
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+              onClick={() => setActiveTab('online')}
+            >
+              🟢 Online
+            </button>
+            <button 
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'all' 
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+              onClick={() => setActiveTab('all')}
+            >
+              👥 All Users
+            </button>
+          </div>
+
+          <input
+            type="text"
+            placeholder="🔍 Search users..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
+          />
+        </div>
+
+        {admins.length > 0 && (
+          <div className="px-4 pb-3 border-b border-gray-700/50">
+            <div className="text-gray-400 text-sm font-semibold mb-2">👑 Admins</div>
+            <div className="space-y-2">
+              {admins.map(admin => (
+                <div
+                  key={admin.walletAddress}
+                  onClick={() => {
+                    onStartPrivateChat(admin);
+                    onMobileViewChange('private');
+                  }}
+                  className="flex items-center gap-2 p-2 hover:bg-gray-700/50 cursor-pointer transition-all rounded-xl border border-gray-600/30"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-xs">
+                    {admin.avatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-white text-sm font-medium truncate flex items-center gap-1">
+                      {admin.nickname}
+                    </div>
+                    <div className="text-gray-400 text-xs flex items-center gap-1">
+                      {admin.isOnline ? (
+                        <>
+                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                          Online
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                          Offline
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto p-4">
+          <UserList
+            users={filteredUsers}
+            currentUser={currentUser}
+            unreadCounts={unreadCounts}
+            onlineUsers={onlineUsers}
+            onStartPrivateChat={(user) => {
+              onStartPrivateChat(user);
+              onMobileViewChange('private');
+            }}
+            activeDMChat={activeDMChat}
+            isOnlineList={activeTab === 'online'}
+            isMobile={true}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // DESKTOP VERSION - ORYGINALNY KOD BEZ ZMIAN
   return (
     <div className="w-80 bg-gray-800/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col h-full overflow-hidden">
       <div className="p-6 border-b border-gray-700/50 flex-shrink-0">
