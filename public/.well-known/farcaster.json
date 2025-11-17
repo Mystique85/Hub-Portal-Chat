@@ -6,7 +6,7 @@
     "homeUrl": "https://hub-portal-chat.vercel.app/",
     "imageUrl": "https://emerald-gentle-buzzard-313.mypinata.cloud/ipfs/bafybeiekz7v3asugy657ddwrngotothz2xvh35rcnqmjgnxtdzn62rapqq",
     "buttonTitle": "Open HUB Chat",
-    "splashImageUrl": "https://emerald-gentle-buzzard-313.mypinata.cloud/ipfs/bafybeiekz7v3asugy657ddwrngotothz2xvh35rcnqmjgnxtdzn62rapqqvercel.app//splash.png",
+    "splashImageUrl": "https://emerald-gentle-buzzard-313.mypinata.cloud/ipfs/bafybeiekz7v3asugy657ddwrngotothz2xvh35rcnqmjgnxtdzn62rapqq",
     "splashBackgroundColor": "#1a1f2e",
     "subtitle": "Connect and share instantly",
     "description": "Web3 social chat platform with token rewards. Connect with community, private messaging, and earn rewards on Celo blockchain.",
@@ -25,11 +25,12 @@
     "tagline": "Chat, Connect and Earn in Web3",
     "ogTitle": "HUB Chat - Social Platform",
     "ogDescription": "Decentralized social chat with token rewards on Celo blockchain",
-    "ogImageUrl": "https://emerald-gentle-buzzard-313.mypinata.cloud/ipfs/bafybeiekz7v3asugy657ddwrngotothz2xvh35rcnqmjgnxtdzn62rapqq"
+    "ogImageUrl": "https://emerald-gentle-buzzard-313.mypinata.cloud/ipfs/bafybeiekz7v3asugy657ddwrngotothz2xvh35rcnqmjgnxtdzn62rapqq",
+    "castShareUrl": "https://warpcast.com/~/compose?text=Check+out+HUB+Chat+-+Web3+social+platform+with+token+rewards+on+Celo+blockchain"
   },
   "accountAssociation": {
     "header": "eyJmaWQiOjQ1MjU4NiwidHlwZSI6ImF1dGgiLCJrZXkiOiIweDFBNmMxOUVGMmMxRkY3MDMzMThmRGQwZmM1NkRDMDQ2RTQ1MjFiODcifQ",
-    "payload": "eyJkb21haW4iOiJodHRwcyJ9",
-    "signature": "2DRI9/ZdcobZGuBSt1HC6WRXV5C8gKvrN530xRIfmFgFqn4LEP4iY/Oj3stej+Hr784Qje2RKsSNMcrFaQXakhs="
+    "payload": "eyJkb21haW4iOiJodHRwczovL2h1Yi1wb3J0YWwtY2hhdC52ZXJjZWwuYXBwLyJ9",
+    "signature": "jx/bj6OLAlCX+SUMMuBKbp03yxgS901uvQNaCdXBNrIFnqRtEo8cPjNbGPwFNvoMbIiTtmRBI5x2FJjdL6WWpxw="
   }
 }
