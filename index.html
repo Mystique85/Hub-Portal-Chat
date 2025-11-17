@@ -8,6 +8,24 @@
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Farcaster SDK przez CDN -->
+    <script type="module">
+      import { isInFrame, ready } from 'https://unpkg.com/@farcaster/frame-sdk@0.2.4';
+      
+      // Inicjalizacja Farcaster
+      if (isInFrame()) {
+        // Daj czas Reactowi na załadowanie
+        setTimeout(() => {
+          ready().then(() => {
+            console.log('✅ Farcaster Mini App ready!');
+          }).catch(error => {
+            console.error('❌ Farcaster init error:', error);
+          });
+        }, 1000);
+      }
+    </script>
+    
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
