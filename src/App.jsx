@@ -182,40 +182,61 @@ function App() {
             activeDMChat={activeDMChat}
           />
           
-          <div className="flex-1 overflow-auto bg-gray-900/50">
+          <div className="flex-1 flex flex-col overflow-hidden bg-gray-900/50">
+            {/* Scrollable content area */}
+            <div className="flex-1 overflow-auto">
+              {mobileView === 'public' && (
+                <PublicChat 
+                  currentUser={userWithBalance}
+                  onUpdateLastSeen={updateUserLastSeen}
+                  onDeleteMessage={deleteMessage}
+                  isMobile={true}
+                />
+              )}
+              
+              {mobileView === 'users' && (
+                <Sidebar
+                  isMobile={true}
+                  currentUser={userWithBalance}
+                  onlineUsers={onlineUsers}
+                  allUsers={allUsers}
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  totalUnreadCount={totalUnreadCount}
+                  unreadCounts={unreadCounts}
+                  onStartPrivateChat={handleStartPrivateChat}
+                  activeDMChat={activeDMChat}
+                  onMobileViewChange={setMobileView}
+                />
+              )}
+              
+              {mobileView === 'private' && activeDMChat && (
+                <PrivateChat
+                  activeDMChat={activeDMChat}
+                  currentUser={userWithBalance}
+                  onClose={handleCloseDMChat}
+                  onMarkAsRead={markAsRead}
+                  isMobile={true}
+                />
+              )}
+            </div>
+            
+            {/* Fixed input bar - ONLY for public chat */}
             {mobileView === 'public' && (
-              <PublicChat 
-                currentUser={userWithBalance}
-                onUpdateLastSeen={updateUserLastSeen}
-                onDeleteMessage={deleteMessage}
-                isMobile={true}
-              />
-            )}
-            
-            {mobileView === 'users' && (
-              <Sidebar
-                isMobile={true}
-                currentUser={userWithBalance}
-                onlineUsers={onlineUsers}
-                allUsers={allUsers}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                totalUnreadCount={totalUnreadCount}
-                unreadCounts={unreadCounts}
-                onStartPrivateChat={handleStartPrivateChat}
-                activeDMChat={activeDMChat}
-                onMobileViewChange={setMobileView}
-              />
-            )}
-            
-            {mobileView === 'private' && activeDMChat && (
-              <PrivateChat
-                activeDMChat={activeDMChat}
-                currentUser={userWithBalance}
-                onClose={handleCloseDMChat}
-                onMarkAsRead={markAsRead}
-                isMobile={true}
-              />
+              <div className="flex-shrink-0 border-t border-gray-700/50 bg-gray-900/80 backdrop-blur-sm">
+                <div className="p-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Type your message..."
+                      className="flex-1 px-3 py-3 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                    <button className="px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all">
+                      ⬆️
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
