@@ -1,4 +1,3 @@
-// App.js
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -171,7 +170,7 @@ function App() {
       )}
 
       {isMobile ? (
-        <div className="flex flex-col h-screen relative z-10">
+        <div className="flex flex-col h-screen relative z-10 overflow-hidden">
           <Header
             isMobile={true}
             currentUser={userWithBalance}
@@ -182,7 +181,8 @@ function App() {
             activeDMChat={activeDMChat}
           />
           
-          <div className="flex-1 overflow-auto bg-gray-900/50">
+          {/* JEDYNA ZMIANA: overflow-auto → min-h-0 */}
+          <div className="flex-1 min-h-0 bg-gray-900/50">
             {mobileView === 'public' && (
               <PublicChat 
                 currentUser={userWithBalance}

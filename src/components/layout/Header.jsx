@@ -18,7 +18,7 @@ const Header = ({
 
   if (isMobile) {
     return (
-      <>
+      <div className="flex flex-col"> {/* ← DODAJ TEN KONTENER */}
         <header className="bg-gray-800/80 backdrop-blur-xl border-b border-gray-700/50 p-3 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -95,7 +95,7 @@ const Header = ({
             </button>
           </div>
         </nav>
-      </>
+      </div>
     );
   }
 

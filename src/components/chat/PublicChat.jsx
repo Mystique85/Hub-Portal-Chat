@@ -112,9 +112,9 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
   };
 
   return (
-    <section className={`flex flex-col h-full ${isMobile ? 'p-3' : 'p-6'}`}>
+    <section className={`flex flex-col h-full min-h-0 ${isMobile ? 'p-3' : 'p-6'}`}> {/* ← DODAJ min-h-0 */}
       {/* Messages List - scrollable */}
-      <div className={`flex-1 overflow-y-auto ${isMobile ? 'mb-3' : 'mb-4'}`}>
+      <div className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'mb-3' : 'mb-4'}`}> {/* ← DODAJ min-h-0 */}
         <MessageList 
           messages={messages}
           currentUser={currentUser}
