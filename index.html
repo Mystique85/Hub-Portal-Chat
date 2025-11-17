@@ -5,9 +5,47 @@
     <link rel="icon" type="image/svg+xml" href="/hublogo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HUB Portal - Decentralized Social Chat</title>
+    <style>
+      /* Minimalny CSS aby uniknąć jitter */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Farcaster SDK przez CDN z optymalnym ready() -->
+    <script type="module">
+      import { isInFrame, ready } from 'https://unpkg.com/@farcaster/frame-sdk@0.2.4';
+      
+      // Funkcja inicjalizacji Farcaster
+      const initFarcaster = async () => {
+        if (isInFrame()) {
+          try {
+            // Poczekaj aż DOM będzie gotowy
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', async () => {
+                await ready();
+                console.log('✅ Farcaster Mini App ready - DOM loaded!');
+              });
+            } else {
+              // DOM jest już gotowy
+              await ready();
+              console.log('✅ Farcaster Mini App ready!');
+            }
+          } catch (error) {
+            console.error('❌ Farcaster init error:', error);
+          }
+        }
+      };
+
+      // Uruchom inicjalizację
+      initFarcaster();
+    </script>
+    
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
