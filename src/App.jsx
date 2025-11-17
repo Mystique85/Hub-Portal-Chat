@@ -121,7 +121,8 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 relative">
         <NetworkBackground />
         
-        <div className="text-center bg-gray-800/70 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-12 max-w-md w-full relative z-10">
+        {/* ZMIANA: p-12 → p-6 sm:p-8 md:p-12 i dodane mx-4 - BEZ FOOTERA */}
+        <div className="text-center bg-gray-800/70 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-6 sm:p-8 md:p-12 max-w-md w-full relative z-10 mx-4">
           <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center">
             <img 
               src="/hublogo.svg" 
@@ -148,24 +149,8 @@ function App() {
             <LoginHelpTooltip />
           </div>
         </div>
-
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center z-10">
-          <div className="flex items-center gap-4 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30 rounded-2xl px-6 py-3">
-            <img 
-              src="/hublogo.svg" 
-              alt="HUB Ecosystem" 
-              className="w-6 h-6"
-            />
-            <div className="text-left">
-              <p className="text-gray-400 text-xs font-light">
-                © 2025 HUB Ecosystem. All rights reserved.
-              </p>
-              <p className="text-gray-500 text-xs">
-                Project by <span className="text-cyan-400 font-medium">@Mysticpol</span>
-              </p>
-            </div>
-          </div>
-        </div>
+        
+        {/* FOOTER USUNIĘTY */}
       </div>
     );
   }
