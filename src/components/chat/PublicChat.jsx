@@ -5,7 +5,7 @@ import { db } from '../../config/firebase';
 import MessageList from './MessageList';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../utils/constants';
 
-const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage }) => {
+const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile = false }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -14,7 +14,6 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage }) => {
   const messagesEndRef = useRef(null);
   const { writeContract, data: transactionHash } = useWriteContract();
   
-  // ✅ DODANE: Oczekiwanie na potwierdzenie transakcji
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: transactionHash,
   });
@@ -39,10 +38,8 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // ✅ DODANE: Obsługa potwierdzenia transakcji
   useEffect(() => {
     if (isConfirmed && pendingTransaction) {
-      // ✅ DOPIERO TERAZ dodajemy wiadomość do Firestore!
       addMessageToFirestore(pendingTransaction);
       setPendingTransaction(null);
     }
@@ -72,7 +69,6 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage }) => {
     setIsSending(true);
     
     try {
-      // ✅ ZAPISUJEMY dane wiadomości do późniejszego użycia
       const messageData = {
         content: newMessage,
         nickname: currentUser.nickname,
@@ -83,7 +79,6 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage }) => {
       
       setPendingTransaction(messageData);
       
-      // ✅ Wysyłamy transakcję do blockchain
       writeContract({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
@@ -91,13 +86,12 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage }) => {
         args: [newMessage],
       });
       
-      // ✅ Czyscimy input - użytkownik widzi że wiadomość "wysłała się"
       setNewMessage('');
       
     } catch (error) {
       console.error('Send message failed:', error);
       alert('Failed to send message: ' + (error.message || 'Check console for details'));
-      setPendingTransaction(null); // Reset jeśli błąd
+      setPendingTransaction(null);
     } finally {
       setIsSending(false);
     }
@@ -110,7 +104,6 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage }) => {
     }
   };
 
-  // DODANA FUNKCJA: Obsługa usuwania wiadomości
   const handleDeleteMessage = async (messageId) => {
     if (onDeleteMessage) {
       return await onDeleteMessage(messageId);
@@ -119,45 +112,47 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage }) => {
   };
 
   return (
-    <section className="flex-1 flex flex-col p-6 min-h-0">
-      {/* Messages List */}
-      <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+    <section className={`flex flex-col h-full ${isMobile ? 'p-3' : 'p-6'}`}>
+      {/* Messages List - scrollable */}
+      <div className={`flex-1 overflow-y-auto ${isMobile ? 'mb-3' : 'mb-4'}`}>
         <MessageList 
           messages={messages}
           currentUser={currentUser}
-          onDeleteMessage={handleDeleteMessage} // DODANE: przekazanie funkcji usuwania
+          onDeleteMessage={handleDeleteMessage}
         />
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Message Input */}
-      <div className="flex gap-3 bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-4 flex-shrink-0">
+      {/* Message Input - fixed at bottom */}
+      <div className={`flex gap-3 bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-4 flex-shrink-0 ${isMobile ? 'mt-auto' : ''}`}>
         <input 
           type="text" 
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Type your message in public chat... (Enter to send)"
+          placeholder={isMobile ? "Type your message..." : "Type your message in public chat... (Enter to send)"}
           disabled={isSending}
           className="flex-1 bg-transparent border-none text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 disabled:opacity-50"
         />
         <button 
           onClick={sendMessage}
           disabled={!newMessage.trim() || isSending}
-          className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0"
+          className={`bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0 ${
+            isMobile ? 'px-4 py-3' : 'px-6 py-3'
+          }`}
         >
           {isSending ? (
             <div className="flex items-center">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Sending...
+              {isMobile ? '' : 'Sending...'}
             </div>
           ) : isConfirming ? (
             <div className="flex items-center">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Confirming...
+              {isMobile ? '' : 'Confirming...'}
             </div>
           ) : (
-            'Send'
+            isMobile ? '⬆️' : 'Send'
           )}
         </button>
       </div>
