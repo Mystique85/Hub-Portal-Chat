@@ -1,3 +1,4 @@
+/* app.css */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -39,4 +40,284 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Mobile Styles */
+@media (max-width: 767px) {
+  #root {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .mobile-header {
+    height: 48px;
+    padding: 8px 12px;
+  }
+  
+  .mobile-footer {
+    height: 56px;
+    padding: 8px;
+  }
+  
+  .mobile-chat-input {
+    padding: 12px;
+  }
+  
+  .mobile-user-item {
+    padding: 8px 12px;
+  }
+  
+  .mobile-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .mobile-text-sm {
+    font-size: 14px;
+  }
+
+  .mobile-text-xs {
+    font-size: 12px;
+  }
+
+  .mobile-p-3 {
+    padding: 12px;
+  }
+
+  .mobile-p-4 {
+    padding: 16px;
+  }
+
+  .mobile-gap-2 {
+    gap: 8px;
+  }
+
+  .mobile-gap-3 {
+    gap: 12px;
+  }
+
+  /* Compact chat messages */
+  .mobile-chat-message {
+    padding: 8px 12px;
+    margin: 4px 0;
+  }
+
+  .mobile-chat-avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  /* Bottom navigation */
+  .mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(31, 41, 55, 0.9);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(75, 85, 99, 0.5);
+    z-index: 40;
+  }
+
+  .mobile-bottom-nav-button {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 4px;
+  }
+
+  /* User stats modal */
+  .mobile-user-stats-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 320px;
+    z-index: 50;
+  }
+
+  /* Compact user list */
+  .mobile-user-list-item {
+    padding: 12px;
+    margin: 4px 0;
+  }
+
+  .mobile-user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  /* Search input */
+  .mobile-search-input {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  /* Tab buttons */
+  .mobile-tab-button {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  /* Connect button mobile */
+  .mobile-connect-button {
+    transform: scale(0.9);
+  }
+}
+
+/* Desktop Styles (existing) */
+@media (min-width: 768px) {
+  .desktop-sidebar {
+    width: 320px;
+  }
+
+  .desktop-chat {
+    flex: 1;
+  }
+
+  .desktop-private-chat {
+    width: 384px;
+  }
+}
+
+/* Common responsive utilities */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(75, 85, 99, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.5);
+}
+
+/* Focus styles */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid rgb(6, 182, 212);
+  outline-offset: 2px;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, rgb(34, 211, 238), rgb(6, 182, 212));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Backdrop blur support */
+@supports (backdrop-filter: blur(10px)) {
+  .backdrop-blur-xl {
+    backdrop-filter: blur(20px);
+  }
+}
+
+@supports not (backdrop-filter: blur(10px)) {
+  .backdrop-blur-xl {
+    background-color: rgba(31, 41, 55, 0.9);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .bg-gray-800 {
+    background-color: #000;
+  }
+  
+  .text-gray-400 {
+    color: #fff;
+  }
+  
+  .border-gray-700 {
+    border-color: #fff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+  .dark\:bg-gray-900 {
+    background-color: rgb(17, 24, 39);
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
 }
