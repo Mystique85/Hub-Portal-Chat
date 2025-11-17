@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { sdk } from "@farcaster/frame-sdk"; // <-- DODANE
 import { useAccount } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
@@ -83,6 +84,11 @@ function App() {
       setMobileView('private');
     }
   }, [activeDMChat, isMobile]);
+
+  // <-- DODANE: powiadom Warpcast, że MiniApp jest gotowa
+  useEffect(() => {
+    sdk.actions.ready();
+  }, []);
 
   const openChatFromToast = async (userId) => {
     const user = allUsers.find(u => u.walletAddress === userId);
@@ -181,7 +187,6 @@ function App() {
             activeDMChat={activeDMChat}
           />
           
-          {/* JEDYNA ZMIANA: overflow-auto → min-h-0 */}
           <div className="flex-1 min-h-0 bg-gray-900/50">
             {mobileView === 'public' && (
               <PublicChat 
