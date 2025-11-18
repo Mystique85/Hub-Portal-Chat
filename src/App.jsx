@@ -8,11 +8,6 @@ import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import LoginHelpTooltip from './components/layout/LoginHelpTooltip';
 
-// DODAJ IMPORTY MODALI
-import Donation from './components/layout/Donation';
-import CeloHub from './components/layout/CeloHub';
-import HelpTooltip from './components/layout/HelpTooltip';
-
 import PublicChat from './components/chat/PublicChat';
 import PrivateChat from './components/chat/PrivateChat';
 
@@ -33,11 +28,6 @@ function App() {
   const [mobileView, setMobileView] = useState('public');
   const [showUserStats, setShowUserStats] = useState(false);
   const [activeTab, setActiveTab] = useState('online');
-  
-  // DODANE: Stany dla modalów mobile
-  const [showDonationModal, setShowDonationModal] = useState(false);
-  const [showCeloHubModal, setShowCeloHubModal] = useState(false);
-  const [showHelpTooltipModal, setShowHelpTooltipModal] = useState(false);
   
   // DODANE: Inicjalizacja Farcaster Mini App
   useEffect(() => {
@@ -131,7 +121,6 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 relative">
         <NetworkBackground />
         
-        {/* ZMIANA: p-12 → p-6 sm:p-8 md:p-12 i dodane mx-4 - BEZ FOOTERA */}
         <div className="text-center bg-gray-800/70 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-6 sm:p-8 md:p-12 max-w-md w-full relative z-10 mx-4">
           <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center">
             <img 
@@ -159,8 +148,6 @@ function App() {
             <LoginHelpTooltip />
           </div>
         </div>
-        
-        {/* FOOTER USUNIĘTY */}
       </div>
     );
   }
@@ -189,7 +176,6 @@ function App() {
             activeDMChat={activeDMChat}
           />
           
-          {/* JEDYNA ZMIANA: overflow-auto → min-h-0 */}
           <div className="flex-1 min-h-0 bg-gray-900/50">
             {mobileView === 'public' && (
               <PublicChat 
@@ -227,7 +213,7 @@ function App() {
             )}
           </div>
 
-          {/* MODAL USER STATS - DODANE onClick HANDLERS */}
+          {/* ORYGINALNY My Profile modal - BEZ ZMIAN */}
           {showUserStats && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
               <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl w-full max-w-sm">
@@ -263,33 +249,15 @@ function App() {
                     </div>
                   </div>
                   
+                  {/* ✅ ORYGINALNE PRZYCISKI - BEZ ZMIAN */}
                   <div className="space-y-2">
-                    {/* DODANE: Przyciski z onClick handlers */}
-                    <button 
-                      onClick={() => {
-                        setShowUserStats(false);
-                        setShowDonationModal(true);
-                      }}
-                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
-                    >
+                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
                       💝 Support Project
                     </button>
-                    <button 
-                      onClick={() => {
-                        setShowUserStats(false);
-                        setShowCeloHubModal(true);
-                      }}
-                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
-                    >
+                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
                       🌐 Celo Ecosystem Hub
                     </button>
-                    <button 
-                      onClick={() => {
-                        setShowUserStats(false);
-                        setShowHelpTooltipModal(true);
-                      }}
-                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
-                    >
+                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
                       ❓ Quick Guide
                     </button>
                   </div>
@@ -335,19 +303,6 @@ function App() {
             />
           )}
         </div>
-      )}
-
-      {/* ✅ PRZENIESIONE MODALE POZA mobile container */}
-      {showDonationModal && (
-        <Donation />
-      )}
-      
-      {showCeloHubModal && (
-        <CeloHub />
-      )}
-      
-      {showHelpTooltipModal && (
-        <HelpTooltip />
       )}
 
       {/* ISTNIEJĄCE MODALE - BEZ ZMIAN */}
