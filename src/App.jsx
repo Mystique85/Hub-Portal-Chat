@@ -8,6 +8,11 @@ import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
 import LoginHelpTooltip from './components/layout/LoginHelpTooltip';
 
+// DODAJ IMPORTY MODALI
+import Donation from './components/layout/Donation';
+import CeloHub from './components/layout/CeloHub';
+import HelpTooltip from './components/layout/HelpTooltip';
+
 import PublicChat from './components/chat/PublicChat';
 import PrivateChat from './components/chat/PrivateChat';
 
@@ -28,6 +33,11 @@ function App() {
   const [mobileView, setMobileView] = useState('public');
   const [showUserStats, setShowUserStats] = useState(false);
   const [activeTab, setActiveTab] = useState('online');
+  
+  // DODANE: Stany dla modalów mobile
+  const [showDonationModal, setShowDonationModal] = useState(false);
+  const [showCeloHubModal, setShowCeloHubModal] = useState(false);
+  const [showHelpTooltipModal, setShowHelpTooltipModal] = useState(false);
   
   // DODANE: Inicjalizacja Farcaster Mini App
   useEffect(() => {
@@ -217,6 +227,7 @@ function App() {
             )}
           </div>
 
+          {/* MODAL USER STATS - DODANE onClick HANDLERS */}
           {showUserStats && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
               <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl w-full max-w-sm">
@@ -253,13 +264,32 @@ function App() {
                   </div>
                   
                   <div className="space-y-2">
-                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
+                    {/* DODANE: Przyciski z onClick handlers */}
+                    <button 
+                      onClick={() => {
+                        setShowUserStats(false);
+                        setShowDonationModal(true);
+                      }}
+                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
+                    >
                       💝 Support Project
                     </button>
-                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
+                    <button 
+                      onClick={() => {
+                        setShowUserStats(false);
+                        setShowCeloHubModal(true);
+                      }}
+                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
+                    >
                       🌐 Celo Ecosystem Hub
                     </button>
-                    <button className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all">
+                    <button 
+                      onClick={() => {
+                        setShowUserStats(false);
+                        setShowHelpTooltipModal(true);
+                      }}
+                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
+                    >
                       ❓ Quick Guide
                     </button>
                   </div>
@@ -267,8 +297,22 @@ function App() {
               </div>
             </div>
           )}
+
+          {/* DODANE: Modale dla mobile */}
+          {showDonationModal && (
+            <Donation />
+          )}
+          
+          {showCeloHubModal && (
+            <CeloHub />
+          )}
+          
+          {showHelpTooltipModal && (
+            <HelpTooltip />
+          )}
         </div>
       ) : (
+        // DESKTOP VERSION - BEZ ZMIAN
         <div className="flex h-screen relative z-10">
           <Sidebar
             currentUser={userWithBalance}
@@ -306,6 +350,7 @@ function App() {
         </div>
       )}
 
+      {/* ISTNIEJĄCE MODALE - BEZ ZMIAN */}
       {showNicknameModal && (
         <NicknameModal
           currentUser={currentUser}
