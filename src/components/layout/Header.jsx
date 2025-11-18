@@ -18,7 +18,7 @@ const Header = ({
 
   if (isMobile) {
     return (
-      <div className="flex flex-col"> {/* ← DODAJ TEN KONTENER */}
+      <div className="flex flex-col">
         <header className="bg-gray-800/80 backdrop-blur-xl border-b border-gray-700/50 p-3 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -41,9 +41,9 @@ const Header = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={onUserStatsClick}
-                className="w-8 h-8 rounded-xl bg-gray-700/50 flex items-center justify-center hover:bg-gray-700 transition-all"
+                className="w-10 h-10 rounded-xl bg-gray-700/50 flex items-center justify-center hover:bg-gray-700 active:bg-gray-600 active:scale-95 transition-all duration-150 touch-manipulation"
               >
-                👤
+                <span className="text-base">👤</span>
               </button>
               <ConnectButton showBalance={false} />
             </div>
@@ -119,9 +119,14 @@ const Header = ({
         </div>
         
         <div className="flex items-center gap-4">
-          <HelpTooltip />
-          <CeloHub />
-          <Donation />
+          {/* ✅ POKAZUJ TYLKO NA DESKTOP - UKRYJ NA MOBILE */}
+          {!isMobile && (
+            <>
+              <HelpTooltip />
+              <CeloHub />
+              <Donation />
+            </>
+          )}
           
           <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
             💎 HC: {currentUser?.balance || '0'}
