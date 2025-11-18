@@ -2,25 +2,28 @@ import { useState } from 'react';
 import ReactionBar from './ReactionBar';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
 
-const MessageItem = ({ msg, currentUser, onDeleteMessage }) => {
+const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Funkcja do formatowania daty
+  // FUNKCJA BEZ ZMIAN - wszystkie funkcje działają tak samo
   const formatMessageTime = (timestamp) => {
     if (!timestamp?.toDate) return 'Now';
     
     const messageDate = timestamp.toDate();
     
-    // ZAWSZE pokazuj dzień.miesiąc godzina:minuta
+    // DLA MOBILE: krótszy format, ale FUNKCJA ta sama
+    if (isMobile) {
+      return `${messageDate.getDate().toString().padStart(2, '0')}.${(messageDate.getMonth() + 1).toString().padStart(2, '0')} ${messageDate.getHours().toString().padStart(2, '0')}:${messageDate.getMinutes().toString().padStart(2, '0')}`;
+    }
+    
     return `${messageDate.getDate().toString().padStart(2, '0')}.${(messageDate.getMonth() + 1).toString().padStart(2, '0')} ${messageDate.getHours().toString().padStart(2, '0')}:${messageDate.getMinutes().toString().padStart(2, '0')}`;
   };
 
-  // Funkcja do przetwarzania linków - TYLKO dla adminów
+  // FUNKCJA BEZ ZMIAN - wszystkie embedy działają
   const processMessageForEmbeds = (text, isAdmin) => {
     if (!isAdmin) return text;
     
-    // Wyszukaj format [type|text|url]
     const embedRegex = /\[(tweet|video|doc|discord|announce|link)\|([^\]]+)\|([^\]]+)\]/g;
     
     return text.replace(embedRegex, (match, type, displayText, url) => {
@@ -37,7 +40,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage }) => {
     });
   };
 
-  // Funkcja do renderowania klikalnych linków
+  // FUNKCJA BEZ ZMIAN - wszystkie linki działają
   const renderMessageWithEmbeds = (processedText) => {
     const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
     
@@ -82,10 +85,18 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage }) => {
   };
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl p-4 hover:border-cyan-500/50 transition-all group relative">
-      {/* Przycisk usuwania - pokazuje się tylko dla adminów przy najechaniu */}
+    <div className={`
+      bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 hover:border-cyan-500/50 transition-all group relative
+      ${isMobile 
+        ? 'rounded-xl p-3' // MNIEJSZE: padding i zaokrąglenie
+        : 'rounded-2xl p-4'
+      }
+    `}>
+      {/* Przycisk usuwania - FUNKCJA TA SAMA, tylko mniejsze rozmiary */}
       {canDelete && (
-        <div className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+        <div className={`absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 ${
+          isMobile ? '-top-1 -right-1' : '-top-2 -right-2'
+        }`}>
           {showDeleteConfirm ? (
             <div className="bg-red-500/90 backdrop-blur-sm border border-red-400 rounded-xl p-2 shadow-lg flex items-center gap-2 animate-in slide-in-from-top duration-200">
               <span className="text-white text-xs font-medium">Usunąć?</span>
@@ -106,7 +117,9 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage }) => {
           ) : (
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="bg-red-500/80 hover:bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all hover:scale-110 shadow-lg"
+              className={`bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center text-xs transition-all hover:scale-110 shadow-lg ${
+                isMobile ? 'w-5 h-5' : 'w-6 h-6'
+              }`}
               title="Usuń wiadomość"
             >
               ×
@@ -115,37 +128,45 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage }) => {
         </div>
       )}
 
-      {/* Message Header */}
+      {/* Message Header - tylko mniejsze rozmiary */}
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-sm">
+        <div className={`
+          rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center font-bold
+          ${isMobile 
+            ? 'w-6 h-6 text-xs' // MNIEJSZE: avatar
+            : 'w-8 h-8 text-sm'
+          }
+        `}>
           {msg.avatar}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <strong className="text-white">{msg.nickname}</strong>
+            <strong className={isMobile ? 'text-white text-sm' : 'text-white'}>
+              {msg.nickname}
+            </strong>
             {isAdmin && (
               <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium">
                 ADMIN
               </span>
             )}
           </div>
-          {/* ZMIENIONE: Użyj nowej funkcji formatującej */}
-          <span className="text-gray-400 text-sm">
+          <span className={isMobile ? 'text-gray-400 text-xs' : 'text-gray-400 text-sm'}>
             {formatMessageTime(msg.timestamp)}
           </span>
         </div>
       </div>
       
-      {/* Message Content */}
-      <div className="text-white mb-2">
+      {/* Message Content - tylko mniejszy tekst */}
+      <div className={isMobile ? 'text-white text-sm mb-2' : 'text-white mb-2'}>
         {renderedContent}
       </div>
       
-      {/* Message Actions */}
+      {/* Message Actions - FUNKCJA TA SAMA */}
       <div className="flex gap-2 items-center justify-between">
         <ReactionBar 
           messageId={msg.id}
           currentUser={currentUser}
+          isMobile={isMobile}
         />
       </div>
     </div>

@@ -34,11 +34,10 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
     return () => unsubscribeMessages();
   }, []);
 
-  // JEDYNA ZMIANA: Poprawione scrollowanie
+  // Scrollowanie - BEZ ZMIAN
   useEffect(() => {
     const scrollToBottom = () => {
       if (messagesEndRef.current) {
-        // Scroll z offsetem - uwzględniając input
         messagesEndRef.current.scrollIntoView({ 
           behavior: 'auto',
           block: 'end',
@@ -47,7 +46,6 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
       }
     };
     
-    // Kilkukrotne scrollowanie dla pewności
     scrollToBottom();
     const timer1 = setTimeout(scrollToBottom, 200);
     const timer2 = setTimeout(scrollToBottom, 500);
@@ -132,33 +130,38 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
   };
 
   return (
-    <section className={`flex flex-col h-full min-h-0 ${isMobile ? 'p-3' : 'p-6'}`}>
-      {/* Messages List - scrollable */}
-      <div className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'mb-3' : 'mb-4'}`}>
+    <section className={`flex flex-col h-full min-h-0 ${isMobile ? 'p-2' : 'p-6'}`}>
+      {/* Messages List - tylko mniejsze rozmiary */}
+      <div className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'mb-2' : 'mb-4'}`}>
         <MessageList 
           messages={messages}
           currentUser={currentUser}
           onDeleteMessage={handleDeleteMessage}
+          isMobile={isMobile}
         />
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Message Input - fixed at bottom */}
-      <div className={`flex gap-3 bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-4 flex-shrink-0 ${isMobile ? 'mt-auto' : ''}`}>
+      {/* Message Input - tylko mniejsze rozmiary */}
+      <div className={`flex gap-2 bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl flex-shrink-0 ${isMobile ? 'mt-auto p-2' : 'p-4 rounded-2xl'}`}>
         <input 
           type="text" 
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder={isMobile ? "Type your message..." : "Type your message in public chat... (Enter to send)"}
+          placeholder={isMobile ? "Type message..." : "Type your message in public chat... (Enter to send)"}
           disabled={isSending}
-          className="flex-1 bg-transparent border-none text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 disabled:opacity-50"
+          className={`flex-1 bg-transparent border-none text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 disabled:opacity-50 ${
+            isMobile ? 'text-sm px-2' : 'px-3'
+          }`}
         />
         <button 
           onClick={sendMessage}
           disabled={!newMessage.trim() || isSending}
-          className={`bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0 ${
-            isMobile ? 'px-4 py-3' : 'px-6 py-3'
+          className={`bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold hover:from-cyan-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0 ${
+            isMobile 
+              ? 'px-3 py-2 rounded-lg text-sm min-h-[40px]' 
+              : 'px-6 py-3 rounded-xl'
           }`}
         >
           {isSending ? (
