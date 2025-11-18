@@ -297,19 +297,6 @@ function App() {
               </div>
             </div>
           )}
-
-          {/* DODANE: Modale dla mobile */}
-          {showDonationModal && (
-            <Donation />
-          )}
-          
-          {showCeloHubModal && (
-            <CeloHub />
-          )}
-          
-          {showHelpTooltipModal && (
-            <HelpTooltip />
-          )}
         </div>
       ) : (
         // DESKTOP VERSION - BEZ ZMIAN
@@ -348,6 +335,19 @@ function App() {
             />
           )}
         </div>
+      )}
+
+      {/* ✅ PRZENIESIONE MODALE POZA mobile container */}
+      {showDonationModal && (
+        <Donation />
+      )}
+      
+      {showCeloHubModal && (
+        <CeloHub />
+      )}
+      
+      {showHelpTooltipModal && (
+        <HelpTooltip />
       )}
 
       {/* ISTNIEJĄCE MODALE - BEZ ZMIAN */}
