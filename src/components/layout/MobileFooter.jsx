@@ -1,0 +1,46 @@
+import React from 'react';
+
+const MobileFooter = ({ 
+  mobileView, 
+  onMobileViewChange, 
+  totalUnreadCount,
+  activeDMChat 
+}) => {
+  const navItems = [
+    { key: 'public', icon: '💬', label: 'Chat' },
+    { key: 'users', icon: '👥', label: 'Users' },
+    { key: 'private', icon: '✉️', label: 'Private', badge: totalUnreadCount },
+    { key: 'me', icon: '👤', label: 'Me' }
+  ];
+
+  return (
+    <footer className="bg-gray-800/90 backdrop-blur-xl border-t border-gray-700/50 p-2 flex-shrink-0 safe-area-bottom">
+      <div className="flex justify-around">
+        {navItems.map((item) => (
+          <button
+            key={item.key}
+            onClick={() => onMobileViewChange(item.key)}
+            disabled={item.key === 'private' && !activeDMChat}
+            className={`flex flex-col items-center p-2 rounded-xl transition-all min-w-16 touch-manipulation active:scale-95 relative ${
+              mobileView === item.key 
+                ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' 
+                : 'text-gray-400 hover:text-white'
+            } ${item.key === 'private' && !activeDMChat ? 'opacity-50' : ''}`}
+          >
+            <span className="text-lg mb-1 relative">
+              {item.icon}
+              {item.badge > 0 && (
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center text-[10px] font-bold">
+                  {item.badge > 9 ? '9+' : item.badge}
+                </span>
+              )}
+            </span>
+            <span className="text-xs font-medium">{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </footer>
+  );
+};
+
+export default MobileFooter;
