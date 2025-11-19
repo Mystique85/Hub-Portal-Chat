@@ -37,12 +37,6 @@ const Header = ({
           </div>
           
           <div className="flex items-center gap-2">
-            <button
-              onClick={onUserStatsClick}
-              className="w-8 h-8 rounded-xl bg-gray-700/50 flex items-center justify-center hover:bg-gray-700 active:bg-gray-600 active:scale-95 transition-all duration-150 touch-manipulation"
-            >
-              <span className="text-sm">👤</span>
-            </button>
             <ConnectButton 
               showBalance={false}
               chainStatus="none"
@@ -54,7 +48,6 @@ const Header = ({
     );
   }
 
-  // DESKTOP VERSION - BEZ ZMIAN
   return (
     <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-6 flex-shrink-0">
       <div className="flex justify-between items-center">
