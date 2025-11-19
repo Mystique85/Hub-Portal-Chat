@@ -6,9 +6,10 @@ import { sdk } from '@farcaster/miniapp-sdk';
 import NetworkBackground from './components/layout/NetworkBackground';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
+import MobileFooter from './components/layout/MobileFooter';
 import LoginHelpTooltip from './components/layout/LoginHelpTooltip';
 
-// DODAJ IMPORTY MODALI
+// MODALE
 import Donation from './components/layout/Donation';
 import CeloHub from './components/layout/CeloHub';
 import HelpTooltip from './components/layout/HelpTooltip';
@@ -34,12 +35,12 @@ function App() {
   const [showUserStats, setShowUserStats] = useState(false);
   const [activeTab, setActiveTab] = useState('online');
   
-  // DODANE: Stany dla modalów z My Profile
+  // MODALE z My Profile
   const [showDonationModal, setShowDonationModal] = useState(false);
   const [showCeloHubModal, setShowCeloHubModal] = useState(false);
   const [showHelpTooltipModal, setShowHelpTooltipModal] = useState(false);
   
-  // DODANE: Inicjalizacja Farcaster Mini App
+  // FARCASTER INIT
   useEffect(() => {
     (async () => {
       try {
@@ -51,6 +52,7 @@ function App() {
     })();
   }, []);
 
+  // HOOKS
   const { 
     currentUser, 
     showNicknameModal, 
@@ -83,6 +85,7 @@ function App() {
 
   const { balance, remaining } = useWeb3(address);
 
+  // LOCAL STATE
   const [privateMessage, setPrivateMessage] = useState('');
   const [nicknameInput, setNicknameInput] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('🐶');
@@ -94,6 +97,7 @@ function App() {
     remaining
   } : null;
 
+  // MOBILE DETECTION
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -101,18 +105,19 @@ function App() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // AUTO SWITCH TO PRIVATE VIEW WHEN DM OPENS
   useEffect(() => {
     if (activeDMChat && isMobile) {
       setMobileView('private');
     }
   }, [activeDMChat, isMobile]);
 
+  // HANDLERS
   const openChatFromToast = async (userId) => {
     const user = allUsers.find(u => u.walletAddress === userId);
     if (user) {
-      await startPrivateChat(user);
+      await handleStartPrivateChat(user);
       setToastNotification(null);
-      if (isMobile) setMobileView('private');
     }
   };
 
@@ -126,6 +131,7 @@ function App() {
     if (isMobile) setMobileView('public');
   };
 
+  // LOGIN SCREEN
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 relative">
@@ -162,6 +168,7 @@ function App() {
     );
   }
 
+  // MAIN APP LAYOUT
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white overflow-hidden">
       <NetworkBackground />
@@ -175,6 +182,7 @@ function App() {
       )}
 
       {isMobile ? (
+        // MOBILE LAYOUT - Z FOOTEREM
         <div className="flex flex-col h-screen relative z-10 overflow-hidden">
           <Header
             isMobile={true}
@@ -186,7 +194,7 @@ function App() {
             activeDMChat={activeDMChat}
           />
           
-          <div className="flex-1 min-h-0 bg-gray-900/50">
+          <div className="flex-1 min-h-0 bg-gray-900/50 overflow-hidden">
             {mobileView === 'public' && (
               <PublicChat 
                 currentUser={userWithBalance}
@@ -221,9 +229,26 @@ function App() {
                 isMobile={true}
               />
             )}
+
+            {mobileView === 'me' && (
+              <div className="h-full flex items-center justify-center p-4">
+                <div className="text-center text-gray-400">
+                  <div className="text-6xl mb-4">👤</div>
+                  <p>My Profile section</p>
+                  <p className="text-sm text-gray-500 mt-2">(Click user icon in header)</p>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* MODAL USER STATS - DODANE onClick HANDLERS */}
+          <MobileFooter
+            mobileView={mobileView}
+            onMobileViewChange={setMobileView}
+            totalUnreadCount={totalUnreadCount}
+            activeDMChat={activeDMChat}
+          />
+
+          {/* MODAL USER STATS */}
           {showUserStats && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
               <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl w-full max-w-sm">
@@ -260,7 +285,6 @@ function App() {
                   </div>
                   
                   <div className="space-y-2">
-                    {/* ✅ DODANE: Przyciski z onClick handlers dla mobile */}
                     <button 
                       onClick={() => {
                         setShowUserStats(false);
@@ -294,21 +318,13 @@ function App() {
             </div>
           )}
 
-          {/* DODANE: Modale dla przycisków w My Profile modal */}
-          {showDonationModal && (
-            <Donation />
-          )}
-          
-          {showCeloHubModal && (
-            <CeloHub />
-          )}
-          
-          {showHelpTooltipModal && (
-            <HelpTooltip />
-          )}
+          {/* MODALE Z MY PROFILE */}
+          {showDonationModal && <Donation />}
+          {showCeloHubModal && <CeloHub />}
+          {showHelpTooltipModal && <HelpTooltip />}
         </div>
       ) : (
-        // DESKTOP VERSION - BEZ ZMIAN
+        // DESKTOP LAYOUT - BEZ ZMIAN
         <div className="flex h-screen relative z-10">
           <Sidebar
             currentUser={userWithBalance}
