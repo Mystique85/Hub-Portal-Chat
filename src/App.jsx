@@ -9,10 +9,6 @@ import Header from './components/layout/Header';
 import MobileFooter from './components/layout/MobileFooter';
 import LoginHelpTooltip from './components/layout/LoginHelpTooltip';
 
-import Donation from './components/layout/Donation';
-import CeloHub from './components/layout/CeloHub';
-import HelpTooltip from './components/layout/HelpTooltip';
-
 import PublicChat from './components/chat/PublicChat';
 import PrivateChat from './components/chat/PrivateChat';
 
@@ -33,10 +29,6 @@ function App() {
   const [mobileView, setMobileView] = useState('public');
   const [showUserStats, setShowUserStats] = useState(false);
   const [activeTab, setActiveTab] = useState('online');
-  
-  const [showDonationModal, setShowDonationModal] = useState(false);
-  const [showCeloHubModal, setShowCeloHubModal] = useState(false);
-  const [showHelpTooltipModal, setShowHelpTooltipModal] = useState(false);
   
   useEffect(() => {
     (async () => {
@@ -245,19 +237,16 @@ function App() {
                   
                   <div className="space-y-3">
                     <button 
-                      onClick={() => setShowDonationModal(true)}
                       className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
                     >
                       💝 Support Project
                     </button>
                     <button 
-                      onClick={() => setShowCeloHubModal(true)}
                       className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
                     >
                       🌐 Celo Ecosystem Hub
                     </button>
                     <button 
-                      onClick={() => setShowHelpTooltipModal(true)}
                       className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
                     >
                       ❓ Quick Guide
@@ -312,28 +301,16 @@ function App() {
                   
                   <div className="space-y-2">
                     <button 
-                      onClick={() => {
-                        setShowUserStats(false);
-                        setShowDonationModal(true);
-                      }}
                       className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
                     >
                       💝 Support Project
                     </button>
                     <button 
-                      onClick={() => {
-                        setShowUserStats(false);
-                        setShowCeloHubModal(true);
-                      }}
                       className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
                     >
                       🌐 Celo Ecosystem Hub
                     </button>
                     <button 
-                      onClick={() => {
-                        setShowUserStats(false);
-                        setShowHelpTooltipModal(true);
-                      }}
                       className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
                     >
                       ❓ Quick Guide
@@ -343,10 +320,6 @@ function App() {
               </div>
             </div>
           )}
-
-          {showDonationModal && <Donation isMobile={true} showButton={false} />}
-          {showCeloHubModal && <CeloHub isMobile={true} showButton={false} />}
-          {showHelpTooltipModal && <HelpTooltip isMobile={true} showButton={false} />}
         </div>
       ) : (
         <div className="flex h-screen relative z-10">
@@ -383,10 +356,6 @@ function App() {
               onMarkAsRead={markAsRead}
             />
           )}
-
-          {showDonationModal && <Donation isMobile={false} showButton={true} />}
-          {showCeloHubModal && <CeloHub isMobile={false} showButton={true} />}
-          {showHelpTooltipModal && <HelpTooltip isMobile={false} showButton={true} />}
         </div>
       )}
 
