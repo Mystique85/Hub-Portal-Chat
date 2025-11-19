@@ -344,10 +344,9 @@ function App() {
             </div>
           )}
 
-          {/* DODANE: isMobile do komponentów modalów */}
-          {showDonationModal && <Donation isMobile={true} />}
-          {showCeloHubModal && <CeloHub isMobile={true} />}
-          {showHelpTooltipModal && <HelpTooltip isMobile={true} />}
+          {showDonationModal && <Donation isMobile={true} showButton={false} />}
+          {showCeloHubModal && <CeloHub isMobile={true} showButton={false} />}
+          {showHelpTooltipModal && <HelpTooltip isMobile={true} showButton={false} />}
         </div>
       ) : (
         <div className="flex h-screen relative z-10">
@@ -385,10 +384,9 @@ function App() {
             />
           )}
 
-          {/* DODANE: isMobile do komponentów modalów na desktop */}
-          {showDonationModal && <Donation isMobile={false} />}
-          {showCeloHubModal && <CeloHub isMobile={false} />}
-          {showHelpTooltipModal && <HelpTooltip isMobile={false} />}
+          {showDonationModal && <Donation isMobile={false} showButton={true} />}
+          {showCeloHubModal && <CeloHub isMobile={false} showButton={true} />}
+          {showHelpTooltipModal && <HelpTooltip isMobile={false} showButton={true} />}
         </div>
       )}
 

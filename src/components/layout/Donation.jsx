@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 
 const DONATION_ADDRESS = '0xd30286180E142628cc437624Ea4160d5450F73D6';
 
-const Donation = ({ isMobile = false }) => {
+const Donation = ({ isMobile = false, showButton = true }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { address } = useAccount();
   const { writeContractAsync, isPending: isSending } = useWriteContract();
@@ -320,7 +320,7 @@ const Donation = ({ isMobile = false }) => {
 
   return (
     <>
-      {!isOpen && (
+      {showButton && !isOpen && (
         <button
           onClick={() => setIsOpen(true)}
           className={`flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg ${

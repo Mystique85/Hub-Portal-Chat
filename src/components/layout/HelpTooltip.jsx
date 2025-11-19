@@ -4,7 +4,7 @@ import { translations, getBrowserLanguage } from '../../utils/translations';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
 import { useAccount } from 'wagmi';
 
-const HelpTooltip = ({ isMobile = false }) => {
+const HelpTooltip = ({ isMobile = false, showButton = true }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [expandedSection, setExpandedSection] = useState(null);
   const [language, setLanguage] = useState(getBrowserLanguage());
@@ -328,7 +328,7 @@ const HelpTooltip = ({ isMobile = false }) => {
 
   return (
     <>
-      {!showTooltip && (
+      {showButton && !showTooltip && (
         <button
           onClick={() => setShowTooltip(!showTooltip)}
           className={`flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg ${
