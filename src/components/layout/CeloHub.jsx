@@ -59,7 +59,7 @@ const translations = {
   }
 };
 
-const CeloHub = ({ isMobile = false }) => {
+const CeloHub = ({ isMobile = false, showButton = true }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentView, setCurrentView] = useState('dashboard');
   const [expandedBadge, setExpandedBadge] = useState(null);
@@ -910,7 +910,7 @@ const CeloHub = ({ isMobile = false }) => {
 
   return (
     <>
-      {!isOpen && (
+      {showButton && !isOpen && (
         <button
           onClick={() => setIsOpen(true)}
           className={`flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all transform hover:scale-105 shadow-lg ${
