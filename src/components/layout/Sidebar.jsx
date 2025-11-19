@@ -1,4 +1,3 @@
-// Sidebar.jsx
 import { useState } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import UserList from '../users/UserList';
@@ -70,42 +69,60 @@ const Sidebar = ({
         </div>
 
         {admins.length > 0 && (
-          <div className="px-4 pb-3 border-b border-gray-700/50">
-            <div className="text-gray-400 text-sm font-semibold mb-2">👑 Admins</div>
-            <div className="space-y-2">
-              {admins.map(admin => (
-                <div
-                  key={admin.walletAddress}
-                  onClick={() => {
-                    onStartPrivateChat(admin);
-                    onMobileViewChange('private');
-                  }}
-                  className="flex items-center gap-2 p-2 hover:bg-gray-700/50 cursor-pointer transition-all rounded-xl border border-gray-600/30"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-xs">
-                    {admin.avatar}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-white text-sm font-medium truncate flex items-center gap-1">
-                      {admin.nickname}
+          <div className="p-4 border-b border-gray-700/50 flex-shrink-0 relative">
+            <button
+              onClick={() => setShowAdminDropdown(!showAdminDropdown)}
+              className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/50 rounded-xl text-white hover:bg-purple-500/30 transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <span>👑</span>
+                <span>Message Admin</span>
+              </div>
+              <span className={`transform transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`}>
+                ▼
+              </span>
+            </button>
+
+            {showAdminDropdown && (
+              <div className="absolute top-full left-4 right-4 mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-lg z-20 max-h-48 overflow-y-auto">
+                {admins.map(admin => (
+                  <div
+                    key={admin.walletAddress}
+                    onClick={() => {
+                      onStartPrivateChat(admin);
+                      setShowAdminDropdown(false);
+                      onMobileViewChange('private');
+                    }}
+                    className="flex items-center gap-2 p-2 hover:bg-gray-700/50 cursor-pointer transition-all border-b border-gray-700/50 last:border-b-0"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-xs">
+                      {admin.avatar}
                     </div>
-                    <div className="text-gray-400 text-xs flex items-center gap-1">
-                      {admin.isOnline ? (
-                        <>
-                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                          Online
-                        </>
-                      ) : (
-                        <>
-                          <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                          Offline
-                        </>
-                      )}
+                    <div className="flex-1 min-w-0">
+                      <div className="text-white text-sm font-medium truncate flex items-center gap-1">
+                        {admin.nickname}
+                        <span className="text-purple-400 text-xs font-medium">
+                          Admin
+                        </span>
+                      </div>
+                      <div className="text-gray-400 text-xs flex items-center gap-1">
+                        {admin.isOnline ? (
+                          <>
+                            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                            Online
+                          </>
+                        ) : (
+                          <>
+                            <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                            Offline
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
