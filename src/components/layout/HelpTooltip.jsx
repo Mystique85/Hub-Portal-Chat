@@ -4,7 +4,7 @@ import { translations, getBrowserLanguage } from '../../utils/translations';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
 import { useAccount } from 'wagmi';
 
-const HelpTooltip = () => {
+const HelpTooltip = ({ isMobile = false }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [expandedSection, setExpandedSection] = useState(null);
   const [language, setLanguage] = useState(getBrowserLanguage());
@@ -14,51 +14,24 @@ const HelpTooltip = () => {
   const t = translations[language];
   const helpSections = t.sections;
 
-  // SPRAWDŹ CZY UŻYTKOWNIK JEST ADMINEM
   const isAdmin = address && ADMIN_ADDRESSES.includes(address.toLowerCase());
 
-  // DODAJEMY NOWĄ SEKCJĘ DLA ADMINÓW
   const adminFormattingSection = {
     id: 'admin-formatting',
     icon: '🔗',
-    title: language === 'pl' ? 'Formatowanie Linków (Admin)' : 'Link Formatting (Admin)',
+    title: language === 'pl' ? 
+      (isMobile ? 'Formatowanie (Admin)' : 'Formatowanie Linków (Admin)') : 
+      (isMobile ? 'Formatting (Admin)' : 'Link Formatting (Admin)'),
     content: language === 'pl' ? 
-      `📋 INSTRUKCJE FORMATOWANIA LINKÓW
-
-Użyj składni: [typ|tekst|url]
-
-Dostępne typy linków:
-• [tweet|Twój tekst|https://x.com/...] → 📢 Twój tekst
-• [video|Twój tekst|https://youtube.com/...] → 🎥 Twój tekst  
-• [doc|Twój tekst|https://docs.com/...] → 📚 Twój tekst
-• [discord|Twój tekst|https://discord.gg/...] → 🎮 Twój tekst
-• [announce|Twój tekst|https://...] → 📢 Twój tekst
-• [link|Twój tekst|https://...] → 🔗 Twój tekst
-
-Przykłady:
-• [tweet|Nowe ogłoszenie|https://x.com/hub/123]
-• [video|Obejrzyj tutorial|https://youtube.com/watch?v=abc123]
-• [doc|Dokumentacja HUB|https://docs.hub.com]` 
+      (isMobile ? 
+        `📋 FORMATOWANIE\n\n[tweet|tekst|url]\n[video|tekst|url]\n[doc|tekst|url]\nPrzykład:\n[tweet|Test|https://x.com]` :
+        `📋 INSTRUKCJE FORMATOWANIA LINKÓW\n\nUżyj składni: [typ|tekst|url]\n\nDostępne typy linków:\n• [tweet|Twój tekst|https://x.com/...] → 📢 Twój tekst\n• [video|Twój tekst|https://youtube.com/...] → 🎥 Twój tekst\nPrzykłady:\n• [tweet|Nowe ogłoszenie|https://x.com/hub/123]`)
       : 
-      `📋 LINK FORMATTING INSTRUCTIONS
-
-Use syntax: [type|text|url]
-
-Available link types:
-• [tweet|Your text|https://x.com/...] → 📢 Your text
-• [video|Your text|https://youtube.com/...] → 🎥 Your text  
-• [doc|Your text|https://docs.com/...] → 📚 Your text
-• [discord|Your text|https://discord.gg/...] → 🎮 Your text
-• [announce|Your text|https://...] → 📢 Your text
-• [link|Your text|https://...] → 🔗 Your text
-
-Examples:
-• [tweet|New announcement|https://x.com/hub/123]
-• [video|Watch tutorial|https://youtube.com/watch?v=abc123]
-• [doc|HUB Documentation|https://docs.hub.com]`
+      (isMobile ?
+        `📋 FORMATTING\n\n[tweet|text|url]\n[video|text|url]\n[doc|text|url]\nExample:\n[tweet|Test|https://x.com]` :
+        `📋 LINK FORMATTING INSTRUCTIONS\n\nUse syntax: [type|text|url]\n\nAvailable link types:\n• [tweet|Your text|https://x.com/...] → 📢 Your text\n• [video|Your text|https://youtube.com/...] → 🎥 Your text\nExamples:\n• [tweet|New announcement|https://x.com/hub/123]`)
   };
 
-  // POŁĄCZ SEKCJE - DODAJ SEKCJĘ ADMINA NA POCZĄTKU
   const allSections = isAdmin ? [adminFormattingSection, ...helpSections] : helpSections;
 
   useEffect(() => {
@@ -89,8 +62,9 @@ Examples:
     if (!showTooltip) return null;
 
     return ReactDOM.createPortal(
-      <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-10 px-4">
-        {/* Overlay tła */}
+      <div className={`fixed inset-0 z-[99999] flex items-start justify-center ${
+        isMobile ? 'pt-8 px-3' : 'pt-10 px-4'
+      }`}>
         <div 
           className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={() => {
@@ -99,19 +73,23 @@ Examples:
           }}
         />
         
-        {/* Tooltip Content */}
         <div 
           ref={tooltipRef}
-          className="relative w-full max-w-4xl bg-gray-800 border-2 border-cyan-500/40 rounded-3xl shadow-2xl animate-in slide-in-from-top duration-300 max-h-[90vh] overflow-hidden flex flex-col"
+          className={`relative bg-gray-800 border-2 border-cyan-500/40 rounded-3xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col ${
+            isMobile ? 'w-full max-w-sm rounded-2xl max-h-[80vh]' : 'w-full max-w-4xl'
+          }`}
         >
-          {/* Header z przełącznikiem języka */}
-          <div className="bg-gray-800 border-b border-cyan-500/30 p-8 flex-shrink-0">
-            <div className="flex items-center justify-between mb-4">
+          <div className={`bg-gray-800 border-b border-cyan-500/30 flex-shrink-0 ${
+            isMobile ? 'p-4' : 'p-8'
+          }`}>
+            <div className={`flex items-center justify-between ${isMobile ? 'mb-3' : 'mb-4'}`}>
               <div>
-                <h3 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2">
+                <h3 className={`font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent ${
+                  isMobile ? 'text-lg mb-1' : 'text-3xl mb-2'
+                }`}>
                   {t.completeGuide}
                 </h3>
-                <p className="text-gray-400 text-lg">
+                <p className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-lg'}`}>
                   {expandedSection 
                     ? allSections.find(s => s.id === expandedSection)?.title
                     : t.selectSection
@@ -120,25 +98,26 @@ Examples:
               </div>
               
               <div className="flex items-center gap-4">
-                {/* Language Toggle Switch - TYLKO W INSTRUKCJI */}
-                <div className="flex items-center gap-2 bg-gray-700/50 rounded-xl p-1 border border-gray-600/50">
+                <div className={`flex items-center gap-2 bg-gray-700/50 rounded-xl border border-gray-600/50 ${
+                  isMobile ? 'p-0.5 gap-1 rounded-lg' : 'p-1'
+                }`}>
                   <button
                     onClick={() => setLanguage('pl')}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
+                    className={`font-medium transition-all ${
                       language === 'pl' 
                         ? 'bg-cyan-500 text-white shadow-lg' 
                         : 'text-gray-400 hover:text-white'
-                    }`}
+                    } ${isMobile ? 'px-2 py-0.5 rounded text-xs' : 'px-3 py-1 rounded-lg text-sm'}`}
                   >
                     PL
                   </button>
                   <button
                     onClick={() => setLanguage('en')}
-                    className={`px-3 py-1 rounded-lg text-sm font-medium transition-all ${
+                    className={`font-medium transition-all ${
                       language === 'en' 
                         ? 'bg-cyan-500 text-white shadow-lg' 
                         : 'text-gray-400 hover:text-white'
-                    }`}
+                    } ${isMobile ? 'px-2 py-0.5 rounded text-xs' : 'px-3 py-1 rounded-lg text-sm'}`}
                   >
                     EN
                   </button>
@@ -149,7 +128,9 @@ Examples:
                     setShowTooltip(false);
                     setExpandedSection(null);
                   }}
-                  className="text-gray-400 hover:text-white text-2xl transition-all hover:scale-110 p-3 hover:bg-gray-700/50 rounded-xl"
+                  className={`text-gray-400 hover:text-white transition-all hover:scale-110 hover:bg-gray-700/50 rounded-xl ${
+                    isMobile ? 'text-lg p-1 rounded-lg' : 'text-2xl p-3 rounded-xl'
+                  }`}
                 >
                   ✕
                 </button>
@@ -157,56 +138,61 @@ Examples:
             </div>
           </div>
 
-          {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto">
             {expandedSection ? (
-              // WIDOK SZCZEGÓŁÓW SEKCJI
-              <div className="p-8">
+              <div className={isMobile ? 'p-4' : 'p-8'}>
                 <button
                   onClick={() => setExpandedSection(null)}
-                  className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 mb-6 transition-all hover:scale-105"
+                  className={`flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-all hover:scale-105 ${
+                    isMobile ? 'mb-3 text-sm gap-1' : 'mb-6'
+                  }`}
                 >
-                  <span className="text-xl">←</span>
+                  <span className={isMobile ? 'text-base' : 'text-xl'}>←</span>
                   <span>{t.backToList}</span>
                 </button>
                 
                 <div className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl p-8">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl ${
+                  <div className={`flex items-center gap-4 ${isMobile ? 'mb-3' : 'mb-6'}`}>
+                    <div className={`rounded-2xl flex items-center justify-center ${
                       expandedSection === 'admin-formatting'
                         ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20'
                         : 'bg-cyan-500/20'
-                    }`}>
+                    } ${isMobile ? 'w-10 h-10 text-lg rounded-xl' : 'w-16 h-16 text-2xl'}`}>
                       {allSections.find(s => s.id === expandedSection)?.icon}
                     </div>
                     <div>
-                      <h4 className={`text-2xl font-bold ${
+                      <h4 className={`font-bold ${
                         expandedSection === 'admin-formatting' ? 'text-purple-400' : 'text-cyan-400'
-                      }`}>
+                      } ${isMobile ? 'text-base' : 'text-2xl'}`}>
                         {allSections.find(s => s.id === expandedSection)?.title}
                         {expandedSection === 'admin-formatting' && (
-                          <span className="text-purple-300 text-sm ml-2">👑</span>
+                          <span className={`text-purple-300 ${
+                            isMobile ? 'text-sm ml-1' : 'text-sm ml-2'
+                          }`}>👑</span>
                         )}
                       </h4>
-                      <p className="text-gray-400">
+                      <p className={`text-gray-400 ${isMobile ? 'text-xs' : ''}`}>
                         {t.section} {expandedSection} {t.of} {allSections.length}
                       </p>
                     </div>
                   </div>
 
-                  <div className="text-gray-300 text-lg leading-relaxed space-y-4">
+                  <div className={`text-gray-300 leading-relaxed space-y-4 ${
+                    isMobile ? 'text-sm space-y-2' : 'text-lg space-y-4'
+                  }`}>
                     {allSections.find(s => s.id === expandedSection)?.content.split('\n').map((line, lineIndex) => (
                       <div key={lineIndex} className="flex items-start gap-3">
-                        <span className={`text-xl mt-1 ${
+                        <span className={`${
                           expandedSection === 'admin-formatting' ? 'text-purple-400' : 'text-cyan-400'
-                        }`}>•</span>
+                        } ${isMobile ? 'text-sm mt-0.5' : 'text-xl mt-1'}`}>•</span>
                         <span className="flex-1">{line}</span>
                       </div>
                     ))}
                   </div>
 
-                  {/* Navigation */}
-                  <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-700/50">
+                  <div className={`flex justify-between items-center mt-8 pt-6 border-t border-gray-700/50 ${
+                    isMobile ? 'mt-4 pt-3' : 'mt-8 pt-6'
+                  }`}>
                     <button
                       onClick={() => {
                         const currentIndex = allSections.findIndex(s => s.id === expandedSection);
@@ -215,7 +201,9 @@ Examples:
                         }
                       }}
                       disabled={expandedSection === allSections[0].id}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-400 hover:text-white hover:border-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className={`flex items-center gap-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-400 hover:text-white hover:border-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
+                        isMobile ? 'px-2 py-1 rounded-lg text-xs gap-1' : 'px-4 py-2'
+                      }`}
                     >
                       {t.previous}
                     </button>
@@ -228,7 +216,9 @@ Examples:
                         }
                       }}
                       disabled={expandedSection === allSections[allSections.length - 1].id}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-400 hover:text-white hover:border-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      className={`flex items-center gap-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-400 hover:text-white hover:border-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${
+                        isMobile ? 'px-2 py-1 rounded-lg text-xs gap-1' : 'px-4 py-2'
+                      }`}
                     >
                       {t.next}
                     </button>
@@ -236,76 +226,93 @@ Examples:
                 </div>
               </div>
             ) : (
-              // WIDOK LISTY SEKCJI
-              <div className="p-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className={isMobile ? 'p-4' : 'p-8'}>
+                <div className={`grid gap-6 ${
+                  isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-1 md:grid-cols-2 gap-6'
+                }`}>
                   {allSections.map((section) => (
                     <button
                       key={section.id}
                       onClick={() => setExpandedSection(section.id)}
-                      className={`bg-gray-700/60 border rounded-2xl p-6 transition-all hover:border-cyan-500/50 hover:bg-gray-700/80 hover:transform hover:scale-[1.02] text-left group ${
+                      className={`bg-gray-700/60 border rounded-2xl transition-all hover:border-cyan-500/50 hover:bg-gray-700/80 hover:transform hover:scale-[1.02] text-left group ${
                         section.id === 'admin-formatting' 
                           ? 'border-purple-500/50 bg-purple-500/10' 
                           : 'border-gray-600/50'
-                      }`}
+                      } ${isMobile ? 'p-3 rounded-xl' : 'p-6'}`}
                     >
                       <div className="flex items-center gap-4">
-                        <div className={`w-14 h-14 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform ${
+                        <div className={`rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform ${
                           section.id === 'admin-formatting'
                             ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20'
                             : 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20'
-                        }`}>
+                        } ${isMobile ? 'w-8 h-8 text-base rounded-lg' : 'w-14 h-14'}`}>
                           {section.icon}
                         </div>
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                          <div className={`flex items-center gap-2 ${isMobile ? 'mb-1' : 'mb-2'}`}>
+                            <span className={`rounded-full flex items-center justify-center text-white ${
                               section.id === 'admin-formatting' ? 'bg-purple-500' : 'bg-cyan-500'
-                            }`}>
+                            } ${isMobile ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-xs'}`}>
                               {section.id === 'admin-formatting' ? 'A' : section.id}
                             </span>
-                            <h4 className={`font-semibold text-lg ${
+                            <h4 className={`font-semibold ${
                               section.id === 'admin-formatting' ? 'text-purple-400' : 'text-cyan-400'
-                            }`}>
+                            } ${isMobile ? 'text-sm' : 'text-lg'}`}>
                               {section.title}
                               {section.id === 'admin-formatting' && (
-                                <span className="text-purple-300 text-sm ml-2">👑</span>
+                                <span className={`text-purple-300 ${
+                                  isMobile ? 'text-sm ml-1' : 'text-sm ml-2'
+                                }`}>👑</span>
                               )}
                             </h4>
                           </div>
-                          <p className="text-gray-400 text-sm">
+                          <p className={`text-gray-400 ${
+                            isMobile ? 'text-xs' : 'text-sm'
+                          }`}>
                             {language === 'pl' ? 'Kliknij aby poznać szczegóły...' : 'Click to learn more...'}
                           </p>
                         </div>
                         <div className={`transition-colors ${
                           section.id === 'admin-formatting' ? 'text-purple-400' : 'text-gray-400'
                         } group-hover:text-cyan-400`}>
-                          <span className="text-xl">→</span>
+                          <span className={isMobile ? 'text-sm' : 'text-xl'}>→</span>
                         </div>
                       </div>
                     </button>
                   ))}
                 </div>
 
-                {/* Quick Start Tips */}
-                <div className="mt-8 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-2xl">
+                <div className={`mt-8 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-2xl ${
+                  isMobile ? 'mt-4 p-3 rounded-xl' : ''
+                }`}>
                   <div className="text-center">
-                    <p className="text-purple-400 text-xl font-semibold mb-4">{t.quickStart}</p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-300">
+                    <p className={`text-purple-400 font-semibold mb-4 ${
+                      isMobile ? 'text-sm mb-2' : 'text-xl mb-4'
+                    }`}>{t.quickStart}</p>
+                    <div className={`grid gap-4 text-gray-300 ${
+                      isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-1 md:grid-cols-3 gap-4'
+                    }`}>
                       {t.quickStartTips.map((tip, index) => (
-                        <div key={index} className="bg-gray-700/50 p-4 rounded-xl border border-gray-600/50">
-                          <div className="text-2xl mb-2">{tip.icon}</div>
-                          <p className="font-semibold text-cyan-400">{tip.title}</p>
-                          <p className="text-sm mt-2">{tip.description}</p>
+                        <div key={index} className={`bg-gray-700/50 rounded-xl border border-gray-600/50 ${
+                          isMobile ? 'p-2' : 'p-4'
+                        }`}>
+                          <div className={`mb-2 ${isMobile ? 'text-lg mb-1' : 'text-2xl mb-2'}`}>{tip.icon}</div>
+                          <p className={`font-semibold text-cyan-400 ${
+                            isMobile ? 'text-xs' : ''
+                          }`}>{tip.title}</p>
+                          <p className={`mt-2 ${isMobile ? 'text-xs mt-1' : 'text-sm mt-2'}`}>{tip.description}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                {/* Footer */}
-                <div className="mt-8 text-center border-t border-gray-700/50 pt-6">
-                  <p className="text-gray-400 text-lg">
+                <div className={`mt-8 text-center border-t border-gray-700/50 pt-6 ${
+                  isMobile ? 'mt-4 pt-4' : ''
+                }`}>
+                  <p className={`text-gray-400 ${
+                    isMobile ? 'text-sm' : 'text-lg'
+                  }`}>
                     {t.readyToStart}{' '}
                     <span className="text-cyan-400 font-semibold">{t.closeAndJoin}</span>
                   </p>
@@ -321,16 +328,18 @@ Examples:
 
   return (
     <>
-      {/* Help Trigger Button - ZAWSZE PO ANGIELSKU, MNIEJSZY */}
-      <button
-        onClick={() => setShowTooltip(!showTooltip)}
-        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg"
-      >
-        <span className="text-sm">❓</span>
-        <span>Quick Guide</span>
-      </button>
+      {!showTooltip && (
+        <button
+          onClick={() => setShowTooltip(!showTooltip)}
+          className={`flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg ${
+            isMobile ? 'px-3 py-1.5 text-xs gap-1' : 'px-4 py-2 text-sm'
+          }`}
+        >
+          <span className={isMobile ? 'text-sm' : 'text-sm'}>❓</span>
+          <span>{isMobile ? 'Guide' : 'Quick Guide'}</span>
+        </button>
+      )}
 
-      {/* Tooltip Content via Portal */}
       <TooltipContent />
     </>
   );
