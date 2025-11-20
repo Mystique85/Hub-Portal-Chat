@@ -5,7 +5,7 @@ import { ADMIN_ADDRESSES } from '../../utils/constants';
 import { useReactions } from '../../hooks/useReactions';
 import ReactionPicker from './ReactionPicker';
 
-const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onReply, onPrivateMessage, onScrollToMessage }) => {
+const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onReply, onPrivateMessage, onScrollToMessage, onViewProfile }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSimpleMenu, setShowSimpleMenu] = useState(false);
@@ -261,7 +261,12 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
             </button>
             
             <button 
-              onClick={() => setShowSimpleMenu(false)}
+              onClick={() => { 
+                setShowSimpleMenu(false); 
+                if (onViewProfile) {
+                  onViewProfile(msg);
+                }
+              }}
               className="w-full text-left px-4 py-3 hover:bg-gray-700/50 rounded-lg flex items-center gap-3 transition-all"
             >
               <span className="text-purple-400">👁️</span>

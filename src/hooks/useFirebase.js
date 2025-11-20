@@ -5,7 +5,11 @@ import {
   setDoc, 
   updateDoc, 
   deleteDoc,
-  serverTimestamp 
+  serverTimestamp,
+  collection,
+  getDocs,
+  query,
+  where
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { CREATOR_ADDRESS, ADMIN_ADDRESSES } from '../utils/constants';
@@ -51,6 +55,65 @@ export const useFirebase = (address) => {
     }
   };
 
+  // NOWA FUNKCJA: Aktualizuj licznik wiadomości użytkownika
+  const updateUserMessageCount = async (walletAddress) => {
+    if (!walletAddress || !db) return;
+    
+    try {
+      const userRef = doc(db, 'users', walletAddress.toLowerCase());
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        const currentCount = userDoc.data().totalMessages || 0;
+        await updateDoc(userRef, {
+          totalMessages: currentCount + 1,
+          lastSeen: serverTimestamp()
+        });
+      }
+    } catch (error) {
+      console.error('Error updating user message count:', error);
+    }
+  };
+
+  // FUNKCJA MIGRACJI: Jednorazowo zlicza istniejące wiadomości
+  const migrateUserMessageCounts = async () => {
+    if (!db) return;
+    
+    try {
+      console.log("🟢 Rozpoczynam migrację liczników wiadomości...");
+      
+      // Pobierz wszystkich użytkowników
+      const usersSnapshot = await getDocs(collection(db, 'users'));
+      const users = usersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      console.log(`🔵 Znaleziono ${users.length} użytkowników do migracji`);
+      
+      // Dla każdego użytkownika policz wiadomości
+      for (const user of users) {
+        const messagesQuery = query(
+          collection(db, 'messages'), 
+          where('walletAddress', '==', user.walletAddress?.toLowerCase())
+        );
+        const messagesSnapshot = await getDocs(messagesQuery);
+        const messageCount = messagesSnapshot.size;
+        
+        // Zaktualizuj licznik w Firestore
+        await updateDoc(doc(db, 'users', user.id), {
+          totalMessages: messageCount
+        });
+        
+        console.log(`✅ ${user.nickname}: ${messageCount} wiadomości`);
+      }
+      
+      console.log("🎉 Migracja zakończona!");
+    } catch (error) {
+      console.error('❌ Błąd migracji:', error);
+    }
+  };
+
   const registerUser = async (nickname, avatar) => {
     if (!address || nickname.length < 3) {
       alert('Nickname must be at least 3 characters long');
@@ -66,7 +129,8 @@ export const useFirebase = (address) => {
         isRegistered: true,
         createdAt: serverTimestamp(),
         lastSeen: serverTimestamp(),
-        nicknameLocked: address.toLowerCase() !== CREATOR_ADDRESS.toLowerCase()
+        nicknameLocked: address.toLowerCase() !== CREATOR_ADDRESS.toLowerCase(),
+        totalMessages: 0 // DODANE: początkowy licznik wiadomości
       };
 
       await setDoc(doc(db, 'users', address.toLowerCase()), userData);
@@ -105,6 +169,8 @@ export const useFirebase = (address) => {
     setShowNicknameModal,
     registerUser,
     updateUserLastSeen,
-    deleteMessage // DODANE: funkcja usuwania
+    deleteMessage,
+    updateUserMessageCount,
+    migrateUserMessageCounts
   };
 };

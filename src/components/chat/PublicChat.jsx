@@ -5,7 +5,7 @@ import { db } from '../../config/firebase';
 import MessageList from './MessageList';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../utils/constants';
 
-const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile = false, onStartPrivateChat }) => {
+const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile = false, onStartPrivateChat, onViewProfile, updateUserMessageCount }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -75,6 +75,11 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
         replyTo: messageData.replyTo || null,
         timestamp: serverTimestamp()
       });
+      
+      // Aktualizuj licznik wiadomości użytkownika
+      if (updateUserMessageCount) {
+        await updateUserMessageCount(messageData.walletAddress);
+      }
       
       onUpdateLastSeen(messageData.walletAddress);
       console.log("✅ Wiadomość dodana do Firestore PO potwierdzeniu transakcji");
@@ -184,19 +189,20 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
           onDeleteMessage={handleDeleteMessage}
           onReply={handleReply}
           onPrivateMessage={handlePrivateMessage}
+          onViewProfile={onViewProfile}
           onScrollToMessage={handleScrollToMessage}
           isMobile={isMobile}
         />
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Wyświetl informację o odpowiedzi */}
+      {/* Wyświetl informację o odpowiedzi - ZMNIEJSZONA SZEROKOŚĆ Z UCIĘTYM CYTATEM */}
       {replyingTo && (
-        <div className="bg-cyan-500/20 border border-cyan-500/30 rounded-xl p-3 mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-cyan-400 text-lg">↶</span>
+        <div className="bg-cyan-500/20 border border-cyan-500/30 rounded-xl p-3 mb-3 flex items-center justify-between max-w-md">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <span className="text-cyan-400 text-lg flex-shrink-0">↶</span>
             <div className="flex-1 min-w-0">
-              <div className="text-cyan-400 text-sm font-medium">
+              <div className="text-cyan-400 text-sm font-medium truncate">
                 Replying to <strong>@{replyingTo.nickname}</strong>
               </div>
               <div className="text-gray-300 text-xs truncate">

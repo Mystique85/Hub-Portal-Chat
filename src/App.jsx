@@ -15,6 +15,7 @@ import PrivateChat from './components/chat/PrivateChat';
 import NicknameModal from './components/modals/NicknameModal';
 import PrivateChatModal from './components/modals/PrivateChatModal';
 import ToastNotification from './components/modals/ToastNotification';
+import UserProfileModal from './components/modals/UserProfileModal';
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
@@ -29,6 +30,7 @@ function App() {
   const [mobileView, setMobileView] = useState('public');
   const [showUserStats, setShowUserStats] = useState(false);
   const [activeTab, setActiveTab] = useState('online');
+  const [selectedProfileUser, setSelectedProfileUser] = useState(null);
   
   useEffect(() => {
     (async () => {
@@ -47,7 +49,8 @@ function App() {
     setShowNicknameModal,
     registerUser,
     updateUserLastSeen,
-    deleteMessage
+    deleteMessage,
+    updateUserMessageCount
   } = useFirebase(address);
 
   const { 
@@ -71,7 +74,7 @@ function App() {
     isStartingDM
   } = useChat(address, currentUser, allUsers);
 
-  const { balance, remaining } = useWeb3(address);
+  const { balance, remaining, getOtherUserBalance } = useWeb3(address);
 
   const [privateMessage, setPrivateMessage] = useState('');
   const [nicknameInput, setNicknameInput] = useState('');
@@ -113,6 +116,10 @@ function App() {
   const handleCloseDMChat = () => {
     closeDMChat();
     if (isMobile) setMobileView('public');
+  };
+
+  const handleViewProfile = (user) => {
+    setSelectedProfileUser(user);
   };
 
   if (!isConnected) {
@@ -181,6 +188,9 @@ function App() {
                 currentUser={userWithBalance}
                 onUpdateLastSeen={updateUserLastSeen}
                 onDeleteMessage={deleteMessage}
+                onStartPrivateChat={handleStartPrivateChat}
+                onViewProfile={handleViewProfile}
+                updateUserMessageCount={updateUserMessageCount}
                 isMobile={true}
               />
             )}
@@ -345,6 +355,9 @@ function App() {
               currentUser={userWithBalance}
               onUpdateLastSeen={updateUserLastSeen}
               onDeleteMessage={deleteMessage}
+              onStartPrivateChat={startPrivateChat}
+              onViewProfile={handleViewProfile}
+              updateUserMessageCount={updateUserMessageCount}
             />
           </div>
 
@@ -384,6 +397,14 @@ function App() {
             setPrivateMessage('');
           }}
           isStartingDM={isStartingDM}
+        />
+      )}
+
+      {selectedProfileUser && (
+        <UserProfileModal 
+          user={selectedProfileUser}
+          onClose={() => setSelectedProfileUser(null)}
+          getOtherUserBalance={getOtherUserBalance}
         />
       )}
     </div>
