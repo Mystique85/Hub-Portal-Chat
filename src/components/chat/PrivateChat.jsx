@@ -22,7 +22,6 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
   useEffect(() => {
     if (!activeDMChat || !db) return;
 
-    // OZNACZ JAKO PRZECZYTANE gdy otwieramy chat
     const otherParticipant = Object.keys(activeDMChat.participantNames)
       .find(key => key !== currentUser.walletAddress.toLowerCase());
     
@@ -89,12 +88,10 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
   const otherParticipant = Object.keys(activeDMChat.participantNames)
     .find(key => key !== currentUser.walletAddress.toLowerCase());
 
-  // SPRAWDŹ CZY TO ADMIN
   const isOtherAdmin = ADMIN_ADDRESSES.includes(otherParticipant?.toLowerCase());
 
   return (
     <div className="w-96 bg-gray-800/50 backdrop-blur-xl border-l border-gray-700/50 flex flex-col h-full">
-      {/* Chat Header */}
       <div className="p-4 border-b border-gray-700/50 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-lg">
@@ -120,8 +117,7 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
         </button>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
         {privateMessages.length === 0 ? (
           <div className="text-center text-gray-400 mt-8">
             <div className="text-6xl mb-4">💬</div>
@@ -132,13 +128,13 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
           privateMessages.map(msg => (
             <div 
               key={msg.id} 
-              className={`p-4 rounded-2xl max-w-[85%] ${
+              className={`p-4 rounded-2xl max-w-[280px] ${
                 msg.sender === currentUser.walletAddress
                   ? 'bg-cyan-500/20 ml-auto border border-cyan-500/30'
                   : 'bg-gray-700/50 border border-gray-600/50'
               }`}
             >
-              <div className="text-white">{msg.content}</div>
+              <div className="text-white break-all overflow-hidden">{msg.content}</div>
               <div className="text-gray-400 text-xs mt-2 text-right">
                 {msg.timestamp?.toDate?.().toLocaleTimeString() || 'Now'}
               </div>
@@ -148,9 +144,8 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
         <div ref={privateMessagesEndRef} />
       </div>
 
-      {/* Message Input */}
       <div className="p-4 border-t border-gray-700/50">
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <input
             type="text"
             value={privateMessageInput}
@@ -162,7 +157,7 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
           <button
             onClick={sendPrivateMessage}
             disabled={!privateMessageInput.trim() || isSendingPrivate}
-            className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0"
+            className="px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0"
           >
             {isSendingPrivate ? (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
