@@ -3,6 +3,8 @@ import HelpTooltip from './HelpTooltip';
 import Donation from './Donation';
 import CeloHub from './CeloHub';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
+import { useState } from 'react';
+import DailyRewardsModal from '../modals/DailyRewardsModal';
 
 const Header = ({ 
   currentUser, 
@@ -13,6 +15,7 @@ const Header = ({
   onUserStatsClick,
   activeDMChat 
 }) => {
+  const [showDailyRewards, setShowDailyRewards] = useState(false);
   const isAdmin = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
 
   if (isMobile) {
@@ -37,6 +40,13 @@ const Header = ({
           </div>
           
           <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setShowDailyRewards(true)}
+              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-2 rounded-xl hover:scale-105 transition-transform"
+              title="Daily Rewards"
+            >
+              🎁
+            </button>
             <ConnectButton 
               showBalance={false}
               chainStatus="none"
@@ -44,6 +54,15 @@ const Header = ({
             />
           </div>
         </div>
+
+        {showDailyRewards && (
+          <DailyRewardsModal 
+            isOpen={showDailyRewards}
+            onClose={() => setShowDailyRewards(false)}
+            currentUser={currentUser}
+            isMobile={true}
+          />
+        )}
       </header>
     );
   }
@@ -72,6 +91,14 @@ const Header = ({
           <CeloHub />
           <Donation />
           
+          {/* Daily Rewards Button */}
+          <button 
+            onClick={() => setShowDailyRewards(true)}
+            className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-semibold transition-all hover:scale-105 flex items-center gap-2 text-sm"
+          >
+            🎁 Daily Rewards
+          </button>
+
           <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
             💎 HC: {currentUser?.balance || '0'}
           </span>
@@ -86,6 +113,15 @@ const Header = ({
           <ConnectButton showBalance={false} />
         </div>
       </div>
+
+      {showDailyRewards && (
+        <DailyRewardsModal 
+          isOpen={showDailyRewards}
+          onClose={() => setShowDailyRewards(false)}
+          currentUser={currentUser}
+          isMobile={false}
+        />
+      )}
     </header>
   );
 };
