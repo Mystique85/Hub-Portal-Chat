@@ -5,13 +5,15 @@ import { db } from '../../config/firebase';
 import MessageList from './MessageList';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../utils/constants';
 
-const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile = false }) => {
+const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile = false, onStartPrivateChat }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [pendingTransaction, setPendingTransaction] = useState(null);
+  const [replyingTo, setReplyingTo] = useState(null);
   
   const messagesEndRef = useRef(null);
+  const messageInputRef = useRef(null);
   const { writeContract, data: transactionHash } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
@@ -34,7 +36,6 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
     return () => unsubscribeMessages();
   }, []);
 
-  // Scrollowanie - BEZ ZMIAN
   useEffect(() => {
     const scrollToBottom = () => {
       if (messagesEndRef.current) {
@@ -71,6 +72,7 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
         avatar: messageData.avatar,
         avatarType: messageData.avatarType,
         walletAddress: messageData.walletAddress,
+        replyTo: messageData.replyTo || null,
         timestamp: serverTimestamp()
       });
       
@@ -78,6 +80,43 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
       console.log("✅ Wiadomość dodana do Firestore PO potwierdzeniu transakcji");
     } catch (error) {
       console.error('Error adding message to Firestore:', error);
+    }
+  };
+
+  const handleReply = (message) => {
+    console.log("Odpowiedz do:", message.nickname);
+    setReplyingTo(message);
+    
+    // Focus na input
+    setTimeout(() => {
+      if (messageInputRef.current) {
+        messageInputRef.current.focus();
+        messageInputRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
+  const handlePrivateMessage = (message) => {
+    if (onStartPrivateChat) {
+      const user = {
+        walletAddress: message.walletAddress,
+        nickname: message.nickname,
+        avatar: message.avatar
+      };
+      onStartPrivateChat(user);
+    }
+  };
+
+  const handleScrollToMessage = (messageId) => {
+    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (messageElement) {
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      
+      // Dodaj efekt highlight
+      messageElement.classList.add('bg-cyan-500/20', 'border-cyan-500/50');
+      setTimeout(() => {
+        messageElement.classList.remove('bg-cyan-500/20', 'border-cyan-500/50');
+      }, 2000);
     }
   };
 
@@ -92,7 +131,13 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
         nickname: currentUser.nickname,
         avatar: currentUser.avatar,
         avatarType: currentUser.avatarType,
-        walletAddress: currentUser.walletAddress
+        walletAddress: currentUser.walletAddress,
+        replyTo: replyingTo ? {
+          messageId: replyingTo.id,
+          nickname: replyingTo.nickname,
+          content: replyingTo.content,
+          avatar: replyingTo.avatar
+        } : null
       };
       
       setPendingTransaction(messageData);
@@ -105,6 +150,7 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
       });
       
       setNewMessage('');
+      setReplyingTo(null);
       
     } catch (error) {
       console.error('Send message failed:', error);
@@ -131,25 +177,50 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
 
   return (
     <section className={`flex flex-col h-full min-h-0 ${isMobile ? 'p-2' : 'p-6'}`}>
-      {/* Messages List - tylko mniejsze rozmiary */}
       <div className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'mb-2' : 'mb-4'}`}>
         <MessageList 
           messages={messages}
           currentUser={currentUser}
           onDeleteMessage={handleDeleteMessage}
+          onReply={handleReply}
+          onPrivateMessage={handlePrivateMessage}
+          onScrollToMessage={handleScrollToMessage}
           isMobile={isMobile}
         />
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Message Input - tylko mniejsze rozmiary */}
+      {/* Wyświetl informację o odpowiedzi */}
+      {replyingTo && (
+        <div className="bg-cyan-500/20 border border-cyan-500/30 rounded-xl p-3 mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-cyan-400 text-lg">↶</span>
+            <div className="flex-1 min-w-0">
+              <div className="text-cyan-400 text-sm font-medium">
+                Odpowiadasz <strong>@{replyingTo.nickname}</strong>
+              </div>
+              <div className="text-gray-300 text-xs truncate">
+                {replyingTo.content}
+              </div>
+            </div>
+          </div>
+          <button 
+            onClick={() => setReplyingTo(null)}
+            className="text-gray-400 hover:text-white text-lg flex-shrink-0 ml-2"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <div className={`flex gap-2 bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl flex-shrink-0 ${isMobile ? 'mt-auto p-2' : 'p-4 rounded-2xl'}`}>
         <input 
+          ref={messageInputRef}
           type="text" 
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder={isMobile ? "Type message..." : "Type your message in public chat... (Enter to send)"}
+          placeholder={replyingTo ? `Odpowiedz @${replyingTo.nickname}...` : (isMobile ? "Type message..." : "Type your message in public chat... (Enter to send)")}
           disabled={isSending}
           className={`flex-1 bg-transparent border-none text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 disabled:opacity-50 ${
             isMobile ? 'text-sm px-2' : 'px-3'

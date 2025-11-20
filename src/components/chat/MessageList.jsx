@@ -1,6 +1,6 @@
 import MessageItem from './MessageItem';
 
-const MessageList = ({ messages, currentUser, onDeleteMessage, isMobile = false }) => {
+const MessageList = ({ messages, currentUser, onDeleteMessage, isMobile = false, onReply, onPrivateMessage, onScrollToMessage }) => {
   if (messages.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -17,18 +17,22 @@ const MessageList = ({ messages, currentUser, onDeleteMessage, isMobile = false 
     <div className={`
       w-full
       ${isMobile 
-        ? 'space-y-3 px-2'  // MNIEJSZE: odstępy i paddingi
-        : 'space-y-4 max-w-7xl px-6'
+        ? 'space-y-3 px-2'
+        : 'space-y-4 px-6'
       }
     `}>
       {messages.map(msg => (
-        <MessageItem 
-          key={msg.id} 
-          msg={msg}
-          currentUser={currentUser}
-          onDeleteMessage={onDeleteMessage}
-          isMobile={isMobile}
-        />
+        <div key={msg.id} data-message-id={msg.id}>
+          <MessageItem 
+            msg={msg}
+            currentUser={currentUser}
+            onDeleteMessage={onDeleteMessage}
+            onReply={onReply}
+            onPrivateMessage={onPrivateMessage}
+            onScrollToMessage={onScrollToMessage}
+            isMobile={isMobile}
+          />
+        </div>
       ))}
     </div>
   );
