@@ -6,13 +6,11 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false }) =>
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // FUNKCJA BEZ ZMIAN - wszystkie funkcje działają tak samo
   const formatMessageTime = (timestamp) => {
     if (!timestamp?.toDate) return 'Now';
     
     const messageDate = timestamp.toDate();
     
-    // DLA MOBILE: krótszy format, ale FUNKCJA ta sama
     if (isMobile) {
       return `${messageDate.getDate().toString().padStart(2, '0')}.${(messageDate.getMonth() + 1).toString().padStart(2, '0')} ${messageDate.getHours().toString().padStart(2, '0')}:${messageDate.getMinutes().toString().padStart(2, '0')}`;
     }
@@ -20,7 +18,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false }) =>
     return `${messageDate.getDate().toString().padStart(2, '0')}.${(messageDate.getMonth() + 1).toString().padStart(2, '0')} ${messageDate.getHours().toString().padStart(2, '0')}:${messageDate.getMinutes().toString().padStart(2, '0')}`;
   };
 
-  // FUNKCJA BEZ ZMIAN - wszystkie embedy działają
   const processMessageForEmbeds = (text, isAdmin) => {
     if (!isAdmin) return text;
     
@@ -40,7 +37,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false }) =>
     });
   };
 
-  // FUNKCJA BEZ ZMIAN - wszystkie linki działają
   const renderMessageWithEmbeds = (processedText) => {
     const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
     
@@ -88,11 +84,10 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false }) =>
     <div className={`
       bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 hover:border-cyan-500/50 transition-all group relative
       ${isMobile 
-        ? 'rounded-xl p-3' // MNIEJSZE: padding i zaokrąglenie
+        ? 'rounded-xl p-3'
         : 'rounded-2xl p-4'
       }
     `}>
-      {/* Przycisk usuwania - FUNKCJA TA SAMA, tylko mniejsze rozmiary */}
       {canDelete && (
         <div className={`absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 ${
           isMobile ? '-top-1 -right-1' : '-top-2 -right-2'
@@ -128,18 +123,17 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false }) =>
         </div>
       )}
 
-      {/* Message Header - tylko mniejsze rozmiary */}
       <div className="flex items-center gap-3 mb-2">
         <div className={`
           rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center font-bold
           ${isMobile 
-            ? 'w-6 h-6 text-xs' // MNIEJSZE: avatar
+            ? 'w-6 h-6 text-xs'
             : 'w-8 h-8 text-sm'
           }
         `}>
           {msg.avatar}
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 flex items-center gap-3">
           <div className="flex items-center gap-2">
             <strong className={isMobile ? 'text-white text-sm' : 'text-white'}>
               {msg.nickname}
@@ -150,18 +144,16 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false }) =>
               </span>
             )}
           </div>
-          <span className={isMobile ? 'text-gray-400 text-xs' : 'text-gray-400 text-sm'}>
+          <span className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
             {formatMessageTime(msg.timestamp)}
           </span>
         </div>
       </div>
       
-      {/* Message Content - tylko mniejszy tekst */}
-      <div className={isMobile ? 'text-white text-sm mb-2' : 'text-white mb-2'}>
+      <div className={`${isMobile ? 'text-white text-sm mb-2' : 'text-white mb-2'} break-all overflow-hidden`}>
         {renderedContent}
       </div>
       
-      {/* Message Actions - FUNKCJA TA SAMA */}
       <div className="flex gap-2 items-center justify-between">
         <ReactionBar 
           messageId={msg.id}

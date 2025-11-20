@@ -18,7 +18,7 @@ const MessageList = ({ messages, currentUser, onDeleteMessage, isMobile = false 
       w-full
       ${isMobile 
         ? 'space-y-3 px-2'  // MNIEJSZE: odstępy i paddingi
-        : 'space-y-4 max-w-5xl px-6'
+        : 'space-y-4 max-w-7xl px-6'
       }
     `}>
       {messages.map(msg => (
