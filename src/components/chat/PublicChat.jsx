@@ -197,7 +197,7 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
             <span className="text-cyan-400 text-lg">↶</span>
             <div className="flex-1 min-w-0">
               <div className="text-cyan-400 text-sm font-medium">
-                Odpowiadasz <strong>@{replyingTo.nickname}</strong>
+                Replying to <strong>@{replyingTo.nickname}</strong>
               </div>
               <div className="text-gray-300 text-xs truncate">
                 {replyingTo.content}
@@ -220,7 +220,7 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder={replyingTo ? `Odpowiedz @${replyingTo.nickname}...` : (isMobile ? "Type message..." : "Type your message in public chat... (Enter to send)")}
+          placeholder={replyingTo ? `Reply To @${replyingTo.nickname}...` : (isMobile ? "Type message..." : "Type your message in public chat... (Enter to send)")}
           disabled={isSending}
           className={`flex-1 bg-transparent border-none text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 disabled:opacity-50 ${
             isMobile ? 'text-sm px-2' : 'px-3'

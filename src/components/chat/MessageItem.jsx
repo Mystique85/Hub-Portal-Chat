@@ -128,19 +128,19 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         }`}>
           {showDeleteConfirm ? (
             <div className="bg-red-500/90 backdrop-blur-sm border border-red-400 rounded-xl p-2 shadow-lg flex items-center gap-2 animate-in slide-in-from-top duration-200">
-              <span className="text-white text-xs font-medium">Usunąć?</span>
+              <span className="text-white text-xs font-medium">Delete?</span>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
                 className="bg-white text-red-600 text-xs px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50 transition-all"
               >
-                {isDeleting ? '...' : 'Tak'}
+                {isDeleting ? '...' : 'Yes'}
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 className="bg-gray-600 text-white text-xs px-2 py-1 rounded hover:bg-gray-500 transition-all"
               >
-                Nie
+                No
               </button>
             </div>
           ) : (
@@ -149,7 +149,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
               className={`bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center text-xs transition-all hover:scale-110 shadow-lg ${
                 isMobile ? 'w-5 h-5' : 'w-6 h-6'
               }`}
-              title="Usuń wiadomość"
+              title="Delete message"
             >
               ×
             </button>
@@ -192,7 +192,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         </div>
       </div>
 
-      {/* CYTAT ODPOWIEDZI - KLIKALNY */}
+      {/* REPLY QUOTE - CLICKABLE */}
       {msg.replyTo && (
         <div 
           className="bg-gray-700/30 border-l-2 border-cyan-500 pl-3 py-2 mb-3 rounded-r-lg cursor-pointer hover:bg-gray-700/50 transition-all group/quote"
@@ -201,7 +201,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
           <div className="flex items-center gap-2 mb-1">
             <span className="text-cyan-400 text-sm">↶</span>
             <span className="text-cyan-400 text-sm font-medium group-hover/quote:text-cyan-300 transition-colors">
-              Odpowiedź do @{msg.replyTo.nickname}
+              Replying to @{msg.replyTo.nickname}
             </span>
           </div>
           <div className="text-gray-300 text-sm group-hover/quote:text-white transition-colors">
@@ -222,7 +222,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         />
       </div>
 
-      {/* PORTAL - menu renderuje się poza kontenerem wiadomości */}
+      {/* PORTAL - menu renders outside message container */}
       {showSimpleMenu && createPortal(
         <>
           <div 
@@ -241,7 +241,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
               className="w-full text-left px-4 py-3 hover:bg-gray-700/50 rounded-lg flex items-center gap-3 transition-all"
             >
               <span className="text-green-400">↶</span>
-              <span>Odpowiedz</span>
+              <span>Reply</span>
             </button>
             
             <button 
@@ -249,7 +249,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
               className="w-full text-left px-4 py-3 hover:bg-gray-700/50 rounded-lg flex items-center gap-3 transition-all"
             >
               <span className="text-cyan-400">💬</span>
-              <span>Wyślij priv</span>
+              <span>Private Message</span>
             </button>
             
             <button 
@@ -257,7 +257,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
               className="w-full text-left px-4 py-3 hover:bg-gray-700/50 rounded-lg flex items-center gap-3 transition-all"
             >
               <span className="text-yellow-400">👍</span>
-              <span>Daj reakcję</span>
+              <span>Add Reaction</span>
             </button>
             
             <button 
@@ -265,7 +265,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
               className="w-full text-left px-4 py-3 hover:bg-gray-700/50 rounded-lg flex items-center gap-3 transition-all"
             >
               <span className="text-purple-400">👁️</span>
-              <span>Zobacz profil</span>
+              <span>View Profile</span>
             </button>
           </div>
         </>,
