@@ -1,0 +1,220 @@
+import { useState, useEffect } from 'react';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../utils/constants';
+
+const SendHCModal = ({ user, onClose }) => {
+  const [sendAmount, setSendAmount] = useState('');
+  const [txHash, setTxHash] = useState(null);
+  const [currentStep, setCurrentStep] = useState('input');
+  
+  const { address } = useAccount();
+  const { writeContractAsync, isPending: isSendingHC } = useWriteContract(); // ← ZMIENIŁEM NA isSendingHC
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash: txHash,
+  });
+
+  const presetAmounts = ['1', '5', '10', '50'];
+
+  useEffect(() => {
+    if (isConfirmed && txHash) {
+      setCurrentStep('success');
+      setTimeout(() => {
+        onClose();
+      }, 3000);
+    }
+  }, [isConfirmed, txHash, onClose]);
+
+  const handleSendHC = async () => {
+    if (!address) {
+      alert('Wallet address not found');
+      return;
+    }
+
+    if (!user?.walletAddress) {
+      alert('Recipient address not found');
+      return;
+    }
+
+    if (!sendAmount || parseFloat(sendAmount) <= 0) {
+      alert('Please enter a valid amount');
+      return;
+    }
+
+    try {
+      setCurrentStep('confirming');
+      
+      const amountInWei = BigInt(Math.floor(parseFloat(sendAmount) * 1e18));
+      
+      console.log("🟢 Sending HC:", {
+        from: address,
+        to: user.walletAddress,
+        amount: sendAmount,
+        amountInWei: amountInWei.toString()
+      });
+
+      const hash = await writeContractAsync({
+        address: CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName: 'transfer',
+        args: [user.walletAddress, amountInWei],
+      });
+      
+      if (hash) {
+        setTxHash(hash);
+      } else {
+        throw new Error('No transaction hash received');
+      }
+    } catch (error) {
+      console.error('Send HC error:', error);
+      alert('Error sending HC: ' + error.message);
+      setCurrentStep('input');
+      setTxHash(null);
+    }
+  };
+
+  const handleAmountSelect = (amount) => {
+    setSendAmount(amount);
+  };
+
+  if (currentStep === 'confirming') {
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
+        <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl text-center max-w-md w-full p-8">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+          <h2 className="text-2xl font-bold text-cyan-400 mb-2">Sending HC Tokens ⏳</h2>
+          <p className="text-gray-400 mb-4">Transaction has been sent to the Celo network...</p>
+          
+          <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
+            <div className="bg-cyan-500 h-2 rounded-full animate-pulse"></div>
+          </div>
+          
+          {txHash && (
+            <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-3 mb-4">
+              <p className="text-cyan-300 break-all text-xs">
+                <strong>TX Hash:</strong> {txHash.slice(0, 12)}...{txHash.slice(-8)}
+              </p>
+              <a 
+                href={`https://celoscan.io/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-cyan-400 hover:text-cyan-300 underline text-xs"
+              >
+                🔍 Track transaction on CeloScan
+              </a>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (currentStep === 'success') {
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
+        <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl text-center max-w-md w-full p-8">
+          <div className="text-6xl mb-4">🎉</div>
+          <h2 className="text-2xl font-bold text-cyan-400 mb-2">HC Sent Successfully!</h2>
+          <p className="text-gray-400 mb-4">
+            You sent {sendAmount} HC to {user.nickname}
+          </p>
+          <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
+            <p className="text-green-300 font-semibold">
+              ✅ Transaction confirmed!
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
+      <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl max-w-md w-full p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            Send HC Tokens
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white font-bold text-2xl leading-none"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mb-6 text-center">
+          <p className="text-cyan-300 text-sm">
+            Sending to: <strong>{user.nickname}</strong>
+          </p>
+          <p className="text-cyan-400 text-xs mt-1">
+            {user.walletAddress?.slice(0, 8)}...{user.walletAddress?.slice(-6)}
+          </p>
+        </div>
+
+        <div className="mb-6">
+          <h3 className="text-cyan-400 font-semibold mb-3 text-center">Select amount:</h3>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            {presetAmounts.map((amount) => (
+              <button
+                key={amount}
+                onClick={() => handleAmountSelect(amount)}
+                className={`py-3 rounded-xl font-semibold transition-all border-2 ${
+                  sendAmount === amount
+                    ? 'bg-cyan-500 text-white border-cyan-500 shadow-lg'
+                    : 'bg-gray-700/50 text-gray-300 border-gray-600/50 hover:bg-gray-700'
+                }`}
+              >
+                {amount} HC
+              </button>
+            ))}
+          </div>
+
+          <div>
+            <label className="block text-cyan-400 font-medium mb-2 text-sm text-center">
+              Or enter custom amount:
+            </label>
+            <div className="relative">
+              <input
+                type="number"
+                value={sendAmount}
+                onChange={(e) => setSendAmount(e.target.value)}
+                placeholder="0.00"
+                step="0.1"
+                min="0.1"
+                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 font-medium">
+                HC
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-3">
+          <button 
+            onClick={onClose}
+            className="flex-1 py-3 bg-gray-700 text-white font-semibold rounded-xl hover:bg-gray-600 transition-all"
+          >
+            Cancel
+          </button>
+          <button 
+            onClick={handleSendHC}
+            disabled={!sendAmount || isSendingHC} // ← ZMIENIŁEM NA isSendingHC
+            className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isSendingHC ? ( // ← ZMIENIŁEM NA isSendingHC
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                Sending...
+              </>
+            ) : (
+              'Send HC'
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SendHCModal;
