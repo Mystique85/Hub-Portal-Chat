@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import ReactionBar from './ReactionBar';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
@@ -10,9 +10,14 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSimpleMenu, setShowSimpleMenu] = useState(false);
   const [showReactionPicker, setShowReactionPicker] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0, direction: 'up' });
+  const [isHovered, setIsHovered] = useState(false);
   const { toggleReaction } = useReactions(msg.id, currentUser);
 
+  // Deklaracje zmiennych na początku
+  const isAdmin = ADMIN_ADDRESSES.includes(msg.walletAddress?.toLowerCase());
+  const canDelete = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
+  
   const formatMessageTime = (timestamp) => {
     if (!timestamp?.toDate) return 'Now';
     
@@ -44,6 +49,8 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
     });
   };
 
+  const processedText = processMessageForEmbeds(msg.content, isAdmin);
+  
   const renderMessageWithEmbeds = (processedText) => {
     const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
     
@@ -68,13 +75,46 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
     }).filter(Boolean);
   };
 
+  const renderedContent = renderMessageWithEmbeds(processedText);
+
+  // Hover tylko dla desktop
+  const handleMouseEnter = () => {
+    if (!isMobile) setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) setIsHovered(false);
+  };
+
   const handleUserClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     const rect = e.currentTarget.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    
+    // Sprawdzamy gdzie jest więcej miejsca - na górze czy na dole
+    const spaceAbove = rect.top;
+    const spaceBelow = viewportHeight - rect.bottom;
+    const menuHeight = 200; // Przybliżona wysokość menu
+    
+    let direction = 'down';
+    let yPosition = rect.bottom + window.scrollY + 5; // domyślnie w dół
+    
+    // Jeśli jest więcej miejsca na górze niż potrzeba dla menu, pokazujemy do góry
+    if (spaceAbove > menuHeight && spaceAbove > spaceBelow) {
+      direction = 'up';
+      yPosition = rect.top + window.scrollY - 5; // pokazujemy nad elementem
+    }
+    // Jeśli jest mało miejsca na dole, a więcej na górze - też pokazujemy do góry
+    else if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
+      direction = 'up';
+      yPosition = rect.top + window.scrollY - 5;
+    }
+    
     setMenuPosition({ 
       x: rect.left,
-      y: rect.bottom + window.scrollY
+      y: yPosition,
+      direction: direction
     });
     setShowSimpleMenu(true);
   };
@@ -108,11 +148,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
       onScrollToMessage(msg.replyTo.messageId);
     }
   };
-
-  const isAdmin = ADMIN_ADDRESSES.includes(msg.walletAddress?.toLowerCase());
-  const canDelete = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
-  const processedText = processMessageForEmbeds(msg.content, isAdmin);
-  const renderedContent = renderMessageWithEmbeds(processedText);
 
   return (
     <div className={`
@@ -160,32 +195,57 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
       <div className="flex items-center gap-3 mb-2">
         <div 
           className={`
-            rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center font-bold cursor-pointer hover:scale-110 transition-transform
+            rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center font-bold cursor-pointer transition-all relative
             ${isMobile 
-              ? 'w-6 h-6 text-xs'
-              : 'w-8 h-8 text-sm'
+              ? 'w-6 h-6 text-xs hover:scale-110'
+              : `w-8 h-8 text-sm ${isHovered ? 'scale-110 shadow-lg ring-2 ring-cyan-400/50' : 'hover:scale-110'}`
             }
           `}
           onClick={handleUserClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          title={isMobile ? "Tap for options" : "Click for options"}
         >
           {msg.avatar}
+          {/* Indicator dot for desktop */}
+          {!isMobile && isHovered && (
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+          )}
         </div>
+        
         <div className="flex-1 min-w-0 flex items-center gap-3">
           <div className="flex items-center gap-2">
             <strong 
-              className={`cursor-pointer hover:text-cyan-300 transition-colors ${
-                isMobile ? 'text-white text-sm' : 'text-white'
-              }`}
+              className={`
+                cursor-pointer transition-all duration-200 relative
+                ${isMobile 
+                  ? 'text-white text-sm hover:text-cyan-300' 
+                  : `text-white ${isHovered ? 'text-cyan-300 underline' : 'hover:text-cyan-300 hover:underline'}`
+                }
+              `}
               onClick={handleUserClick}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              title={isMobile ? "Tap for options" : "Click for options"}
             >
               {msg.nickname}
+              {/* Visual indicator */}
+              <span className={`
+                transition-opacity duration-200
+                ${isMobile 
+                  ? 'opacity-60' 
+                  : isHovered ? 'opacity-100' : 'opacity-40'
+                }
+              `}> ›</span>
             </strong>
+            
             {isAdmin && (
               <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium">
                 ADMIN
               </span>
             )}
           </div>
+          
           <span className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
             {formatMessageTime(msg.timestamp)}
           </span>
@@ -222,7 +282,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         />
       </div>
 
-      {/* PORTAL - menu renders outside message container */}
+      {/* PORTAL - zoptymalizowane efekty hover */}
       {showSimpleMenu && createPortal(
         <>
           <div 
@@ -230,34 +290,35 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
             onClick={() => setShowSimpleMenu(false)}
           />
           <div 
-            className="fixed bg-gray-800/95 backdrop-blur-xl border border-gray-600/50 rounded-xl p-2 shadow-2xl z-[9999] min-w-[160px]"
+            className="fixed bg-white border border-gray-200 rounded-xl p-2 shadow-2xl z-[9999] min-w-[180px]"
             style={{
               left: menuPosition.x + 'px',
-              top: menuPosition.y + 'px'
+              top: menuPosition.y + 'px',
+              transform: menuPosition.direction === 'up' ? 'translateY(-100%)' : 'none'
             }}
           >
             <button 
               onClick={() => { setShowSimpleMenu(false); onReply(msg); }}
-              className="w-full text-left px-4 py-3 hover:bg-gray-700/50 rounded-lg flex items-center gap-3 transition-all"
+              className="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-green-50 hover:text-green-700 group/button"
             >
-              <span className="text-green-400">↶</span>
-              <span>Reply</span>
+              <span className="text-green-500 text-lg transition-transform duration-150 group-hover/button:scale-110">↶</span>
+              <span className="font-medium">Reply</span>
             </button>
             
             <button 
               onClick={() => { setShowSimpleMenu(false); onPrivateMessage(msg); }}
-              className="w-full text-left px-4 py-3 hover:bg-gray-700/50 rounded-lg flex items-center gap-3 transition-all"
+              className="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-cyan-50 hover:text-cyan-700 group/button"
             >
-              <span className="text-cyan-400">💬</span>
-              <span>Private Message</span>
+              <span className="text-cyan-500 text-lg transition-transform duration-150 group-hover/button:scale-110">💬</span>
+              <span className="font-medium">Private Message</span>
             </button>
             
             <button 
               onClick={handleReact}
-              className="w-full text-left px-4 py-3 hover:bg-gray-700/50 rounded-lg flex items-center gap-3 transition-all"
+              className="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-yellow-50 hover:text-yellow-700 group/button"
             >
-              <span className="text-yellow-400">👍</span>
-              <span>Add Reaction</span>
+              <span className="text-yellow-500 text-lg transition-transform duration-150 group-hover/button:scale-110">👍</span>
+              <span className="font-medium">Add Reaction</span>
             </button>
             
             <button 
@@ -267,10 +328,10 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
                   onViewProfile(msg);
                 }
               }}
-              className="w-full text-left px-4 py-3 hover:bg-gray-700/50 rounded-lg flex items-center gap-3 transition-all"
+              className="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-purple-50 hover:text-purple-700 group/button"
             >
-              <span className="text-purple-400">👁️</span>
-              <span>View Profile</span>
+              <span className="text-purple-500 text-lg transition-transform duration-150 group-hover/button:scale-110">👁️</span>
+              <span className="font-medium">View Profile</span>
             </button>
           </div>
         </>,
