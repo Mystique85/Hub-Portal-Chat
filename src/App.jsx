@@ -343,6 +343,7 @@ function App() {
             unreadCounts={unreadCounts}
             onStartPrivateChat={startPrivateChat}
             activeDMChat={activeDMChat}
+            markAsRead={markAsRead}
           />
 
           <div className="flex-1 flex flex-col bg-gray-900/50 min-w-0">
