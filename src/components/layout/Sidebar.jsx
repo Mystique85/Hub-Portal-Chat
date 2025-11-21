@@ -182,11 +182,6 @@ const Sidebar = ({
         <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
           {onlineUsers.length} online
-          {totalUnreadCount > 0 && (
-            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full ml-2 animate-pulse">
-              {totalUnreadCount} new
-            </span>
-          )}
         </div>
       </div>
 

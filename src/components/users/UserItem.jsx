@@ -56,20 +56,8 @@ const UserItem = ({
         </div>
       </div>
       
-      {/* Unread Count */}
-      {unreadCount > 0 && (
-        <div className="flex items-center">
-          <div className="relative">
-            <div className="bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg animate-bounce">
-              {unreadCount}
-            </div>
-            <div className="absolute inset-0 bg-red-400 rounded-full animate-ping"></div>
-          </div>
-        </div>
-      )}
-      
       {/* Online Status Dot */}
-      {!unreadCount && showOnlineStatus && isOnline && (
+      {showOnlineStatus && isOnline && (
         <div className="w-2 h-2 bg-green-400 rounded-full flex-shrink-0 animate-pulse"></div>
       )}
     </div>
