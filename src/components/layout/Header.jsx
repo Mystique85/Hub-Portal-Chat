@@ -68,7 +68,7 @@ const Header = ({
   }
 
   return (
-    <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-6 flex-shrink-0">
+    <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-8 flex-shrink-0">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
@@ -105,11 +105,6 @@ const Header = ({
           <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
             🎯 Left: {currentUser?.remaining || '0'}/10
           </span>
-          {totalUnreadCount > 0 && (
-            <span className="px-4 py-2 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 animate-pulse">
-              📩 {totalUnreadCount} unread
-            </span>
-          )}
           <ConnectButton showBalance={false} />
         </div>
       </div>
