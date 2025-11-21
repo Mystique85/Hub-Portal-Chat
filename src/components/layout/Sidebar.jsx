@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import UserList from '../users/UserList';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
 
@@ -14,14 +13,19 @@ const Sidebar = ({
   onStartPrivateChat,
   activeDMChat,
   isMobile = false,
-  onMobileViewChange
+  onMobileViewChange,
+  markAsRead
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAdminDropdown, setShowAdminDropdown] = useState(false);
+  const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
 
   const filteredUsers = (activeTab === 'online' ? onlineUsers : allUsers).filter(user =>
     user.nickname?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Użytkownicy z nieprzeczytanymi wiadomościami
+  const usersWithUnread = allUsers.filter(user => unreadCounts[user.walletAddress] > 0);
 
   const admins = allUsers.filter(user => 
     ADMIN_ADDRESSES.includes(user.walletAddress?.toLowerCase())
@@ -31,6 +35,20 @@ const Sidebar = ({
       onlineUser.walletAddress === admin.walletAddress
     )
   }));
+
+  // Funkcja do obsługi kliknięcia użytkownika z notifications dropdown
+  const handleNotificationClick = async (user) => {
+    // Oznacz wiadomości jako przeczytane w Firebase
+    if (markAsRead) {
+      await markAsRead(user.walletAddress);
+    }
+    
+    // Otwórz czat prywatny
+    onStartPrivateChat(user);
+    
+    // Zamknij dropdown
+    setShowNotificationsDropdown(false);
+  };
 
   if (isMobile) {
     return (
@@ -145,7 +163,7 @@ const Sidebar = ({
     );
   }
 
-  // DESKTOP VERSION - ORYGINALNY KOD BEZ ZMIAN
+  // DESKTOP VERSION
   return (
     <div className="w-80 bg-gray-800/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col h-full overflow-hidden">
       <div className="p-6 border-b border-gray-700/50 flex-shrink-0">
@@ -182,12 +200,70 @@ const Sidebar = ({
               <div className="text-white font-semibold truncate">{currentUser.nickname}</div>
               <div className="text-cyan-400 text-sm">HC: {currentUser.balance || '0'}</div>
               <div className="text-gray-400 text-xs">Rewards: {currentUser.remaining || '0'}/10 left</div>
-              {totalUnreadCount > 0 && (
-                <div className="text-green-400 text-xs animate-pulse">
-                  📩 {totalUnreadCount} unread messages
-                </div>
-              )}
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* INBOX DROPDOWN - BEZ ZERA, POKAZUJE LICZNIK DOPIERO OD 1 */}
+      <div className="p-4 border-b border-gray-700/50 flex-shrink-0 relative">
+        <button
+          onClick={() => setShowNotificationsDropdown(!showNotificationsDropdown)}
+          className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-white transition-all ${
+            totalUnreadCount > 0 
+              ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/50 hover:bg-purple-500/30' 
+              : 'bg-gray-700/20 border border-gray-600/50 hover:bg-gray-700/30'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <span>📩</span>
+            <span>Inbox</span>
+            {totalUnreadCount > 0 && (
+              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {/* POKAZUJ LICZNIK TYLKO GDY SĄ NIEPRZECZYTANE WIADOMOŚCI */}
+            {totalUnreadCount > 0 && (
+              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse min-w-6 text-center">
+                {totalUnreadCount}
+              </span>
+            )}
+            <span className={`text-gray-400 transform transition-transform ${showNotificationsDropdown ? 'rotate-180' : ''}`}>
+              ▼
+            </span>
+          </div>
+        </button>
+
+        {/* DROPDOWN CONTENT */}
+        {showNotificationsDropdown && (
+          <div className="absolute top-full left-4 right-4 mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-lg z-20 max-h-48 overflow-y-auto">
+            {usersWithUnread.length > 0 ? (
+              usersWithUnread.map(user => (
+                <div
+                  key={user.walletAddress}
+                  onClick={() => handleNotificationClick(user)}
+                  className="flex items-center gap-2 p-2 hover:bg-gray-700/50 cursor-pointer transition-all border-b border-gray-700/50 last:border-b-0"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-xs">
+                    {user.avatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-white text-sm font-medium truncate">
+                      {user.nickname}
+                    </div>
+                    <div className="text-gray-400 text-xs flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse"></div>
+                      {unreadCounts[user.walletAddress]} unread
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-4 text-center text-gray-400 text-sm">
+                No unread messages
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -249,6 +325,7 @@ const Sidebar = ({
         </div>
       )}
 
+      {/* ZAKŁADKI ONLINE/ALL USERS */}
       <div className="p-4 border-b border-gray-700/50 flex-shrink-0">
         <div className="flex bg-gray-700/50 rounded-xl p-1 border border-gray-600/50">
           <button 
@@ -303,14 +380,9 @@ const Sidebar = ({
         />
       </div>
 
-      <div className="p-4 border-t border-gray-700/50 flex-shrink-0 space-y-3">
-        <div className="flex justify-between items-center p-3 bg-gray-700/30 rounded-xl border border-gray-600/50">
-          <span className="text-gray-400 text-sm">Daily Rewards:</span>
-          <strong className="text-cyan-400">{currentUser?.remaining || '0'}/10</strong>
-        </div>
-        
-        <div className="flex justify-center">
-          <ConnectButton showBalance={false} />
+      <div className="p-4 border-t border-gray-700/50 flex-shrink-0">
+        <div className="text-center text-gray-400 text-xs">
+          Connected as {currentUser?.nickname}
         </div>
       </div>
     </div>
