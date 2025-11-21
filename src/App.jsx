@@ -346,30 +346,38 @@ function App() {
             markAsRead={markAsRead}
           />
 
-          <div className="flex-1 flex flex-col bg-gray-900/50 min-w-0">
+          {/* GŁÓWNY CONTENT AREA - HEADER + PUBLIC CHAT + PRIVATE CHAT */}
+          <div className="flex-1 flex flex-col bg-gray-900/50 min-w-0 relative">
             <Header 
               currentUser={userWithBalance}
               totalUnreadCount={totalUnreadCount}
             />
             
-            <PublicChat 
-              currentUser={userWithBalance}
-              onUpdateLastSeen={updateUserLastSeen}
-              onDeleteMessage={deleteMessage}
-              onStartPrivateChat={startPrivateChat}
-              onViewProfile={handleViewProfile}
-              updateUserMessageCount={updateUserMessageCount}
-            />
-          </div>
+            {/* CONTENT CONTAINER DLA PUBLIC I PRIVATE CHAT */}
+            <div className="flex-1 flex min-h-0">
+              {/* PUBLIC CHAT - ZAWSZE WIDOCZNY */}
+              <div className={`${activeDMChat ? 'flex-1' : 'w-full'} min-w-0`}>
+                <PublicChat 
+                  currentUser={userWithBalance}
+                  onUpdateLastSeen={updateUserLastSeen}
+                  onDeleteMessage={deleteMessage}
+                  onStartPrivateChat={startPrivateChat}
+                  onViewProfile={handleViewProfile}
+                  updateUserMessageCount={updateUserMessageCount}
+                />
+              </div>
 
-          {activeDMChat && (
-            <PrivateChat
-              activeDMChat={activeDMChat}
-              currentUser={userWithBalance}
-              onClose={closeDMChat}
-              onMarkAsRead={markAsRead}
-            />
-          )}
+              {/* PRIVATE CHAT - OTWIERA SIĘ OBOK PUBLIC CHAT, POD HEADEREM */}
+              {activeDMChat && (
+                <PrivateChat
+                  activeDMChat={activeDMChat}
+                  currentUser={userWithBalance}
+                  onClose={closeDMChat}
+                  onMarkAsRead={markAsRead}
+                />
+              )}
+            </div>
+          </div>
         </div>
       )}
 
