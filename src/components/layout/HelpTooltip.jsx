@@ -4,12 +4,14 @@ import { translations, getBrowserLanguage } from '../../utils/translations';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
 import { useAccount } from 'wagmi';
 
-const HelpTooltip = ({ isMobile = false, showButton = true }) => {
-  const [showTooltip, setShowTooltip] = useState(false);
+const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOpen, onClose }) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [expandedSection, setExpandedSection] = useState(null);
   const [language, setLanguage] = useState(getBrowserLanguage());
   const tooltipRef = useRef(null);
   const { address } = useAccount();
+
+  const showTooltip = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
 
   const t = translations[language];
   const helpSections = t.sections;
@@ -34,11 +36,19 @@ const HelpTooltip = ({ isMobile = false, showButton = true }) => {
 
   const allSections = isAdmin ? [adminFormattingSection, ...helpSections] : helpSections;
 
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      setInternalIsOpen(false);
+    }
+    setExpandedSection(null);
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (tooltipRef.current && !tooltipRef.current.contains(event.target)) {
-        setShowTooltip(false);
-        setExpandedSection(null);
+        handleClose();
       }
     };
 
@@ -67,10 +77,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true }) => {
       }`}>
         <div 
           className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-          onClick={() => {
-            setShowTooltip(false);
-            setExpandedSection(null);
-          }}
+          onClick={handleClose}
         />
         
         <div 
@@ -124,10 +131,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true }) => {
                 </div>
 
                 <button
-                  onClick={() => {
-                    setShowTooltip(false);
-                    setExpandedSection(null);
-                  }}
+                  onClick={handleClose}
                   className={`text-gray-400 hover:text-white transition-all hover:scale-110 hover:bg-gray-700/50 rounded-xl ${
                     isMobile ? 'text-lg p-1 rounded-lg' : 'text-2xl p-3 rounded-xl'
                   }`}
@@ -330,7 +334,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true }) => {
     <>
       {showButton && !showTooltip && (
         <button
-          onClick={() => setShowTooltip(!showTooltip)}
+          onClick={() => setInternalIsOpen(true)}
           className={`flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg ${
             isMobile ? 'px-3 py-1.5 text-xs gap-1' : 'px-4 py-2 text-sm'
           }`}

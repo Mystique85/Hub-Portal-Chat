@@ -3,8 +3,9 @@ import HelpTooltip from './HelpTooltip';
 import Donation from './Donation';
 import CeloHub from './CeloHub';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import DailyRewardsModal from '../modals/DailyRewardsModal';
+import ReactDOM from 'react-dom';
 
 const Header = ({ 
   currentUser, 
@@ -14,10 +15,124 @@ const Header = ({
   onMobileViewChange,
   onUserStatsClick,
   activeDMChat,
-  onShowLeaderboard // ← DODANY PROP
+  onShowLeaderboard
 }) => {
   const [showDailyRewards, setShowDailyRewards] = useState(false);
+  const [showQuickAccessMenu, setShowQuickAccessMenu] = useState(false);
+  const quickAccessButtonRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const isAdmin = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
+
+  // Stany dla komponentów w dropdown
+  const [showHelpTooltip, setShowHelpTooltip] = useState(false);
+  const [showCeloHub, setShowCeloHub] = useState(false);
+  const [showDonation, setShowDonation] = useState(false);
+
+  useEffect(() => {
+    if (showQuickAccessMenu && quickAccessButtonRef.current) {
+      const rect = quickAccessButtonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 8,
+        left: rect.right + window.scrollX - 192
+      });
+    }
+  }, [showQuickAccessMenu]);
+
+  // Zamknij dropdown kiedy klikniesz poza nim
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+          quickAccessButtonRef.current && !quickAccessButtonRef.current.contains(event.target)) {
+        setShowQuickAccessMenu(false);
+      }
+    };
+
+    if (showQuickAccessMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showQuickAccessMenu]);
+
+  const QuickAccessDropdown = () => {
+    if (!showQuickAccessMenu) return null;
+
+    const dropdownContent = (
+      <div 
+        ref={dropdownRef}
+        className="fixed bg-gray-800/95 backdrop-blur-xl border border-gray-600/50 rounded-xl shadow-2xl z-[99999] py-2 w-48"
+        style={{
+          top: dropdownPosition.top,
+          left: dropdownPosition.left
+        }}
+      >
+        {/* Actions Section */}
+        <button 
+          onClick={() => {
+            onShowLeaderboard();
+            setShowQuickAccessMenu(false);
+          }}
+          className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
+        >
+          <span>🏆</span>
+          <span>Leaderboard</span>
+        </button>
+        
+        <button 
+          onClick={() => {
+            setShowDailyRewards(true);
+            setShowQuickAccessMenu(false);
+          }}
+          className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
+        >
+          <span>🎁</span>
+          <span>Daily Rewards</span>
+        </button>
+
+        {/* Separator */}
+        <div className="border-t border-gray-600/50 my-1"></div>
+
+        {/* Resources Section */}
+        <button 
+          onClick={() => {
+            setShowHelpTooltip(true);
+            setShowQuickAccessMenu(false);
+          }}
+          className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
+        >
+          <span>❓</span>
+          <span>Quick Guide</span>
+        </button>
+        
+        <button 
+          onClick={() => {
+            setShowCeloHub(true);
+            setShowQuickAccessMenu(false);
+          }}
+          className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
+        >
+          <span>🌐</span>
+          <span>Celo Ecosystem</span>
+        </button>
+        
+        <button 
+          onClick={() => {
+            setShowDonation(true);
+            setShowQuickAccessMenu(false);
+          }}
+          className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
+        >
+          <span>💝</span>
+          <span>Support Project</span>
+        </button>
+      </div>
+    );
+
+    return ReactDOM.createPortal(dropdownContent, document.body);
+  };
 
   if (isMobile) {
     return (
@@ -41,7 +156,6 @@ const Header = ({
           </div>
           
           <div className="flex items-center gap-2">
-            {/* DODANY PRZYCISK LEADERBOARD DLA MOBILE */}
             <button 
               onClick={onShowLeaderboard}
               className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-2 rounded-xl hover:scale-105 transition-transform"
@@ -97,35 +211,57 @@ const Header = ({
         </div>
         
         <div className="flex items-center gap-4">
-          <HelpTooltip />
-          <CeloHub />
-          <Donation />
-          
-          {/* DODANY PRZYCISK LEADERBOARD */}
-          <button 
-            onClick={onShowLeaderboard}
-            className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-semibold transition-all hover:scale-105 flex items-center gap-2 text-sm"
-          >
-            🏆 Leaderboard
-          </button>
+          {/* Quick Access Dropdown Menu */}
+          <div className="relative">
+            <button 
+              ref={quickAccessButtonRef}
+              onClick={() => setShowQuickAccessMenu(!showQuickAccessMenu)}
+              className="h-[42px] px-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-cyan-500/25"
+            >
+              <span>📊</span>
+              <span>Quick Access</span>
+              <span className={`transition-transform duration-200 ${showQuickAccessMenu ? 'rotate-180' : ''}`}>
+                ▼
+              </span>
+            </button>
+          </div>
 
-          {/* Daily Rewards Button */}
-          <button 
-            onClick={() => setShowDailyRewards(true)}
-            className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl font-semibold transition-all hover:scale-105 flex items-center gap-2 text-sm"
-          >
-            🎁 Daily Rewards
-          </button>
-
-          <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
+          {/* Balance and Messages - pozostają na stałe */}
+          <span className="h-[42px] px-4 flex items-center bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
             💎 HC: {currentUser?.balance || '0'}
           </span>
-          <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
+          <span className="h-[42px] px-4 flex items-center bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
             🎯 Left: {currentUser?.remaining || '0'}/10
           </span>
+          
           <ConnectButton showBalance={false} />
         </div>
       </div>
+
+      {/* Quick Access Dropdown Portal */}
+      <QuickAccessDropdown />
+
+      {/* Renderujemy komponenty ale bez przycisków (showButton={false}) */}
+      <HelpTooltip 
+        isMobile={false} 
+        showButton={false}
+        isOpen={showHelpTooltip}
+        onClose={() => setShowHelpTooltip(false)}
+      />
+      
+      <CeloHub 
+        isMobile={false} 
+        showButton={false}
+        isOpen={showCeloHub}
+        onClose={() => setShowCeloHub(false)}
+      />
+      
+      <Donation 
+        isMobile={false} 
+        showButton={false}
+        isOpen={showDonation}
+        onClose={() => setShowDonation(false)}
+      />
 
       {showDailyRewards && (
         <DailyRewardsModal 

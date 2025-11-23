@@ -59,11 +59,13 @@ const translations = {
   }
 };
 
-const CeloHub = ({ isMobile = false, showButton = true }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const CeloHub = ({ isMobile = false, showButton = true, isOpen: externalIsOpen, onClose }) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [currentView, setCurrentView] = useState('dashboard');
   const [expandedBadge, setExpandedBadge] = useState(null);
   const [language] = useState('en');
+
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
 
   const t = translations[language];
 
@@ -444,7 +446,7 @@ const CeloHub = ({ isMobile = false, showButton = true }) => {
       },
       {
         name: "HUB Vote",
-        description: isMobile ? "Governance voting platform" : "Governance voting platform for community decisions and project proposals",
+        description: isMobile ? "Governance voting platform" : "Governation voting platform for community decisions and project proposals",
         status: "🟢 Live",
         links: {
           live: "https://hub-portal-vote.vercel.app/",
@@ -454,6 +456,15 @@ const CeloHub = ({ isMobile = false, showButton = true }) => {
         icon: "hub.logo"
       }
     ]
+  };
+
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      setInternalIsOpen(false);
+    }
+    setExpandedBadge(null);
   };
 
   useEffect(() => {
@@ -607,10 +618,7 @@ const CeloHub = ({ isMobile = false, showButton = true }) => {
               
               <div className="flex items-center gap-4">
                 <button
-                  onClick={() => {
-                    setIsOpen(false);
-                    setExpandedBadge(null);
-                  }}
+                  onClick={handleClose}
                   className={`text-gray-400 hover:text-white transition-all hover:scale-110 hover:bg-gray-700/50 rounded-xl ${
                     isMobile ? 'text-xl p-1' : 'text-2xl p-2'
                   }`}
@@ -912,7 +920,7 @@ const CeloHub = ({ isMobile = false, showButton = true }) => {
     <>
       {showButton && !isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={() => setInternalIsOpen(true)}
           className={`flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-600 transition-all transform hover:scale-105 shadow-lg ${
             isMobile ? 'px-3 py-1.5 text-xs gap-1' : 'px-4 py-2 text-sm'
           }`}
