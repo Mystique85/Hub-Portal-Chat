@@ -16,11 +16,13 @@ import NicknameModal from './components/modals/NicknameModal';
 import PrivateChatModal from './components/modals/PrivateChatModal';
 import ToastNotification from './components/modals/ToastNotification';
 import UserProfileModal from './components/modals/UserProfileModal';
+import LeaderboardModal from './components/modals/LeaderboardModal';
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
 import { useChat } from './hooks/useChat';
 import { useWeb3 } from './hooks/useWeb3';
+import { useSeasons } from './hooks/useSeasons';
 
 import { AVAILABLE_AVATARS } from './utils/constants';
 
@@ -31,6 +33,7 @@ function App() {
   const [showUserStats, setShowUserStats] = useState(false);
   const [activeTab, setActiveTab] = useState('online');
   const [selectedProfileUser, setSelectedProfileUser] = useState(null);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   
   useEffect(() => {
     (async () => {
@@ -76,6 +79,8 @@ function App() {
 
   const { balance, remaining, getOtherUserBalance } = useWeb3(address);
 
+  const { checkAndDistributeRewards } = useSeasons();
+
   const [privateMessage, setPrivateMessage] = useState('');
   const [nicknameInput, setNicknameInput] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('🐶');
@@ -99,6 +104,10 @@ function App() {
       setMobileView('private');
     }
   }, [activeDMChat, isMobile]);
+
+  useEffect(() => {
+    checkAndDistributeRewards();
+  }, []);
 
   const openChatFromToast = async (userId) => {
     const user = allUsers.find(u => u.walletAddress === userId);
@@ -162,6 +171,14 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white overflow-hidden">
       <NetworkBackground />
       
+      {showLeaderboard && (
+        <LeaderboardModal 
+          isOpen={showLeaderboard}
+          onClose={() => setShowLeaderboard(false)}
+          currentUser={userWithBalance}
+        />
+      )}
+
       {toastNotification && (
         <ToastNotification 
           notification={toastNotification}
@@ -180,6 +197,7 @@ function App() {
             onMobileViewChange={setMobileView}
             onUserStatsClick={() => setShowUserStats(true)}
             activeDMChat={activeDMChat}
+            onShowLeaderboard={() => setShowLeaderboard(true)}
           />
           
           <div className="flex-1 min-h-0 bg-gray-900/50 overflow-hidden">
@@ -346,16 +364,14 @@ function App() {
             markAsRead={markAsRead}
           />
 
-          {/* GŁÓWNY CONTENT AREA - HEADER + PUBLIC CHAT + PRIVATE CHAT */}
           <div className="flex-1 flex flex-col bg-gray-900/50 min-w-0 relative">
             <Header 
               currentUser={userWithBalance}
               totalUnreadCount={totalUnreadCount}
+              onShowLeaderboard={() => setShowLeaderboard(true)}
             />
             
-            {/* CONTENT CONTAINER DLA PUBLIC I PRIVATE CHAT */}
             <div className="flex-1 flex min-h-0">
-              {/* PUBLIC CHAT - ZAWSZE WIDOCZNY */}
               <div className={`${activeDMChat ? 'flex-1' : 'w-full'} min-w-0`}>
                 <PublicChat 
                   currentUser={userWithBalance}
@@ -367,7 +383,6 @@ function App() {
                 />
               </div>
 
-              {/* PRIVATE CHAT - OTWIERA SIĘ OBOK PUBLIC CHAT, POD HEADEREM */}
               {activeDMChat && (
                 <PrivateChat
                   activeDMChat={activeDMChat}

@@ -13,7 +13,8 @@ const Header = ({
   mobileView = 'public',
   onMobileViewChange,
   onUserStatsClick,
-  activeDMChat 
+  activeDMChat,
+  onShowLeaderboard // ← DODANY PROP
 }) => {
   const [showDailyRewards, setShowDailyRewards] = useState(false);
   const isAdmin = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
@@ -40,6 +41,15 @@ const Header = ({
           </div>
           
           <div className="flex items-center gap-2">
+            {/* DODANY PRZYCISK LEADERBOARD DLA MOBILE */}
+            <button 
+              onClick={onShowLeaderboard}
+              className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-2 rounded-xl hover:scale-105 transition-transform"
+              title="Leaderboard"
+            >
+              🏆
+            </button>
+            
             <button 
               onClick={() => setShowDailyRewards(true)}
               className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-2 rounded-xl hover:scale-105 transition-transform"
@@ -91,6 +101,14 @@ const Header = ({
           <CeloHub />
           <Donation />
           
+          {/* DODANY PRZYCISK LEADERBOARD */}
+          <button 
+            onClick={onShowLeaderboard}
+            className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-semibold transition-all hover:scale-105 flex items-center gap-2 text-sm"
+          >
+            🏆 Leaderboard
+          </button>
+
           {/* Daily Rewards Button */}
           <button 
             onClick={() => setShowDailyRewards(true)}
