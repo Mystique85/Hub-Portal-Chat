@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import SendHCModal from './SendHCModal'; // ← DODANY IMPORT
+import { getCurrentSeason, getSeasonBadge } from '../../utils/seasons';
+import SendHCModal from './SendHCModal';
 
 const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [userBalance, setUserBalance] = useState('0');
   const [loading, setLoading] = useState(true);
   const [showSendModal, setShowSendModal] = useState(false);
+  const [seasonStats, setSeasonStats] = useState(null);
+
+  const season = getCurrentSeason();
 
   useEffect(() => {
     const loadProfileData = async () => {
@@ -15,11 +19,9 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
       
       setLoading(true);
       try {
-        // 1. Pobierz pełny profil użytkownika z Firestore
         const userDoc = await getDoc(doc(db, 'users', user.walletAddress.toLowerCase()));
         const firestoreProfile = userDoc.exists() ? userDoc.data() : null;
         
-        // 2. Pobierz balance z kontraktu
         let balance = '0';
         if (getOtherUserBalance) {
           balance = await getOtherUserBalance(user.walletAddress);
@@ -27,6 +29,15 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
         
         setUserProfile(firestoreProfile);
         setUserBalance(balance);
+        
+        if (firestoreProfile) {
+          setSeasonStats({
+            seasonMessages: firestoreProfile.season1_messages || 0,
+            seasonRank: firestoreProfile.season1_rank || null,
+            seasonReward: firestoreProfile.season1_reward || null,
+            badges: firestoreProfile.badges || []
+          });
+        }
         
       } catch (error) {
         console.error('Error loading user profile:', error);
@@ -38,12 +49,21 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
     loadProfileData();
   }, [user, getOtherUserBalance]);
 
+  const getBadgeColor = (badgeType) => {
+    switch(badgeType) {
+      case 'legendary': return 'from-yellow-400 to-orange-500';
+      case 'epic': return 'from-purple-500 to-pink-500';
+      case 'rare': return 'from-cyan-500 to-blue-500';
+      default: return 'from-gray-500 to-gray-600';
+    }
+  };
+
   if (!user) return null;
 
   return (
     <>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-8 max-w-sm w-full">
+        <div className="bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-6 max-w-sm w-full">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-4">
               User Profile
@@ -69,7 +89,6 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
             </div>
           ) : (
             <div className="space-y-6">
-              {/* HC Balance - RZECZYWISTY BALANCE Z KONTRAKTU */}
               <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-4 text-center">
                 <div className="text-cyan-400 font-bold text-3xl mb-2">
                   {userBalance}
@@ -77,7 +96,6 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
                 <div className="text-cyan-300 text-sm">HC Tokens</div>
               </div>
               
-              {/* User Stats */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-700/50 rounded-xl p-3 text-center">
                   <div className="text-green-400 font-bold text-lg">
@@ -87,6 +105,15 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
                 </div>
                 <div className="bg-gray-700/50 rounded-xl p-3 text-center">
                   <div className="text-purple-400 font-bold text-lg">
+                    {seasonStats?.seasonMessages || '0'}
+                  </div>
+                  <div className="text-gray-400 text-xs">{season.displayName}</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-700/50 rounded-xl p-3 text-center">
+                  <div className="text-blue-400 font-bold text-lg">
                     {userProfile?.createdAt ? 
                       new Date(userProfile.createdAt.toDate()).toLocaleDateString() : 
                       'Unknown'
@@ -94,9 +121,33 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
                   </div>
                   <div className="text-gray-400 text-xs">Joined</div>
                 </div>
+                <div className="bg-gray-700/50 rounded-xl p-3 text-center">
+                  <div className="text-amber-400 font-bold text-lg">
+                    {seasonStats?.seasonRank || '-'}
+                  </div>
+                  <div className="text-gray-400 text-xs">Season Rank</div>
+                </div>
               </div>
+
+              {seasonStats?.badges && seasonStats.badges.length > 0 && (
+                <div className="bg-gray-700/30 rounded-2xl p-4">
+                  <h3 className="text-white font-semibold text-sm mb-3 text-center">Season Badges</h3>
+                  <div className="space-y-2">
+                    {seasonStats.badges.map((badge, index) => {
+                      const badgeInfo = Object.values(season.rewards).find(r => r.badge === badge);
+                      return (
+                        <div
+                          key={index}
+                          className={`bg-gradient-to-r ${getBadgeColor(badgeInfo?.type)} text-white rounded-xl p-3 text-center text-sm font-medium`}
+                        >
+                          {badge}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               
-              {/* Actions */}
               <div className="flex gap-3">
                 <button 
                   onClick={onClose}
@@ -116,7 +167,6 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
         </div>
       </div>
 
-      {/* Modal Send HC */}
       {showSendModal && (
         <SendHCModal 
           user={user}

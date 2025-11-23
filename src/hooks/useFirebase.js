@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { CREATOR_ADDRESS, ADMIN_ADDRESSES } from '../utils/constants';
+import { getCurrentSeason, isSeasonActive } from '../utils/seasons';
 
 export const useFirebase = (address) => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -55,7 +56,6 @@ export const useFirebase = (address) => {
     }
   };
 
-  // NOWA FUNKCJA: Aktualizuj licznik wiadomości użytkownika
   const updateUserMessageCount = async (walletAddress) => {
     if (!walletAddress || !db) return;
     
@@ -65,33 +65,35 @@ export const useFirebase = (address) => {
       
       if (userDoc.exists()) {
         const currentCount = userDoc.data().totalMessages || 0;
-        await updateDoc(userRef, {
+        const season1Count = userDoc.data().season1_messages || 0;
+        
+        const updates = {
           totalMessages: currentCount + 1,
-          lastSeen: serverTimestamp()
-        });
+          lastSeen: serverTimestamp(),
+          lastMessageAt: serverTimestamp()
+        };
+        
+        if (isSeasonActive()) {
+          updates.season1_messages = season1Count + 1;
+        }
+        
+        await updateDoc(userRef, updates);
       }
     } catch (error) {
       console.error('Error updating user message count:', error);
     }
   };
 
-  // FUNKCJA MIGRACJI: Jednorazowo zlicza istniejące wiadomości
   const migrateUserMessageCounts = async () => {
     if (!db) return;
     
     try {
-      console.log("🟢 Rozpoczynam migrację liczników wiadomości...");
-      
-      // Pobierz wszystkich użytkowników
       const usersSnapshot = await getDocs(collection(db, 'users'));
       const users = usersSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
       
-      console.log(`🔵 Znaleziono ${users.length} użytkowników do migracji`);
-      
-      // Dla każdego użytkownika policz wiadomości
       for (const user of users) {
         const messagesQuery = query(
           collection(db, 'messages'), 
@@ -100,17 +102,12 @@ export const useFirebase = (address) => {
         const messagesSnapshot = await getDocs(messagesQuery);
         const messageCount = messagesSnapshot.size;
         
-        // Zaktualizuj licznik w Firestore
         await updateDoc(doc(db, 'users', user.id), {
           totalMessages: messageCount
         });
-        
-        console.log(`✅ ${user.nickname}: ${messageCount} wiadomości`);
       }
-      
-      console.log("🎉 Migracja zakończona!");
     } catch (error) {
-      console.error('❌ Błąd migracji:', error);
+      console.error('Error migrating message counts:', error);
     }
   };
 
@@ -130,7 +127,9 @@ export const useFirebase = (address) => {
         createdAt: serverTimestamp(),
         lastSeen: serverTimestamp(),
         nicknameLocked: address.toLowerCase() !== CREATOR_ADDRESS.toLowerCase(),
-        totalMessages: 0 // DODANE: początkowy licznik wiadomości
+        totalMessages: 0,
+        season1_messages: 0,
+        badges: []
       };
 
       await setDoc(doc(db, 'users', address.toLowerCase()), userData);
@@ -145,7 +144,6 @@ export const useFirebase = (address) => {
     }
   };
 
-  // DODANA FUNKCJA: Usuwanie wiadomości (tylko dla adminów)
   const deleteMessage = async (messageId) => {
     if (!address || !ADMIN_ADDRESSES.includes(address.toLowerCase())) {
       alert('Only admins can delete messages');
