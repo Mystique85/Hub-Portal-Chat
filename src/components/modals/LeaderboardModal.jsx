@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { getCurrentSeason, getDaysRemaining, isSeasonActive } from '../../utils/seasons';
 
@@ -17,31 +17,56 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
   useEffect(() => {
     if (!isOpen || !db) return;
 
-    const fieldToOrderBy = timeFilter === 'season' ? 'season1_messages' : 'totalMessages';
-    const usersQuery = query(
-      collection(db, 'users'), 
-      orderBy(fieldToOrderBy, 'desc')
-    );
+    const loadLeaderboard = async () => {
+      const cacheKey = `leaderboard_${timeFilter}`;
+      const cached = localStorage.getItem(cacheKey);
+      const cacheTime = localStorage.getItem(`${cacheKey}_time`);
+      
+      const isCacheValid = cached && cacheTime && 
+        (Date.now() - parseInt(cacheTime)) < 24 * 60 * 60 * 1000;
 
-    const unsubscribe = onSnapshot(usersQuery, (snapshot) => {
-      const usersData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      
-      setUsers(usersData);
-      
-      if (currentUser) {
-        const rank = usersData.findIndex(user => 
-          user.walletAddress === currentUser.walletAddress
+      if (isCacheValid) {
+        const usersData = JSON.parse(cached);
+        setUsers(usersData);
+        
+        if (currentUser) {
+          const rank = usersData.findIndex(user => 
+            user.walletAddress === currentUser.walletAddress
+          );
+          setUserRank(rank >= 0 ? rank + 1 : null);
+        }
+        
+        setLoading(false);
+      } else {
+        const fieldToOrderBy = timeFilter === 'season' ? 'season1_messages' : 'totalMessages';
+        const usersQuery = query(
+          collection(db, 'users'), 
+          orderBy(fieldToOrderBy, 'desc')
         );
-        setUserRank(rank >= 0 ? rank + 1 : null);
-      }
-      
-      setLoading(false);
-    });
 
-    return () => unsubscribe();
+        const snapshot = await getDocs(usersQuery);
+        const usersData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        localStorage.setItem(cacheKey, JSON.stringify(usersData));
+        localStorage.setItem(`${cacheKey}_time`, Date.now().toString());
+        
+        setUsers(usersData);
+        
+        if (currentUser) {
+          const rank = usersData.findIndex(user => 
+            user.walletAddress === currentUser.walletAddress
+          );
+          setUserRank(rank >= 0 ? rank + 1 : null);
+        }
+        
+        setLoading(false);
+      }
+    };
+
+    loadLeaderboard();
   }, [isOpen, currentUser, timeFilter]);
 
   const getRankBadge = (index) => {
@@ -71,21 +96,17 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
 
   const getTimeFilterText = () => {
     switch(timeFilter) {
-      case 'today': return 'Today';
-      case 'week': return 'This Week';
-      case 'month': return 'This Month';
       case 'season': return season.displayName;
-      default: return 'All Time';
+      case 'all': return 'All Time';
+      default: return season.displayName;
     }
   };
 
   const getMessageCount = (user) => {
     switch(timeFilter) {
       case 'season': return user.season1_messages || 0;
-      case 'today': return user.today_messages || 0;
-      case 'week': return user.week_messages || 0;
-      case 'month': return user.month_messages || 0;
-      default: return user.totalMessages || 0;
+      case 'all': return user.totalMessages || 0;
+      default: return user.season1_messages || 0;
     }
   };
 
@@ -113,6 +134,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
               </h2>
               <p className="text-gray-400 text-xs mt-1">
                 {getTimeFilterText()} - {seasonActive ? `${daysRemaining.fullText} remaining` : 'Season ended'}
+                <span className="text-amber-400 ml-2">🕐 Updates every 24h</span>
               </p>
               {userRank && (
                 <p className="text-cyan-400 text-xs mt-1">
@@ -153,7 +175,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
           </div>
 
           <div className="flex gap-1 p-3 border-b border-gray-700/30 bg-gray-800/50">
-            {['season', 'all', 'today', 'week', 'month'].map(filter => (
+            {['season', 'all'].map(filter => (
               <button
                 key={filter}
                 onClick={() => setTimeFilter(filter)}
@@ -164,9 +186,6 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
                 }`}
               >
                 {filter === 'all' && 'All Time'}
-                {filter === 'today' && 'Today'}
-                {filter === 'week' && 'This Week'}
-                {filter === 'month' && 'This Month'}
                 {filter === 'season' && 'Current Season'}
               </button>
             ))}
