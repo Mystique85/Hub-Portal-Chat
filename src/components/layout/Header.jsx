@@ -19,6 +19,7 @@ const Header = ({
 }) => {
   const [showDailyRewards, setShowDailyRewards] = useState(false);
   const [showQuickAccessMenu, setShowQuickAccessMenu] = useState(false);
+  const [showNFTInfo, setShowNFTInfo] = useState(false);
   const quickAccessButtonRef = useRef(null);
   const dropdownRef = useRef(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
@@ -56,6 +57,86 @@ const Header = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showQuickAccessMenu]);
+
+  const handleMintNFT = () => {
+    setShowNFTInfo(true);
+  };
+
+  const handleProceedToMint = () => {
+    window.open('https://opensea.io/collection/hub-ecosystem-genesis-nft', '_blank', 'noopener,noreferrer');
+    setShowNFTInfo(false);
+  };
+
+  const NFTInfoModal = () => {
+    if (!showNFTInfo) return null;
+
+    const modalContent = (
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
+        <div className="bg-gray-800/95 border border-gray-600/50 rounded-2xl shadow-2xl max-w-md w-full p-6">
+          <div className="text-center">
+            {/* Icon */}
+            <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
+              <span className="text-2xl">🎨</span>
+            </div>
+            
+            {/* Title */}
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mb-3">
+              Genesis NFT Mint
+            </h2>
+            
+            {/* Limited Edition Badge */}
+            <div className="mb-4">
+              <span className="inline-block bg-red-500/20 border border-red-400/50 text-red-300 px-3 py-1 rounded-full text-sm font-semibold">
+                ⚡ Only 1000 Genesis NFTs Available
+              </span>
+            </div>
+            
+            {/* Description */}
+            <div className="text-gray-300 text-left space-y-3 mb-6">
+              <p className="flex items-start gap-2">
+                <span className="text-purple-400 mt-1">✨</span>
+                <span>Minting our Genesis NFT is an important step in building the HUB ecosystem</span>
+              </p>
+              
+              <p className="flex items-start gap-2">
+                <span className="text-purple-400 mt-1">🎯</span>
+                <span><strong>Exclusive Discord Role:</strong> Get special permissions and recognition in our community</span>
+              </p>
+              
+              <p className="flex items-start gap-2">
+                <span className="text-purple-400 mt-1">🏆</span>
+                <span><strong>Early Supporter Benefits:</strong> Be part of our founding members with future Airdrops</span>
+              </p>
+
+              <p className="flex items-start gap-2">
+                <span className="text-purple-400 mt-1">🔒</span>
+                <span><strong>Limited Collection:</strong> Only 1000 Genesis NFTs will ever be minted</span>
+              </p>
+            </div>
+            
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowNFTInfo(false)}
+                className="flex-1 h-12 px-4 bg-gray-600 hover:bg-gray-500 text-white rounded-xl font-semibold transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleProceedToMint}
+                className="flex-1 h-12 px-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
+              >
+                <span>Mint Now on OpenSea</span>
+                <span>🚀</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
+    return ReactDOM.createPortal(modalContent, document.body);
+  };
 
   const QuickAccessDropdown = () => {
     if (!showQuickAccessMenu) return null;
@@ -139,13 +220,11 @@ const Header = ({
       <header className="bg-gray-800/90 backdrop-blur-xl border-b border-gray-700/50 p-3 flex-shrink-0 safe-area-top">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
-              <img 
-                src="/hublogo.svg" 
-                alt="HUB Portal" 
-                className="w-4 h-4"
-              />
-            </div>
+            <img 
+              src="/hublogo.svg" 
+              alt="HUB Portal" 
+              className="w-8 h-8"
+            />
             <div>
               <h1 className="text-base font-bold text-white">
                 {mobileView === 'public' && 'HUB Chat'}
@@ -194,20 +273,28 @@ const Header = ({
   return (
     <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-8 flex-shrink-0">
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
+        <div className="flex items-center gap-4">
+          {/* Logo and Brand */}
+          <div className="flex items-center gap-3">
             <img 
               src="/hublogo.svg" 
               alt="HUB Portal" 
-              className="w-5 h-5"
+              className="w-8 h-8"
             />
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                HUB Portal
+              </h1>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              HUB Portal
-            </h1>
-            <p className="text-gray-400 text-xs">Decentralized Social Chat on Celo</p>
-          </div>
+
+          {/* Mint Genesis NFT Button */}
+          <button
+            onClick={handleMintNFT}
+            className="h-[42px] px-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-semibold transition-all flex items-center justify-center animate-pulse shadow-lg shadow-purple-500/25 hover:scale-105"
+          >
+            Mint Genesis NFT
+          </button>
         </div>
         
         <div className="flex items-center gap-4">
@@ -240,6 +327,9 @@ const Header = ({
 
       {/* Quick Access Dropdown Portal */}
       <QuickAccessDropdown />
+
+      {/* NFT Info Modal */}
+      <NFTInfoModal />
 
       {/* Renderujemy komponenty ale bez przycisków (showButton={false}) */}
       <HelpTooltip 
