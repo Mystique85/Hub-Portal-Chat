@@ -4,7 +4,8 @@ export const CREATOR_ADDRESS = "0x443baEF78686Fc6b9e5e6DaEA24fe26a170c5ac8";
 // DODANE: Lista adminów
 export const ADMIN_ADDRESSES = [
   "0x443baef78686fc6b9e5e6daea24fe26a170c5ac8", // Twój adres
-  "0xd30286180e142628cc437624ea4160d5450f73d6" // Zamień na drugi adres admina
+  "0xd30286180e142628cc437624ea4160d5450f73d6", 
+  "0xe507d32e736cc858d15b15372ac53f5592f84d97"// Zamień na drugi adres admina
 ];
 
 export const AVAILABLE_AVATARS = ['🐶', '🐱', '🦊', '🐯', '🐻', '🐼', '🐨', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🦆', '🦅'];

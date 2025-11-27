@@ -81,7 +81,7 @@ const Header = ({
             
             {/* Title */}
             <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mb-3">
-              Genesis NFT Mint
+              HUB Genesis NFT
             </h2>
             
             {/* Limited Edition Badge */}
@@ -91,27 +91,48 @@ const Header = ({
               </span>
             </div>
             
-            {/* Description */}
+            {/* Description - POPRAWIONA KOLEJNOŚĆ */}
             <div className="text-gray-300 text-left space-y-3 mb-6">
               <p className="flex items-start gap-2">
+                <span className="text-purple-400 mt-1">🔄</span>
+                <span><strong>Only tradable NFT</strong> in our ecosystem - secondary market trading is <strong>live</strong></span>
+              </p>
+              
+              <p className="flex items-start gap-2">
                 <span className="text-purple-400 mt-1">✨</span>
-                <span>Minting our Genesis NFT is an important step in building the HUB ecosystem</span>
+                <span><strong>Genesis holders receive:</strong></span>
               </p>
               
               <p className="flex items-start gap-2">
-                <span className="text-purple-400 mt-1">🎯</span>
-                <span><strong>Exclusive Discord Role:</strong> Get special permissions and recognition in our community</span>
+                <span className="text-purple-400 mt-1">💰</span>
+                <span><strong>20,000 HUB tokens</strong> on the Base network</span>
               </p>
               
               <p className="flex items-start gap-2">
-                <span className="text-purple-400 mt-1">🏆</span>
-                <span><strong>Early Supporter Benefits:</strong> Be part of our founding members with future Airdrops</span>
+                <span className="text-purple-400 mt-1">⭐</span>
+                <span><strong>Free VIP access</strong> to all future paid subscriptions</span>
+              </p>
+              
+              <p className="flex items-start gap-2">
+                <span className="text-purple-400 mt-1">🚀</span>
+                <span><strong>10x airdrop multiplier</strong> for active early users</span>
               </p>
 
               <p className="flex items-start gap-2">
-                <span className="text-purple-400 mt-1">🔒</span>
-                <span><strong>Limited Collection:</strong> Only 1000 Genesis NFTs will ever be minted</span>
+                <span className="text-purple-400 mt-1">🎯</span>
+                <span><strong>Exclusive Discord Role</strong> with special permissions</span>
               </p>
+
+              <p className="flex items-start gap-2">
+                <span className="text-purple-400 mt-1">📝</span>
+                <span><strong>Limit: maximum of 10 Genesis NFTs per wallet</strong></span>
+              </p>
+
+              <div className="mt-4 p-3 bg-purple-500/10 border border-purple-400/30 rounded-lg">
+                <p className="text-purple-300 text-sm font-semibold text-center">
+                  Genesis is the foundation of our economy and the highest level of access within the HUB ecosystem.
+                </p>
+              </div>
             </div>
             
             {/* Buttons */}
@@ -126,7 +147,7 @@ const Header = ({
                 onClick={handleProceedToMint}
                 className="flex-1 h-12 px-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-semibold transition-all flex items-center justify-center gap-2"
               >
-                <span>Mint Now on OpenSea</span>
+                <span>Mint on OpenSea</span>
                 <span>🚀</span>
               </button>
             </div>
