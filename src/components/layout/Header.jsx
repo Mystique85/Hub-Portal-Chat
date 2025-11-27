@@ -239,25 +239,25 @@ const Header = ({
     return (
       <header className="bg-gray-800/90 backdrop-blur-xl border-b border-gray-700/50 p-3 flex-shrink-0 safe-area-top">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             <img 
               src="/hublogo.svg" 
               alt="HUB Portal" 
-              className="w-8 h-8"
+              className="w-6 h-6 flex-shrink-0"
             />
-            <div>
-              <h1 className="text-base font-bold text-white">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-sm font-bold text-white truncate">
                 {mobileView === 'public' && 'HUB Chat'}
                 {mobileView === 'users' && 'Users'}
-                {mobileView === 'private' && (activeDMChat?.user?.nickname || 'Private Chat')}
+                {mobileView === 'private' && (activeDMChat?.user?.nickname?.slice(0, 12) || 'Chat')}
               </h1>
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button 
               onClick={onShowLeaderboard}
-              className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-2 rounded-xl hover:scale-105 transition-transform"
+              className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
               title="Leaderboard"
             >
               🏆
@@ -265,7 +265,7 @@ const Header = ({
             
             <button 
               onClick={() => setShowDailyRewards(true)}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-2 rounded-xl hover:scale-105 transition-transform"
+              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
               title="Daily Rewards"
             >
               🎁
@@ -286,6 +286,7 @@ const Header = ({
     );
   }
 
+  // DESKTOP VERSION - BEZ ZMIAN
   return (
     <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-8 flex-shrink-0">
       <div className="flex justify-between items-center">
