@@ -270,7 +270,7 @@ const Header = ({
             >
               🎁
             </button>
-            <appkit-button />
+            <appkit-button balance="hide" />
           </div>
         </div>
 
