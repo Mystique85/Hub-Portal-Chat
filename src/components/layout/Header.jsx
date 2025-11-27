@@ -195,8 +195,8 @@ const Header = ({
           }}
           className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
         >
-          <span>🌐</span>
-          <span>Celo Ecosystem</span>
+          <span>💫</span>
+          <span>HUB Ecosystem</span>
         </button>
         
         <button 
