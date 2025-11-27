@@ -1,15 +1,31 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { celo } from 'wagmi/chains';
-import { http } from 'wagmi';
+import { createAppKit } from '@reown/appkit/react'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+import { celo, base } from '@reown/appkit/networks'
+import { http } from 'wagmi'
 
-const config = getDefaultConfig({
-  appName: 'HUB Portal',
-  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID,
-  chains: [celo],
+// Konfiguracja AppKit
+const projectId = "e67a3e08b76fbba39a1f1fe1bbe6d287"
+
+// Konfiguracja Wagmi Adapter
+const wagmiAdapter = new WagmiAdapter({
+  projectId,
+  networks: [celo, base],
   transports: {
-    [celo.id]: http(import.meta.env.VITE_CELO_MAINNET_RPC_URL),
+    [celo.id]: http(),
+    [base.id]: http()
   },
-  ssr: false,
-});
+  ssr: false
+})
 
-export { config };
+// Konfiguracja AppKit
+export const appKit = createAppKit({
+  adapters: [wagmiAdapter],
+  networks: [celo, base],
+  projectId,
+  features: {
+    analytics: true
+  }
+})
+
+// Eksportujemy konfigurację Wagmi
+export const config = wagmiAdapter.wagmiConfig

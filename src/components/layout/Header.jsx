@@ -1,4 +1,3 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import HelpTooltip from './HelpTooltip';
 import Donation from './Donation';
 import CeloHub from './CeloHub';
@@ -271,11 +270,7 @@ const Header = ({
             >
               🎁
             </button>
-            <ConnectButton 
-              showBalance={false}
-              chainStatus="none"
-              accountStatus="avatar"
-            />
+            <appkit-button />
           </div>
         </div>
 
@@ -342,7 +337,7 @@ const Header = ({
             🎯 Left: {currentUser?.remaining || '0'}/10
           </span>
           
-          <ConnectButton showBalance={false} />
+          <appkit-button />
         </div>
       </div>
 

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { sdk } from '@farcaster/miniapp-sdk';
 
 import NetworkBackground from './components/layout/NetworkBackground';
@@ -150,7 +149,7 @@ function App() {
           <p className="text-gray-400 text-lg mb-8">Decentralized Social Chat on Celo</p>
           
           <div className="flex justify-center mb-8">
-            <ConnectButton />
+            <appkit-button />
           </div>
           
           <div className="flex justify-center gap-4 flex-wrap mt-8">
