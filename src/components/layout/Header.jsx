@@ -5,6 +5,7 @@ import { ADMIN_ADDRESSES } from '../../utils/constants';
 import { useState, useRef, useEffect } from 'react';
 import DailyRewardsModal from '../modals/DailyRewardsModal';
 import ReactDOM from 'react-dom';
+import { useNetwork } from '../../hooks/useNetwork';
 
 const Header = ({ 
   currentUser, 
@@ -23,6 +24,9 @@ const Header = ({
   const dropdownRef = useRef(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const isAdmin = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
+
+  // DODANE: Wykrywanie sieci
+  const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
 
   // Stany dla komponentów w dropdown
   const [showHelpTooltip, setShowHelpTooltip] = useState(false);
@@ -171,30 +175,39 @@ const Header = ({
         }}
       >
         {/* Actions Section */}
-        <button 
-          onClick={() => {
-            onShowLeaderboard();
-            setShowQuickAccessMenu(false);
-          }}
-          className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
-        >
-          <span>🏆</span>
-          <span>Leaderboard</span>
-        </button>
         
-        <button 
-          onClick={() => {
-            setShowDailyRewards(true);
-            setShowQuickAccessMenu(false);
-          }}
-          className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
-        >
-          <span>🎁</span>
-          <span>Daily Rewards</span>
-        </button>
+        {/* DODANE: Leaderboard tylko na Celo */}
+        {supportsSeasonSystem && (
+          <button 
+            onClick={() => {
+              onShowLeaderboard();
+              setShowQuickAccessMenu(false);
+            }}
+            className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
+          >
+            <span>🏆</span>
+            <span>Leaderboard</span>
+          </button>
+        )}
+        
+        {/* DODANE: Daily Rewards tylko na Celo */}
+        {supportsDailyRewards && (
+          <button 
+            onClick={() => {
+              setShowDailyRewards(true);
+              setShowQuickAccessMenu(false);
+            }}
+            className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
+          >
+            <span>🎁</span>
+            <span>Daily Rewards</span>
+          </button>
+        )}
 
-        {/* Separator */}
-        <div className="border-t border-gray-600/50 my-1"></div>
+        {/* Separator - pokazuj tylko jeśli są elementy powyżej */}
+        {(supportsSeasonSystem || supportsDailyRewards) && (
+          <div className="border-t border-gray-600/50 my-1"></div>
+        )}
 
         {/* Resources Section */}
         <button 
@@ -216,9 +229,10 @@ const Header = ({
           className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
         >
           <span>💫</span>
-          <span>HUB Ecosystem</span>
+          <span>{networkName} Ecosystem</span>
         </button>
         
+        {/* ZMIENIONE: Donation pokazuje się na Base i Celo */}
         <button 
           onClick={() => {
             setShowDonation(true);
@@ -251,30 +265,41 @@ const Header = ({
                 {mobileView === 'users' && 'Users'}
                 {mobileView === 'private' && (activeDMChat?.user?.nickname?.slice(0, 12) || 'Chat')}
               </h1>
+              {/* DODANE: Indicator sieci na mobile */}
+              <div className="text-cyan-400 text-[10px]">
+                {networkName} • {tokenSymbol}
+              </div>
             </div>
           </div>
           
           <div className="flex items-center gap-1 flex-shrink-0">
-            <button 
-              onClick={onShowLeaderboard}
-              className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
-              title="Leaderboard"
-            >
-              🏆
-            </button>
+            {/* DODANE: Leaderboard tylko na Celo */}
+            {supportsSeasonSystem && (
+              <button 
+                onClick={onShowLeaderboard}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
+                title="Leaderboard"
+              >
+                🏆
+              </button>
+            )}
             
-            <button 
-              onClick={() => setShowDailyRewards(true)}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
-              title="Daily Rewards"
-            >
-              🎁
-            </button>
+            {/* DODANE: Daily Rewards tylko na Celo */}
+            {supportsDailyRewards && (
+              <button 
+                onClick={() => setShowDailyRewards(true)}
+                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
+                title="Daily Rewards"
+              >
+                🎁
+              </button>
+            )}
             <appkit-button balance="hide" />
           </div>
         </div>
 
-        {showDailyRewards && (
+        {/* DODANE: Daily Rewards Modal tylko na Celo */}
+        {showDailyRewards && supportsDailyRewards && (
           <DailyRewardsModal 
             isOpen={showDailyRewards}
             onClose={() => setShowDailyRewards(false)}
@@ -286,7 +311,7 @@ const Header = ({
     );
   }
 
-  // DESKTOP VERSION - BEZ ZMIAN
+  // DESKTOP VERSION
   return (
     <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-8 flex-shrink-0">
       <div className="flex justify-between items-center">
@@ -302,6 +327,10 @@ const Header = ({
               <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 HUB Portal
               </h1>
+              {/* DODANE: Indicator sieci */}
+              <div className="text-cyan-400 text-sm">
+                {networkName} Network • Earn {tokenSymbol} Tokens
+              </div>
             </div>
           </div>
 
@@ -332,11 +361,15 @@ const Header = ({
 
           {/* Balance and Messages - pozostają na stałe */}
           <span className="h-[42px] px-4 flex items-center bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
-            💎 HC: {currentUser?.balance || '0'}
+            💎 {tokenSymbol}: {currentUser?.balance || '0'}
           </span>
-          <span className="h-[42px] px-4 flex items-center bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
-            🎯 Left: {currentUser?.remaining || '0'}/10
-          </span>
+          
+          {/* ZMIENIONE: Pokazuj tylko na Celo, ukryj na Base */}
+          {!isBase && (
+            <span className="h-[42px] px-4 flex items-center bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
+              🎯 Left: {currentUser?.remaining || '0'}/10
+            </span>
+          )}
           
           <appkit-button />
         </div>
@@ -363,6 +396,7 @@ const Header = ({
         onClose={() => setShowCeloHub(false)}
       />
       
+      {/* ZMIENIONE: Donation pokazuje się na Base i Celo */}
       <Donation 
         isMobile={false} 
         showButton={false}
@@ -370,7 +404,8 @@ const Header = ({
         onClose={() => setShowDonation(false)}
       />
 
-      {showDailyRewards && (
+      {/* DODANE: Daily Rewards tylko na Celo */}
+      {showDailyRewards && supportsDailyRewards && (
         <DailyRewardsModal 
           isOpen={showDailyRewards}
           onClose={() => setShowDailyRewards(false)}

@@ -22,6 +22,7 @@ import { useUsers } from './hooks/useUsers';
 import { useChat } from './hooks/useChat';
 import { useWeb3 } from './hooks/useWeb3';
 import { useSeasons } from './hooks/useSeasons';
+import { useNetwork } from './hooks/useNetwork';
 
 import { AVAILABLE_AVATARS } from './utils/constants';
 
@@ -33,6 +34,9 @@ function App() {
   const [activeTab, setActiveTab] = useState('online');
   const [selectedProfileUser, setSelectedProfileUser] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  
+  // DODANE: Hook do wykrywania sieci
+  const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
   useEffect(() => {
     (async () => {
@@ -88,7 +92,12 @@ function App() {
   const userWithBalance = currentUser ? {
     ...currentUser,
     balance,
-    remaining
+    remaining,
+    // DODANE: Informacje o sieci dla komponentów
+    tokenSymbol,
+    networkName,
+    supportsDailyRewards,
+    supportsSeasonSystem
   } : null;
 
   useEffect(() => {
@@ -105,8 +114,11 @@ function App() {
   }, [activeDMChat, isMobile]);
 
   useEffect(() => {
-    checkAndDistributeRewards();
-  }, []);
+    // DODANE: Sprawdzaj nagrody sezonowe tylko na Celo
+    if (isCelo) {
+      checkAndDistributeRewards();
+    }
+  }, [isCelo]);
 
   const openChatFromToast = async (userId) => {
     const user = allUsers.find(u => u.walletAddress === userId);
@@ -130,6 +142,21 @@ function App() {
     setSelectedProfileUser(user);
   };
 
+  // DODANE: Dynamiczny tekst w zależności od sieci
+  const getWelcomeSubtitle = () => {
+    if (isBase) {
+      return `Decentralized Social Chat on ${networkName}`;
+    }
+    return "Decentralized Social Chat on Celo";
+  };
+
+  const getRewardText = () => {
+    if (isBase) {
+      return `💎 Earn ${tokenSymbol} Tokens`;
+    }
+    return "💎 Earn HC Tokens";
+  };
+
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 relative">
@@ -146,7 +173,7 @@ function App() {
           <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-4">
             HUB Portal
           </h1>
-          <p className="text-gray-400 text-lg mb-8">Decentralized Social Chat on Celo</p>
+          <p className="text-gray-400 text-lg mb-8">{getWelcomeSubtitle()}</p>
           
           <div className="flex justify-center mb-8">
             <appkit-button />
@@ -154,12 +181,22 @@ function App() {
           
           <div className="flex justify-center gap-4 flex-wrap mt-8">
             <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-300 text-sm">
-              💎 Earn HC Tokens
+              {getRewardText()}
             </span>
             <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-300 text-sm">
               🔒 Private Messages
             </span>
             <LoginHelpTooltip />
+          </div>
+
+          {/* DODANE: Indicator aktualnej sieci */}
+          <div className="mt-6 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
+            <p className="text-cyan-400 text-sm">
+              🌐 Connected to: <strong>{networkName}</strong>
+            </p>
+            <p className="text-cyan-300 text-xs mt-1">
+              {isBase ? "Earn HUB tokens with unlimited messages!" : "Earn HC tokens with daily limits"}
+            </p>
           </div>
         </div>
       </div>
@@ -170,7 +207,8 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white overflow-hidden">
       <NetworkBackground />
       
-      {showLeaderboard && (
+      {/* DODANE: Pokazuj leaderboard tylko na Celo */}
+      {showLeaderboard && isCelo && (
         <LeaderboardModal 
           isOpen={showLeaderboard}
           onClose={() => setShowLeaderboard(false)}
@@ -196,7 +234,14 @@ function App() {
             onMobileViewChange={setMobileView}
             onUserStatsClick={() => setShowUserStats(true)}
             activeDMChat={activeDMChat}
-            onShowLeaderboard={() => setShowLeaderboard(true)}
+            onShowLeaderboard={() => {
+              if (isCelo) {
+                setShowLeaderboard(true);
+              } else {
+                // Na Base możesz pokazać informację lub nic nie robić
+                console.log("Leaderboard available only on Celo");
+              }
+            }}
           />
           
           <div className="flex-1 min-h-0 bg-gray-900/50 overflow-hidden">
@@ -248,30 +293,41 @@ function App() {
                     <div>
                       <div className="text-white font-semibold text-lg">{currentUser?.nickname}</div>
                       <div className="text-gray-400 text-sm">{address?.slice(0, 8)}...{address?.slice(-6)}</div>
+                      {/* DODANE: Indicator sieci */}
+                      <div className="text-cyan-400 text-xs mt-1">
+                        🌐 {networkName}
+                      </div>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="bg-gray-700/50 rounded-xl p-4 text-center">
                       <div className="text-cyan-400 font-bold text-xl">{balance || '0'}</div>
-                      <div className="text-gray-400 text-sm">HC Balance</div>
+                      <div className="text-gray-400 text-sm">{tokenSymbol} Balance</div>
                     </div>
                     <div className="bg-gray-700/50 rounded-xl p-4 text-center">
-                      <div className="text-cyan-400 font-bold text-xl">{remaining || '0'}/10</div>
-                      <div className="text-gray-400 text-sm">Rewards Left</div>
+                      <div className="text-cyan-400 font-bold text-xl">
+                        {isBase ? '∞' : `${remaining || '0'}/10`}
+                      </div>
+                      <div className="text-gray-400 text-sm">
+                        {isBase ? 'Unlimited Rewards' : 'Rewards Left'}
+                      </div>
                     </div>
                   </div>
                   
                   <div className="space-y-3">
+                    {/* DODANE: Ukryj daily rewards na Base */}
+                    {isCelo && (
+                      <button 
+                        className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
+                      >
+                        💝 Support Project
+                      </button>
+                    )}
                     <button 
                       className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
                     >
-                      💝 Support Project
-                    </button>
-                    <button 
-                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
-                    >
-                      🌐 Celo Ecosystem Hub
+                      🌐 {networkName} Ecosystem Hub
                     </button>
                     <button 
                       className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
@@ -312,30 +368,37 @@ function App() {
                     <div>
                       <div className="text-white font-semibold">{currentUser?.nickname}</div>
                       <div className="text-gray-400 text-sm">{address?.slice(0, 8)}...{address?.slice(-6)}</div>
+                      <div className="text-cyan-400 text-xs">🌐 {networkName}</div>
                     </div>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="bg-gray-700/50 rounded-xl p-3 text-center">
                       <div className="text-cyan-400 font-bold">{balance || '0'}</div>
-                      <div className="text-gray-400 text-xs">HC Balance</div>
+                      <div className="text-gray-400 text-xs">{tokenSymbol} Balance</div>
                     </div>
                     <div className="bg-gray-700/50 rounded-xl p-3 text-center">
-                      <div className="text-cyan-400 font-bold">{remaining || '0'}/10</div>
-                      <div className="text-gray-400 text-xs">Rewards Left</div>
+                      <div className="text-cyan-400 font-bold">
+                        {isBase ? '∞' : `${remaining || '0'}/10`}
+                      </div>
+                      <div className="text-gray-400 text-xs">
+                        {isBase ? 'Unlimited' : 'Rewards Left'}
+                      </div>
                     </div>
                   </div>
                   
                   <div className="space-y-2">
+                    {isCelo && (
+                      <button 
+                        className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
+                      >
+                        💝 Support Project
+                      </button>
+                    )}
                     <button 
                       className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
                     >
-                      💝 Support Project
-                    </button>
-                    <button 
-                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
-                    >
-                      🌐 Celo Ecosystem Hub
+                      🌐 {networkName} Ecosystem Hub
                     </button>
                     <button 
                       className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
@@ -367,7 +430,11 @@ function App() {
             <Header 
               currentUser={userWithBalance}
               totalUnreadCount={totalUnreadCount}
-              onShowLeaderboard={() => setShowLeaderboard(true)}
+              onShowLeaderboard={() => {
+                if (isCelo) {
+                  setShowLeaderboard(true);
+                }
+              }}
             />
             
             <div className="flex-1 flex min-h-0">
@@ -428,6 +495,7 @@ function App() {
           user={selectedProfileUser}
           onClose={() => setSelectedProfileUser(null)}
           getOtherUserBalance={getOtherUserBalance}
+          currentUser={userWithBalance}
         />
       )}
     </div>

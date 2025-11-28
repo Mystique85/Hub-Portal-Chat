@@ -42,9 +42,11 @@ export const useSeasons = () => {
   const distributeSeasonRewards = async () => {
     try {
       const season = getCurrentSeason();
+      
+      // POPRAWIONE: Używamy season1_messages dla kompatybilności z istniejącymi danymi
       const usersQuery = query(
         collection(db, 'users'),
-        orderBy('season1_messages', 'desc'),
+        orderBy('season1_messages', 'desc'), // Używamy starego pola dla kompatybilności
         limit(10)
       );
       

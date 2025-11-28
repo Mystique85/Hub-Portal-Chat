@@ -1,8 +1,60 @@
 import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import ReactDOM from 'react-dom';
+import { useNetwork } from '../../hooks/useNetwork';
 
-const DONATION_ADDRESS = '0xd30286180E142628cc437624Ea4160d5450F73D6';
+// DODANE: Różne adresy donation dla różnych sieci
+const DONATION_ADDRESSES = {
+  celo: '0xd30286180E142628cc437624Ea4160d5450F73D6',
+  base: '0xd30286180E142628cc437624Ea4160d5450F73D6' // Ten sam adres, ale USDC na Base
+};
+
+// DODANE: Adresy tokenów USDC na Base
+const TOKEN_ADDRESSES = {
+  base: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' // USDC na Base
+};
+
+// DODANE: Konfiguracja tokenów donation
+const DONATION_CONFIG = {
+  celo: {
+    symbol: 'CELO',
+    decimals: 18,
+    explorer: 'https://celoscan.io',
+    isNative: true // CELO to native token
+  },
+  base: {
+    symbol: 'USDC', 
+    decimals: 6, // USDC ma 6 decimal places
+    explorer: 'https://basescan.org',
+    isNative: false, // USDC to ERC20 token
+    tokenAddress: TOKEN_ADDRESSES.base
+  }
+};
+
+// DODANE: ABI dla ERC20 transfer
+const ERC20_ABI = [
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_to",
+        "type": "address"
+      },
+      {
+        "name": "_value",
+        "type": "uint256"
+      }
+    ],
+    "name": "transfer",
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "type": "function"
+  }
+];
 
 const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen, onClose }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
@@ -13,13 +65,21 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
   const [txHash, setTxHash] = useState(null);
   const [currentStep, setCurrentStep] = useState('select');
 
+  // DODANE: Wykrywanie sieci
+  const { currentNetwork, isCelo, isBase, networkConfig } = useNetwork();
+
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
   });
 
-  const presetAmounts = isMobile ? ['0.1', '0.5', '1', '5'] : ['0.1', '0.5', '1', '5', '10'];
+  const donationConfig = DONATION_CONFIG[currentNetwork];
+  const donationAddress = DONATION_ADDRESSES[currentNetwork];
+
+  const presetAmounts = isMobile 
+    ? isBase ? ['1', '5', '10', '20'] : ['0.1', '0.5', '1', '5'] // Różne kwoty dla różnych sieci
+    : isBase ? ['1', '5', '10', '20', '50'] : ['0.1', '0.5', '1', '5', '10'];
 
   const handleClose = () => {
     if (onClose) {
@@ -61,23 +121,39 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
 
     try {
       setCurrentStep('confirming');
-      const amountInWei = BigInt(Math.floor(parseFloat(donateAmount) * 1e18));
       
-      const hash = await writeContractAsync({
-        address: DONATION_ADDRESS,
-        abi: [
-          {
-            name: 'transfer',
-            type: 'function',
-            stateMutability: 'payable',
-            inputs: [],
-            outputs: [{ name: '', type: 'bool' }],
-          }
-        ],
-        functionName: 'transfer',
-        args: [],
-        value: amountInWei,
-      });
+      // DODANE: Różne decimal places dla różnych tokenów
+      const decimals = donationConfig.decimals;
+      const amountInWei = BigInt(Math.floor(parseFloat(donateAmount) * 10 ** decimals));
+      
+      let hash;
+
+      if (donationConfig.isNative) {
+        // Dla native tokenów (CELO) - prosty transfer
+        hash = await writeContractAsync({
+          address: donationAddress,
+          abi: [
+            {
+              name: 'transfer',
+              type: 'function',
+              stateMutability: 'payable',
+              inputs: [],
+              outputs: [{ name: '', type: 'bool' }],
+            }
+          ],
+          functionName: 'transfer',
+          args: [],
+          value: amountInWei,
+        });
+      } else {
+        // Dla ERC20 tokenów (USDC) - użyj funkcji transfer
+        hash = await writeContractAsync({
+          address: donationConfig.tokenAddress, // Adres tokena USDC
+          abi: ERC20_ABI,
+          functionName: 'transfer',
+          args: [donationAddress, amountInWei], // To, amount
+        });
+      }
       
       if (hash) {
         setTxHash(hash);
@@ -102,6 +178,19 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     setAmount('');
   };
 
+  // DODANE: Dynamiczne teksty w zależności od sieci
+  const getDonationTokenText = () => {
+    return isBase ? 'Donate in USDC' : 'Donate in CELO';
+  };
+
+  const getExplorerUrl = () => {
+    return `${donationConfig.explorer}/tx/${txHash}`;
+  };
+
+  const getExplorerName = () => {
+    return isBase ? 'BaseScan' : 'CeloScan';
+  };
+
   const DonationModal = () => {
     if (!isOpen) return null;
 
@@ -116,11 +205,11 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
             }`}></div>
             <h2 className={`font-bold text-cyan-400 mb-2 ${
               isMobile ? 'text-xl' : 'text-2xl'
-            }`}>Sending Donation ⏳</h2>
+            }`}>{`Sending Donation ⏳`}</h2>
             <p className={`text-gray-400 mb-4 ${
               isMobile ? 'text-sm' : ''
             }`}>
-              {isMobile ? 'Processing transaction...' : 'Transaction has been sent to the Celo network...'}
+              {isMobile ? 'Processing transaction...' : `Transaction has been sent to the ${networkConfig.name} network...`}
             </p>
             
             <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
@@ -135,12 +224,12 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
                   <strong>TX Hash:</strong> {isMobile ? `${txHash.slice(0, 12)}...${txHash.slice(-8)}` : txHash}
                 </p>
                 <a 
-                  href={`https://celoscan.io/tx/${txHash}`}
+                  href={getExplorerUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-cyan-400 hover:text-cyan-300 underline text-xs"
                 >
-                  🔍 Track transaction on CeloScan
+                  🔍 {`Track transaction on ${getExplorerName()}`}
                 </a>
               </div>
             )}
@@ -216,8 +305,16 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
                 <p className={`text-cyan-300 text-center ${
                   isMobile ? 'text-xs' : 'text-sm'
                 }`}>
-                  💛 {isMobile ? 'Donate in CELO' : 'All donations are sent in CELO tokens'}
+                  💛 {getDonationTokenText()}
                 </p>
+                <p className="text-cyan-400 text-center text-xs mt-1">
+                  Network: {networkConfig.name}
+                </p>
+                {isBase && (
+                  <p className="text-cyan-300 text-center text-xs mt-1">
+                    Make sure you have USDC on Base network
+                  </p>
+                )}
               </div>
             </div>
 
@@ -238,7 +335,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
                         : 'bg-gray-700/50 text-gray-300 border-gray-600/50 hover:bg-gray-700'
                     } ${isMobile ? 'text-xs py-2' : ''}`}
                   >
-                    {presetAmount} CELO
+                    {presetAmount} {donationConfig.symbol}
                   </button>
                 ))}
               </div>
@@ -264,7 +361,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
                   <div className={`absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 font-medium ${
                     isMobile ? 'text-xs' : ''
                   }`}>
-                    CELO
+                    {donationConfig.symbol}
                   </div>
                 </div>
               </div>
@@ -280,7 +377,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
                 <p className={`text-blue-400 font-mono break-all ${
                   isMobile ? 'text-xs' : 'text-xs'
                 }`}>
-                  {isMobile ? `${DONATION_ADDRESS.slice(0, 8)}...${DONATION_ADDRESS.slice(-6)}` : DONATION_ADDRESS}
+                  {isMobile ? `${donationAddress.slice(0, 8)}...${donationAddress.slice(-6)}` : donationAddress}
                 </p>
                 {!isMobile && (
                   <p className="text-blue-300 text-xs mt-2">

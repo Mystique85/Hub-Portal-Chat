@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import UserList from '../users/UserList';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
+import { useNetwork } from '../../hooks/useNetwork'; // DODANE: Import hooka sieci
 
 const Sidebar = ({
   currentUser,
@@ -19,6 +20,9 @@ const Sidebar = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [showAdminDropdown, setShowAdminDropdown] = useState(false);
   const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
+
+  // DODANE: Wykrywanie sieci
+  const { isCelo, isBase, tokenSymbol } = useNetwork();
 
   const filteredUsers = (activeTab === 'online' ? onlineUsers : allUsers).filter(user =>
     user.nickname?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -193,8 +197,12 @@ const Sidebar = ({
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-white font-semibold truncate">{currentUser.nickname}</div>
-              <div className="text-cyan-400 text-sm">HC: {currentUser.balance || '0'}</div>
-              <div className="text-gray-400 text-xs">Rewards: {currentUser.remaining || '0'}/10 left</div>
+              {/* ZMIENIONE: Dynamiczny symbol tokena */}
+              <div className="text-cyan-400 text-sm">{tokenSymbol}: {currentUser.balance || '0'}</div>
+              {/* ZMIENIONE: Tylko na Celo pokazuj rewards, na Base nic */}
+              {isCelo && (
+                <div className="text-gray-400 text-xs">Rewards: {currentUser.remaining || '0'}/10 left</div>
+              )}
             </div>
           </div>
         )}

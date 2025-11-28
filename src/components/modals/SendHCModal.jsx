@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../utils/constants';
+import { useNetwork } from '../../hooks/useNetwork';
+import { CONTRACT_ADDRESSES, CONTRACT_ABIS, NETWORK_CONFIG } from '../../utils/constants';
 
 const SendHCModal = ({ user, onClose }) => {
   const [sendAmount, setSendAmount] = useState('');
@@ -8,10 +9,30 @@ const SendHCModal = ({ user, onClose }) => {
   const [currentStep, setCurrentStep] = useState('input');
   
   const { address } = useAccount();
-  const { writeContractAsync, isPending: isSendingHC } = useWriteContract(); // ← ZMIENIŁEM NA isSendingHC
+  const { writeContractAsync, isPending: isSendingHC } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
   });
+
+  // DODANE: Wykrywanie sieci
+  const { currentNetwork, isCelo, isBase, tokenSymbol, networkConfig } = useNetwork();
+
+  // DODANE: Adres tokena HUB na Base
+  const HUB_TOKEN_ADDRESS_BASE = "0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E";
+
+  // DODANE: Standardowe ABI ERC-20 dla transferu
+  const ERC20_ABI = [
+    {
+      "constant": false,
+      "inputs": [
+        {"name": "_to", "type": "address"},
+        {"name": "_value", "type": "uint256"}
+      ],
+      "name": "transfer",
+      "outputs": [{"name": "", "type": "bool"}],
+      "type": "function"
+    }
+  ];
 
   const presetAmounts = ['1', '5', '10', '50'];
 
@@ -45,16 +66,31 @@ const SendHCModal = ({ user, onClose }) => {
       
       const amountInWei = BigInt(Math.floor(parseFloat(sendAmount) * 1e18));
       
-      console.log("🟢 Sending HC:", {
+      console.log(`🟢 Sending ${tokenSymbol}:`, {
         from: address,
         to: user.walletAddress,
         amount: sendAmount,
-        amountInWei: amountInWei.toString()
+        amountInWei: amountInWei.toString(),
+        network: currentNetwork
       });
 
+      // DODANE: Różne kontrakty w zależności od sieci
+      let contractAddress;
+      let contractAbi;
+
+      if (isCelo) {
+        // Celo: używamy kontraktu chat (który jest tokenem HC)
+        contractAddress = CONTRACT_ADDRESSES.celo;
+        contractAbi = CONTRACT_ABIS.celo;
+      } else if (isBase) {
+        // Base: używamy osobnego kontraktu tokena HUB
+        contractAddress = HUB_TOKEN_ADDRESS_BASE;
+        contractAbi = ERC20_ABI;
+      }
+
       const hash = await writeContractAsync({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
+        address: contractAddress,
+        abi: contractAbi,
         functionName: 'transfer',
         args: [user.walletAddress, amountInWei],
       });
@@ -65,8 +101,8 @@ const SendHCModal = ({ user, onClose }) => {
         throw new Error('No transaction hash received');
       }
     } catch (error) {
-      console.error('Send HC error:', error);
-      alert('Error sending HC: ' + error.message);
+      console.error(`Send ${tokenSymbol} error:`, error);
+      alert(`Error sending ${tokenSymbol}: ` + error.message);
       setCurrentStep('input');
       setTxHash(null);
     }
@@ -76,13 +112,22 @@ const SendHCModal = ({ user, onClose }) => {
     setSendAmount(amount);
   };
 
+  // DODANE: Dynamiczny tekst w zależności od sieci
+  const getExplorerUrl = () => {
+    return `${networkConfig.explorer}/tx/${txHash}`;
+  };
+
+  const getExplorerName = () => {
+    return isCelo ? 'CeloScan' : 'BaseScan';
+  };
+
   if (currentStep === 'confirming') {
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
         <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl text-center max-w-md w-full p-8">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-500 mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold text-cyan-400 mb-2">Sending HC Tokens ⏳</h2>
-          <p className="text-gray-400 mb-4">Transaction has been sent to the Celo network...</p>
+          <h2 className="text-2xl font-bold text-cyan-400 mb-2">{`Sending ${tokenSymbol} Tokens ⏳`}</h2>
+          <p className="text-gray-400 mb-4">{`Transaction has been sent to the ${networkConfig.name} network...`}</p>
           
           <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
             <div className="bg-cyan-500 h-2 rounded-full animate-pulse"></div>
@@ -94,12 +139,12 @@ const SendHCModal = ({ user, onClose }) => {
                 <strong>TX Hash:</strong> {txHash.slice(0, 12)}...{txHash.slice(-8)}
               </p>
               <a 
-                href={`https://celoscan.io/tx/${txHash}`}
+                href={getExplorerUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-cyan-400 hover:text-cyan-300 underline text-xs"
               >
-                🔍 Track transaction on CeloScan
+                🔍 {`Track transaction on ${getExplorerName()}`}
               </a>
             </div>
           )}
@@ -113,9 +158,9 @@ const SendHCModal = ({ user, onClose }) => {
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
         <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl text-center max-w-md w-full p-8">
           <div className="text-6xl mb-4">🎉</div>
-          <h2 className="text-2xl font-bold text-cyan-400 mb-2">HC Sent Successfully!</h2>
+          <h2 className="text-2xl font-bold text-cyan-400 mb-2">{`${tokenSymbol} Sent Successfully!`}</h2>
           <p className="text-gray-400 mb-4">
-            You sent {sendAmount} HC to {user.nickname}
+            {`You sent ${sendAmount} ${tokenSymbol} to ${user.nickname}`}
           </p>
           <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
             <p className="text-green-300 font-semibold">
@@ -132,7 +177,7 @@ const SendHCModal = ({ user, onClose }) => {
       <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Send HC Tokens
+            {`Send ${tokenSymbol} Tokens`}
           </h2>
           <button
             onClick={onClose}
@@ -144,15 +189,18 @@ const SendHCModal = ({ user, onClose }) => {
 
         <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mb-6 text-center">
           <p className="text-cyan-300 text-sm">
-            Sending to: <strong>{user.nickname}</strong>
+            {`Sending to: <strong>${user.nickname}</strong>`}
           </p>
           <p className="text-cyan-400 text-xs mt-1">
             {user.walletAddress?.slice(0, 8)}...{user.walletAddress?.slice(-6)}
           </p>
+          <p className="text-cyan-300 text-xs mt-2">
+            {`Network: ${networkConfig.name}`}
+          </p>
         </div>
 
         <div className="mb-6">
-          <h3 className="text-cyan-400 font-semibold mb-3 text-center">Select amount:</h3>
+          <h3 className="text-cyan-400 font-semibold mb-3 text-center">{`Select amount:`}</h3>
           <div className="grid grid-cols-2 gap-3 mb-4">
             {presetAmounts.map((amount) => (
               <button
@@ -164,7 +212,7 @@ const SendHCModal = ({ user, onClose }) => {
                     : 'bg-gray-700/50 text-gray-300 border-gray-600/50 hover:bg-gray-700'
                 }`}
               >
-                {amount} HC
+                {amount} {tokenSymbol}
               </button>
             ))}
           </div>
@@ -184,7 +232,7 @@ const SendHCModal = ({ user, onClose }) => {
                 className="w-full bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
               />
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 font-medium">
-                HC
+                {tokenSymbol}
               </div>
             </div>
           </div>
@@ -199,16 +247,16 @@ const SendHCModal = ({ user, onClose }) => {
           </button>
           <button 
             onClick={handleSendHC}
-            disabled={!sendAmount || isSendingHC} // ← ZMIENIŁEM NA isSendingHC
+            disabled={!sendAmount || isSendingHC}
             className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isSendingHC ? ( // ← ZMIENIŁEM NA isSendingHC
+            {isSendingHC ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 Sending...
               </>
             ) : (
-              'Send HC'
+              `Send ${tokenSymbol}`
             )}
           </button>
         </div>

@@ -3,7 +3,8 @@ import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import MessageList from './MessageList';
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../utils/constants';
+import { useNetwork } from '../../hooks/useNetwork';
+import { CONTRACT_ADDRESSES, CONTRACT_ABIS } from '../../utils/constants';
 
 const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile = false, onStartPrivateChat, onViewProfile, updateUserMessageCount }) => {
   const [messages, setMessages] = useState([]);
@@ -19,6 +20,9 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: transactionHash,
   });
+
+  // DODANE: Wykrywanie sieci
+  const { currentNetwork, isCelo, isBase, tokenSymbol } = useNetwork();
 
   useEffect(() => {
     if (!db) return;
@@ -64,6 +68,7 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
     }
   }, [isConfirmed, pendingTransaction]);
 
+  // ZMIENIONE: Dodano zapisywanie informacji o sieci
   const addMessageToFirestore = async (messageData) => {
     try {
       await addDoc(collection(db, 'messages'), {
@@ -73,16 +78,18 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
         avatarType: messageData.avatarType,
         walletAddress: messageData.walletAddress,
         replyTo: messageData.replyTo || null,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
+        // DODANE: Zapisujemy sieć w której wysłano wiadomość
+        network: currentNetwork
       });
       
-      // Aktualizuj licznik wiadomości użytkownika
+      // Aktualizuj licznik wiadomości użytkownika (teraz z rozróżnieniem sieci)
       if (updateUserMessageCount) {
         await updateUserMessageCount(messageData.walletAddress);
       }
       
       onUpdateLastSeen(messageData.walletAddress);
-      console.log("✅ Wiadomość dodana do Firestore PO potwierdzeniu transakcji");
+      console.log(`✅ Wiadomość dodana do Firestore na sieci ${currentNetwork}`);
     } catch (error) {
       console.error('Error adding message to Firestore:', error);
     }
@@ -147,9 +154,10 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
       
       setPendingTransaction(messageData);
       
+      // DODANE: Użyj odpowiedniego kontraktu w zależności od sieci
       writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
+        address: CONTRACT_ADDRESSES[currentNetwork],
+        abi: CONTRACT_ABIS[currentNetwork],
         functionName: 'sendMessage',
         args: [newMessage],
       });
@@ -178,6 +186,19 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
       return await onDeleteMessage(messageId);
     }
     return false;
+  };
+
+  // DODANE: Dynamiczny placeholder w zależności od sieci
+  const getPlaceholderText = () => {
+    if (replyingTo) return `Reply To @${replyingTo.nickname}...`;
+    
+    const baseText = isMobile ? "Type message..." : "Type your message in public chat... (Enter to send)";
+    
+    if (isBase) {
+      return `${baseText} Earn ${tokenSymbol} tokens!`;
+    }
+    
+    return baseText;
   };
 
   return (
@@ -226,7 +247,7 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder={replyingTo ? `Reply To @${replyingTo.nickname}...` : (isMobile ? "Type message..." : "Type your message in public chat... (Enter to send)")}
+          placeholder={getPlaceholderText()}
           disabled={isSending}
           className={`flex-1 bg-transparent border-none text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 disabled:opacity-50 ${
             isMobile ? 'text-sm px-2' : 'px-3'
