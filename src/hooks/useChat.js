@@ -13,8 +13,9 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { useWriteContract } from 'wagmi';
+import { useNetwork } from './useNetwork';
 import { db } from '../config/firebase';
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../utils/constants';
+import { CONTRACT_ADDRESSES, CONTRACT_ABIS } from '../utils/constants';
 
 export const useChat = (address, currentUser, allUsers) => {
   const [activeDMChat, setActiveDMChat] = useState(null);
@@ -23,6 +24,7 @@ export const useChat = (address, currentUser, allUsers) => {
   const [isStartingDM, setIsStartingDM] = useState(false);
   
   const { writeContract } = useWriteContract();
+  const { currentNetwork, isCelo } = useNetwork(); // DODANE: Wykrywanie sieci
 
   const startPrivateChat = async (user) => {
     const chatId = [address.toLowerCase(), user.walletAddress.toLowerCase()].sort().join('_');
@@ -60,9 +62,10 @@ export const useChat = (address, currentUser, allUsers) => {
     
     setIsStartingDM(true);
     try {
+      // DODANE: Użyj odpowiedniego kontraktu w zależności od sieci
       writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
+        address: CONTRACT_ADDRESSES[currentNetwork],
+        abi: CONTRACT_ABIS[currentNetwork],
         functionName: 'sendMessage',
         args: [`[PRIVATE] ${privateMessage}`],
       });
@@ -82,7 +85,9 @@ export const useChat = (address, currentUser, allUsers) => {
         createdAt: serverTimestamp(),
         lastMessage: serverTimestamp(),
         lastMessageContent: privateMessage,
-        paidBy: address.toLowerCase()
+        paidBy: address.toLowerCase(),
+        // DODANE: Zapisujemy sieć dla czatu
+        network: currentNetwork
       });
 
       await addDoc(collection(db, 'private_chats', chatId, 'messages'), {
@@ -91,7 +96,9 @@ export const useChat = (address, currentUser, allUsers) => {
         senderNickname: currentUser.nickname,
         senderAvatar: currentUser.avatar,
         timestamp: serverTimestamp(),
-        isFirstMessage: true
+        isFirstMessage: true,
+        // DODANE: Sieć dla wiadomości
+        network: currentNetwork
       });
 
       setActiveDMChat({

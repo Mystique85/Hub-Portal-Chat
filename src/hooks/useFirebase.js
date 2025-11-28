@@ -14,10 +14,14 @@ import {
 import { db } from '../config/firebase';
 import { CREATOR_ADDRESS, ADMIN_ADDRESSES } from '../utils/constants';
 import { getCurrentSeason, isSeasonActive } from '../utils/seasons';
+import { useNetwork } from '../hooks/useNetwork';
 
 export const useFirebase = (address) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [showNicknameModal, setShowNicknameModal] = useState(false);
+  
+  // DODANE: Wykrywanie sieci
+  const { isCelo, isBase, currentNetwork } = useNetwork();
 
   useEffect(() => {
     if (address) {
@@ -67,23 +71,32 @@ export const useFirebase = (address) => {
         const currentCount = userDoc.data().totalMessages || 0;
         const season1Count = userDoc.data().season1_messages || 0;
         
+        // DODANE: Aktualizuj odpowiednie pola w zależności od sieci
         const updates = {
           totalMessages: currentCount + 1,
           lastSeen: serverTimestamp(),
           lastMessageAt: serverTimestamp()
         };
         
-        if (isSeasonActive()) {
+        // DODANE: TYLKO na Celo aktualizuj licznik sezonu
+        if (isSeasonActive() && isCelo) {
           updates.season1_messages = season1Count + 1;
+          console.log(`✅ Zaktualizowano season1_messages dla ${walletAddress} na Celo`);
         }
         
+        // DODANE: Aktualizuj licznik dla aktualnej sieci (dla statystyk)
+        updates[`${currentNetwork}_messages`] = (userDoc.data()[`${currentNetwork}_messages`] || 0) + 1;
+        
         await updateDoc(userRef, updates);
+        
+        console.log(`✅ Zaktualizowano licznik wiadomości dla ${walletAddress} na sieci ${currentNetwork}`);
       }
     } catch (error) {
       console.error('Error updating user message count:', error);
     }
   };
 
+  // DODANE: Funkcja do migracji danych - PRZYWRACA season1_messages
   const migrateUserMessageCounts = async () => {
     if (!db) return;
     
@@ -95,17 +108,23 @@ export const useFirebase = (address) => {
       }));
       
       for (const user of users) {
-        const messagesQuery = query(
+        // Policz wszystkie wiadomości użytkownika (dla kompatybilności)
+        const allMessagesQuery = query(
           collection(db, 'messages'), 
           where('walletAddress', '==', user.walletAddress?.toLowerCase())
         );
-        const messagesSnapshot = await getDocs(messagesQuery);
-        const messageCount = messagesSnapshot.size;
+        const allMessagesSnapshot = await getDocs(allMessagesQuery);
+        const totalMessageCount = allMessagesSnapshot.size;
         
+        // PRZYWRÓĆ season1_messages z totalMessages
         await updateDoc(doc(db, 'users', user.id), {
-          totalMessages: messageCount
+          season1_messages: user.totalMessages || totalMessageCount || 0
         });
+        
+        console.log(`✅ Zaktualizowano użytkownika ${user.nickname}: season1_messages = ${user.totalMessages || totalMessageCount}`);
       }
+      
+      console.log('✅ Migracja season1_messages zakończona');
     } catch (error) {
       console.error('Error migrating message counts:', error);
     }
@@ -128,7 +147,9 @@ export const useFirebase = (address) => {
         lastSeen: serverTimestamp(),
         nicknameLocked: address.toLowerCase() !== CREATOR_ADDRESS.toLowerCase(),
         totalMessages: 0,
-        season1_messages: 0,
+        celo_messages: 0,
+        base_messages: 0,
+        season1_messages: 0, // ZACHOWUJEMY dla kompatybilności z rankingiem Celo
         badges: []
       };
 

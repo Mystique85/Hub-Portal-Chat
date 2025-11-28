@@ -3,6 +3,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { getCurrentSeason, getSeasonBadge } from '../../utils/seasons';
 import SendHCModal from './SendHCModal';
+import { useNetwork } from '../../hooks/useNetwork';
 
 const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) => {
   const [userProfile, setUserProfile] = useState(null);
@@ -10,6 +11,9 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
   const [loading, setLoading] = useState(true);
   const [showSendModal, setShowSendModal] = useState(false);
   const [seasonStats, setSeasonStats] = useState(null);
+
+  // DODANE: Wykrywanie sieci
+  const { isCelo, isBase, tokenSymbol } = useNetwork();
 
   const season = getCurrentSeason();
 
@@ -30,7 +34,8 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
         setUserProfile(firestoreProfile);
         setUserBalance(balance);
         
-        if (firestoreProfile) {
+        // DODANE: Ładuj statystyki sezonu TYLKO na Celo
+        if (firestoreProfile && isCelo) {
           setSeasonStats({
             seasonMessages: firestoreProfile.season1_messages || 0,
             seasonRank: firestoreProfile.season1_rank || null,
@@ -47,7 +52,7 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
     };
     
     loadProfileData();
-  }, [user, getOtherUserBalance]);
+  }, [user, getOtherUserBalance, isCelo]); // DODANE: isCelo w dependencies
 
   const getBadgeColor = (badgeType) => {
     switch(badgeType) {
@@ -89,65 +94,74 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
             </div>
           ) : (
             <div className="space-y-6">
+              {/* BALANCE - ZMIENIONE: Dynamiczny symbol tokena */}
               <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-4 text-center">
                 <div className="text-cyan-400 font-bold text-3xl mb-2">
                   {userBalance}
                 </div>
-                <div className="text-cyan-300 text-sm">HC Tokens</div>
+                <div className="text-cyan-300 text-sm">{tokenSymbol} Tokens</div>
               </div>
               
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-700/50 rounded-xl p-3 text-center">
-                  <div className="text-green-400 font-bold text-lg">
-                    {userProfile?.totalMessages || '0'}
-                  </div>
-                  <div className="text-gray-400 text-xs">Total Messages</div>
+              {/* TOTAL MESSAGES - ZOSTAJE NA OBIE SIECI */}
+              <div className="bg-gray-700/50 rounded-xl p-3 text-center">
+                <div className="text-green-400 font-bold text-lg">
+                  {userProfile?.totalMessages || '0'}
                 </div>
-                <div className="bg-gray-700/50 rounded-xl p-3 text-center">
-                  <div className="text-purple-400 font-bold text-lg">
-                    {seasonStats?.seasonMessages || '0'}
-                  </div>
-                  <div className="text-gray-400 text-xs">{season.displayName}</div>
-                </div>
+                <div className="text-gray-400 text-xs">Total Messages</div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-700/50 rounded-xl p-3 text-center">
-                  <div className="text-blue-400 font-bold text-lg">
-                    {userProfile?.createdAt ? 
-                      new Date(userProfile.createdAt.toDate()).toLocaleDateString() : 
-                      'Unknown'
-                    }
+              {/* SEASON STATS - TYLKO NA CELO */}
+              {isCelo && (
+                <>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-gray-700/50 rounded-xl p-3 text-center">
+                      <div className="text-purple-400 font-bold text-lg">
+                        {seasonStats?.seasonMessages || '0'}
+                      </div>
+                      <div className="text-gray-400 text-xs">{season.displayName}</div>
+                    </div>
+                    <div className="bg-gray-700/50 rounded-xl p-3 text-center">
+                      <div className="text-amber-400 font-bold text-lg">
+                        {seasonStats?.seasonRank || '-'}
+                      </div>
+                      <div className="text-gray-400 text-xs">Season Rank</div>
+                    </div>
                   </div>
-                  <div className="text-gray-400 text-xs">Joined</div>
-                </div>
-                <div className="bg-gray-700/50 rounded-xl p-3 text-center">
-                  <div className="text-amber-400 font-bold text-lg">
-                    {seasonStats?.seasonRank || '-'}
-                  </div>
-                  <div className="text-gray-400 text-xs">Season Rank</div>
-                </div>
-              </div>
 
-              {seasonStats?.badges && seasonStats.badges.length > 0 && (
-                <div className="bg-gray-700/30 rounded-2xl p-4">
-                  <h3 className="text-white font-semibold text-sm mb-3 text-center">Season Badges</h3>
-                  <div className="space-y-2">
-                    {seasonStats.badges.map((badge, index) => {
-                      const badgeInfo = Object.values(season.rewards).find(r => r.badge === badge);
-                      return (
-                        <div
-                          key={index}
-                          className={`bg-gradient-to-r ${getBadgeColor(badgeInfo?.type)} text-white rounded-xl p-3 text-center text-sm font-medium`}
-                        >
-                          {badge}
-                        </div>
-                      );
-                    })}
+                  {/* JOIN DATE - ZOSTAJE NA OBIE SIECI */}
+                  <div className="bg-gray-700/50 rounded-xl p-3 text-center">
+                    <div className="text-blue-400 font-bold text-lg">
+                      {userProfile?.createdAt ? 
+                        new Date(userProfile.createdAt.toDate()).toLocaleDateString() : 
+                        'Unknown'
+                      }
+                    </div>
+                    <div className="text-gray-400 text-xs">Joined</div>
                   </div>
-                </div>
+
+                  {/* BADGES - TYLKO NA CELO */}
+                  {seasonStats?.badges && seasonStats.badges.length > 0 && (
+                    <div className="bg-gray-700/30 rounded-2xl p-4">
+                      <h3 className="text-white font-semibold text-sm mb-3 text-center">Season Badges</h3>
+                      <div className="space-y-2">
+                        {seasonStats.badges.map((badge, index) => {
+                          const badgeInfo = Object.values(season.rewards).find(r => r.badge === badge);
+                          return (
+                            <div
+                              key={index}
+                              className={`bg-gradient-to-r ${getBadgeColor(badgeInfo?.type)} text-white rounded-xl p-3 text-center text-sm font-medium`}
+                            >
+                              {badge}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
               
+              {/* BUTTONS */}
               <div className="flex gap-3">
                 <button 
                   onClick={onClose}
@@ -155,11 +169,12 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
                 >
                   Close
                 </button>
+                {/* ZMIENIONE: Przycisk Send z dynamicznym tekstem */}
                 <button 
                   onClick={() => setShowSendModal(true)}
                   className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all"
                 >
-                  Send HC
+                  Send {tokenSymbol}
                 </button>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, orderBy, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { getCurrentSeason, getDaysRemaining, isSeasonActive } from '../../utils/seasons';
+import { useNetwork } from '../../hooks/useNetwork';
 
 const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
   const [users, setUsers] = useState([]);
@@ -10,12 +11,41 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [userRank, setUserRank] = useState(null);
 
+  // DODANE: Wykrywanie sieci
+  const { isCelo, isBase } = useNetwork();
+
   const season = getCurrentSeason();
   const daysRemaining = getDaysRemaining();
   const seasonActive = isSeasonActive();
 
+  // DODANE: Jeśli nie jesteśmy na Celo, pokaż komunikat
+  if (!isCelo && isOpen) {
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 rounded-3xl w-full max-w-md p-6">
+          <div className="text-center">
+            <div className="text-4xl mb-4">🔍</div>
+            <h2 className="text-xl font-bold text-amber-400 mb-4">
+              Leaderboard Available Only on Celo
+            </h2>
+            <p className="text-gray-300 mb-6">
+              The ranking and season system is currently available only on the Celo network. 
+              Switch to Celo network to participate in seasons and compete for rewards!
+            </p>
+            <button 
+              onClick={onClose}
+              className="px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl font-semibold transition-all"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
-    if (!isOpen || !db) return;
+    if (!isOpen || !db || !isCelo) return; // TYLKO na Celo
 
     const loadLeaderboard = async () => {
       const cacheKey = `leaderboard_${timeFilter}`;
@@ -38,6 +68,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
         
         setLoading(false);
       } else {
+        // ZAWSZE używamy season1_messages dla rankingu (TYLKO Celo)
         const fieldToOrderBy = timeFilter === 'season' ? 'season1_messages' : 'totalMessages';
         const usersQuery = query(
           collection(db, 'users'), 
@@ -67,7 +98,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
     };
 
     loadLeaderboard();
-  }, [isOpen, currentUser, timeFilter]);
+  }, [isOpen, currentUser, timeFilter, isCelo]);
 
   const getRankBadge = (index) => {
     switch(index) {
@@ -104,8 +135,8 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
 
   const getMessageCount = (user) => {
     switch(timeFilter) {
-      case 'season': return user.season1_messages || 0;
-      case 'all': return user.totalMessages || 0;
+      case 'season': return user.season1_messages || 0; // TYLKO wiadomości z Celo
+      case 'all': return user.totalMessages || 0;       // Wszystkie wiadomości
       default: return user.season1_messages || 0;
     }
   };
