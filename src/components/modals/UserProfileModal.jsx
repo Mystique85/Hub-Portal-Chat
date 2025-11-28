@@ -12,9 +12,7 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
   const [showSendModal, setShowSendModal] = useState(false);
   const [seasonStats, setSeasonStats] = useState(null);
 
-  // DODANE: Wykrywanie sieci
-  const { isCelo, isBase, tokenSymbol } = useNetwork();
-
+  const { isCelo, isBase, tokenSymbol, currentNetwork } = useNetwork();
   const season = getCurrentSeason();
 
   useEffect(() => {
@@ -27,14 +25,18 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
         const firestoreProfile = userDoc.exists() ? userDoc.data() : null;
         
         let balance = '0';
-        if (getOtherUserBalance) {
+        
+        // ✅ POPRAWIONE: Dla Base używaj currentUser.balance (tak jak w Sidebar)
+        if (isBase && currentUser && user.walletAddress === currentUser.walletAddress) {
+          balance = currentUser.balance || '0';
+        } else if (getOtherUserBalance) {
+          // Dla Celo lub innych użytkowników używaj getOtherUserBalance
           balance = await getOtherUserBalance(user.walletAddress);
         }
         
         setUserProfile(firestoreProfile);
         setUserBalance(balance);
         
-        // DODANE: Ładuj statystyki sezonu TYLKO na Celo
         if (firestoreProfile && isCelo) {
           setSeasonStats({
             seasonMessages: firestoreProfile.season1_messages || 0,
@@ -52,7 +54,7 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
     };
     
     loadProfileData();
-  }, [user, getOtherUserBalance, isCelo]); // DODANE: isCelo w dependencies
+  }, [user, getOtherUserBalance, isCelo, isBase, currentUser]);
 
   const getBadgeColor = (badgeType) => {
     switch(badgeType) {
@@ -83,6 +85,10 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
                 <div className="text-gray-400 text-sm mt-1">
                   {user.walletAddress?.slice(0, 8)}...{user.walletAddress?.slice(-6)}
                 </div>
+                {/* DODANE: Wskaźnik czy to twój profil */}
+                {currentUser && user.walletAddress === currentUser.walletAddress && (
+                  <div className="text-cyan-400 text-xs mt-1">(Your Profile)</div>
+                )}
               </div>
             </div>
           </div>
@@ -94,15 +100,19 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
             </div>
           ) : (
             <div className="space-y-6">
-              {/* BALANCE - ZMIENIONE: Dynamiczny symbol tokena */}
               <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-4 text-center">
                 <div className="text-cyan-400 font-bold text-3xl mb-2">
                   {userBalance}
                 </div>
                 <div className="text-cyan-300 text-sm">{tokenSymbol} Tokens</div>
+                {/* DODANE: Informacja o źródle balance */}
+                <div className="text-cyan-500 text-xs mt-1">
+                  {isBase && currentUser && user.walletAddress === currentUser.walletAddress 
+                    ? "Live balance from wallet" 
+                    : "Balance from network"}
+                </div>
               </div>
               
-              {/* TOTAL MESSAGES - ZOSTAJE NA OBIE SIECI */}
               <div className="bg-gray-700/50 rounded-xl p-3 text-center">
                 <div className="text-green-400 font-bold text-lg">
                   {userProfile?.totalMessages || '0'}
@@ -110,7 +120,6 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
                 <div className="text-gray-400 text-xs">Total Messages</div>
               </div>
 
-              {/* SEASON STATS - TYLKO NA CELO */}
               {isCelo && (
                 <>
                   <div className="grid grid-cols-2 gap-3">
@@ -128,7 +137,6 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
                     </div>
                   </div>
 
-                  {/* JOIN DATE - ZOSTAJE NA OBIE SIECI */}
                   <div className="bg-gray-700/50 rounded-xl p-3 text-center">
                     <div className="text-blue-400 font-bold text-lg">
                       {userProfile?.createdAt ? 
@@ -139,7 +147,6 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
                     <div className="text-gray-400 text-xs">Joined</div>
                   </div>
 
-                  {/* BADGES - TYLKO NA CELO */}
                   {seasonStats?.badges && seasonStats.badges.length > 0 && (
                     <div className="bg-gray-700/30 rounded-2xl p-4">
                       <h3 className="text-white font-semibold text-sm mb-3 text-center">Season Badges</h3>
@@ -160,8 +167,9 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
                   )}
                 </>
               )}
+
+              {/* USUNIĘTA SEKCJA: Unlimited HUB Rewards */}
               
-              {/* BUTTONS */}
               <div className="flex gap-3">
                 <button 
                   onClick={onClose}
@@ -169,7 +177,6 @@ const UserProfileModal = ({ user, onClose, getOtherUserBalance, currentUser }) =
                 >
                   Close
                 </button>
-                {/* ZMIENIONE: Przycisk Send z dynamicznym tekstem */}
                 <button 
                   onClick={() => setShowSendModal(true)}
                   className="flex-1 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all"
