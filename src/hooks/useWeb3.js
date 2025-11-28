@@ -8,10 +8,24 @@ export const useWeb3 = (address) => {
   const [remaining, setRemaining] = useState('0');
   const { currentNetwork, isCelo, networkConfig } = useNetwork();
 
-  // DODANE: Warunkowe wywołania w zależności od sieci
+  // DODANE: Adres tokena HUB na Base
+  const HUB_TOKEN_ADDRESS_BASE = "0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E";
+
+  // DODANE: Standardowe ABI ERC-20 dla funkcji balanceOf
+  const ERC20_ABI = [
+    {
+      "constant": true,
+      "inputs": [{"name": "_owner", "type": "address"}],
+      "name": "balanceOf",
+      "outputs": [{"name": "balance", "type": "uint256"}],
+      "type": "function"
+    }
+  ];
+
+  // POPRAWIONE: Używaj tokena HUB na Base, kontraktu chat na Celo
   const { data: balanceData } = useReadContract({
-    address: CONTRACT_ADDRESSES[currentNetwork],
-    abi: CONTRACT_ABIS[currentNetwork],
+    address: isCelo ? CONTRACT_ADDRESSES.celo : HUB_TOKEN_ADDRESS_BASE,
+    abi: isCelo ? CONTRACT_ABIS.celo : ERC20_ABI,
     functionName: 'balanceOf',
     args: [address],
     query: {
@@ -23,7 +37,7 @@ export const useWeb3 = (address) => {
   const { data: remainingData } = useReadContract({
     address: CONTRACT_ADDRESSES[currentNetwork],
     abi: CONTRACT_ABIS[currentNetwork],
-    functionName: isCelo ? 'remainingRewards' : 'getContractHUBBalance', // fallback dla Base
+    functionName: isCelo ? 'remainingRewards' : 'getContractHUBBalance',
     args: isCelo ? [address] : [],
     query: {
       enabled: !!address && isCelo, // Tylko dla Celo
@@ -32,20 +46,24 @@ export const useWeb3 = (address) => {
 
   useEffect(() => {
     if (balanceData) {
-      setBalance((Number(balanceData) / 1e18).toString());
+      const balanceNumber = Number(balanceData) / 1e18;
+      setBalance(balanceNumber.toString());
+      console.log(`💰 Balance updated: ${balanceNumber} ${networkConfig.symbol} on ${currentNetwork}`);
     }
-  }, [balanceData]);
+  }, [balanceData, currentNetwork, networkConfig.symbol]);
 
   useEffect(() => {
     if (isCelo && remainingData) {
       // Celo: pokaż remaining rewards
       setRemaining(remainingData.toString());
+      console.log(`🎯 Remaining rewards on Celo: ${remainingData.toString()}`);
     } else if (isCelo) {
       // Celo: domyślnie 0
       setRemaining('0');
     } else {
       // Base: zawsze "unlimited" (kontrakt bez limitów)
       setRemaining('unlimited');
+      console.log('🎯 Base network: unlimited rewards');
     }
   }, [remainingData, isCelo]);
 
@@ -55,7 +73,6 @@ export const useWeb3 = (address) => {
     
     try {
       // Używamy bezpośrednio fetch do kontraktu zamiast hooka
-      // DODANE: Różne RPC URLs dla różnych sieci
       const providerUrl = currentNetwork === 'celo' 
         ? import.meta.env.VITE_CELO_MAINNET_RPC_URL
         : import.meta.env.VITE_BASE_MAINNET_RPC_URL;
@@ -64,6 +81,9 @@ export const useWeb3 = (address) => {
         console.error('RPC URL not configured for network:', currentNetwork);
         return '0';
       }
+
+      // Określ który kontrakt użyć - token HUB na Base, kontrakt chat na Celo
+      const contractAddress = isCelo ? CONTRACT_ADDRESSES.celo : HUB_TOKEN_ADDRESS_BASE;
 
       // Proste wywołanie JSON-RPC do kontraktu
       const response = await fetch(providerUrl, {
@@ -75,7 +95,7 @@ export const useWeb3 = (address) => {
           jsonrpc: '2.0',
           method: 'eth_call',
           params: [{
-            to: CONTRACT_ADDRESSES[currentNetwork],
+            to: contractAddress,
             data: `0x70a08231000000000000000000000000${userAddress.slice(2)}` // balanceOf signature
           }, 'latest'],
           id: 1
@@ -87,7 +107,9 @@ export const useWeb3 = (address) => {
       if (data.result && data.result !== '0x') {
         const balanceHex = data.result;
         const balanceWei = BigInt(balanceHex);
-        return (Number(balanceWei) / 1e18).toString();
+        const balanceFormatted = (Number(balanceWei) / 1e18).toString();
+        console.log(`👤 Other user balance (${userAddress}): ${balanceFormatted} ${networkConfig.symbol}`);
+        return balanceFormatted;
       }
       
       return '0';
