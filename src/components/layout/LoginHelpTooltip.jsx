@@ -1,4 +1,3 @@
-// src/components/layout/LoginHelpTooltip.jsx
 import { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { translations, getBrowserLanguage } from '../../utils/translations';
@@ -48,19 +47,19 @@ const LoginHelpTooltip = () => {
         ? `<div class="space-y-4 text-white">
             <p><span class="text-cyan-300 font-semibold">HUB Chat</span> to Twój pierwszy krok w przyszłość społeczności internetowych - miejscu, gdzie Twoja aktywność ma realną wartość, a nie tylko pozostaje cyfrowym śladem.</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Twoja Aktywność = Prawdziwe Aktywa</p>
-            <p>Każda wiadomość to nie tylko wymiana myśli - to mintowanie realnych tokenów <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span> bezpośrednio na blockchainie Celo. Nie jesteś użytkownikiem - jesteś współtwórcą ekosystemu.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base</p>
+            <p>Działamy na dwóch sieciach blockchain! Na <span class="text-yellow-300">Celo</span> zdobywasz tokeny <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span>, a na <span class="text-blue-300">Base</span> zarabiasz główne tokeny <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span> ekosystemu.</p>
 
-            <p class="text-cyan-300 font-semibold">🚀 Od HC do HUB: Twoja Ścieżka Wartości</p>
-            <p>Tokeny <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span> to więcej niż nagrody - to klucz otwierający drzwi do pełni możliwości <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB Ecosystem</span>. Każdy token jest <strong>mintowany od zera</strong> z ograniczoną pulą 1,000,000 HC, co gwarantuje rzadkość i realną wartość. <strong>Żaden użytkownik nie ma przewagi</strong> - wszyscy startujemy z równymi szansami.</p>
-            
-            <div class="space-y-2 text-sm">
-              <p>• Ekskluzywne programy airdrop głównego tokena <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span> dla użytkowników z największą ilością HC tokenów</p>
-              <p>• Early access do kolejnych innowacyjnych dApp w ekosystemie</p>
-              <p>• Specjalne nagrody i materiały edukacyjne</p>
-              <p>• Unikalne możliwości w rozwijającym się portfolio projektów</p>
-              <p>• Wpływ na rozwój platformy przez aktywne uczestnictwo</p>
-            </div>
+            <p class="text-cyan-300 font-semibold">🚀 Podwójny System Nagród</p>
+            <p><span class="text-yellow-300">📱 CELO NETWORK:</span><br/>
+            • Mintujesz <span class="text-cyan-300">HC tokeny</span> za wiadomości<br/>
+            • Limit 10 nagród dziennie<br/>
+            • Dodatkowe codzienne nagrody CELO</p>
+
+            <p><span class="text-blue-300">🌉 BASE NETWORK:</span><br/>
+            • Zdobywasz główne <span class="text-purple-300">HUB tokeny</span><br/>
+            • <strong>Bez limitów dziennych</strong> - każda wiadomość nagradzana<br/>
+            • Tokeny z prawdziwą utility w ekosystemie</p>
 
             <p class="text-cyan-300 font-semibold">💎 Zbuduj Swoją Web3 Tożsamość</p>
             <p>Tutaj nie jesteś anonimowym użytkownikiem - jesteś pionierem nowej ery społeczności internetowych. Twoja reputacja rośnie z każdą wiadomością, a zgromadzone tokeny to nie tylko wartość - to Twój głos w przyszłości zdecentralizowanej przestrzeni.</p>
@@ -70,19 +69,19 @@ const LoginHelpTooltip = () => {
         : `<div class="space-y-4 text-white">
             <p><span class="text-cyan-300 font-semibold">HUB Chat</span> is your first step into the future of online communities - a place where your activity holds real value, not just digital footprints.</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Your Activity = Real Assets</p>
-            <p>Every message isn't just an exchange of thoughts - it's minting real <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span> tokens directly on Celo blockchain. You're not a user - you're a co-creator of the ecosystem.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base</p>
+            <p>We operate on two blockchain networks! On <span class="text-yellow-300">Celo</span> you earn <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span> tokens, while on <span class="text-blue-300">Base</span> you collect main <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span> ecosystem tokens.</p>
 
-            <p class="text-cyan-300 font-semibold">🚀 From HC to HUB: Your Value Pathway</p>
-            <p><span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span> tokens are more than rewards - they're the key unlocking full <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB Ecosystem</span> potential. Each token is <strong>minted from scratch</strong> with limited supply of 1,000,000 HC, ensuring scarcity and real value. <strong>No user has advantage</strong> - we all start with equal opportunities.</p>
-            
-            <div class="space-y-2 text-sm">
-              <p>• Exclusive airdrop programs for main <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span> token targeting users with highest HC token balance</p>
-              <p>• Early access to upcoming innovative dApps in ecosystem</p>
-              <p>• Special rewards and educational materials</p>
-              <p>• Unique opportunities in growing project portfolio</p>
-              <p>• Influence on platform development through active participation</p>
-            </div>
+            <p class="text-cyan-300 font-semibold">🚀 Dual Reward System</p>
+            <p><span class="text-yellow-300">📱 CELO NETWORK:</span><br/>
+            • Mint <span class="text-cyan-300">HC tokens</span> for messages<br/>
+            • 10 rewards daily limit<br/>
+            • Additional daily CELO rewards</p>
+
+            <p><span class="text-blue-300">🌉 BASE NETWORK:</span><br/>
+            • Earn main <span class="text-purple-300">HUB tokens</span><br/>
+            • <strong>No daily limits</strong> - every message rewarded<br/>
+            • Tokens with real utility in ecosystem</p>
 
             <p class="text-cyan-300 font-semibold">💎 Build Your Web3 Identity</p>
             <p>Here you're not an anonymous user - you're a pioneer of new internet community era. Your reputation grows with every message, and accumulated tokens aren't just value - they're your voice in decentralized space future.</p>
@@ -98,23 +97,25 @@ const LoginHelpTooltip = () => {
       type: 'step',
       content: language === 'pl' 
         ? `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Krok 1: Połączenie z Celo Blockchain</p>
+            <p class="text-cyan-300 font-semibold text-center">Krok 1: Połączenie z Blockchain</p>
             <div class="space-y-3 text-left">
               <p>• Kliknij <span class="text-cyan-300">"Connect Wallet"</span></p>
-              <p>• Wybierz kompatybilny portfel EVM z dostępnej listy</p>
-              <p>• Zaakceptuj połączenie w aplikacji portfela</p>
-              <p>• Portfel automatycznie przełączy się na sieć Celo - upewnij się że jesteś na właściwej sieci</p>
+              <p>• Wybierz kompatybilny portfel EVM</p>
+              <p>• Portfel automatycznie przełączy się na odpowiednią sieć</p>
+              <p>• <span class="text-green-400">Wspierane sieci:</span> Celo i Base</p>
               <p>• Połączenie jest w <span class="text-green-400">100% bezpieczne</span></p>
+              <p class="text-yellow-300 text-sm">💡 Możesz zmieniać sieci w aplikacji!</p>
             </div>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Step 1: Connect to Celo Blockchain</p>
+            <p class="text-cyan-300 font-semibold text-center">Step 1: Connect to Blockchain</p>
             <div class="space-y-3 text-left">
               <p>• Click <span class="text-cyan-300">"Connect Wallet"</span></p>
-              <p>• Choose compatible EVM wallet from available list</p>
-              <p>• Accept connection in your wallet app</p>
-              <p>• Wallet will automatically switch to Celo network - make sure you're on correct network</p>
+              <p>• Choose compatible EVM wallet</p>
+              <p>• Wallet will auto-switch to correct network</p>
+              <p>• <span class="text-green-400">Supported networks:</span> Celo and Base</p>
               <p>• Connection is <span class="text-green-400">100% secure</span></p>
+              <p class="text-yellow-300 text-sm">💡 You can switch networks in the app!</p>
             </div>
           </div>`,
       buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
@@ -133,6 +134,7 @@ const LoginHelpTooltip = () => {
               <p>• Wybierz avatar z dostępnych emoji</p>
               <p>• Profil powiązany z adresem portfela <span class="text-cyan-300">na zawsze</span></p>
               <p>• Dane widoczne dla całej społeczności</p>
+              <p>• Jeden profil działa na obu sieciach!</p>
             </div>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
@@ -143,34 +145,61 @@ const LoginHelpTooltip = () => {
               <p>• Select avatar from available emojis</p>
               <p>• Profile linked to wallet address <span class="text-cyan-300">forever</span></p>
               <p>• Data visible to entire community</p>
+              <p>• One profile works on both networks!</p>
             </div>
           </div>`,
       buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
     },
     {
       id: 3,
-      title: language === 'pl' ? "💎 Zdobywaj HC Tokeny" : "💎 Earn HC Tokens",
+      title: language === 'pl' ? "💎 Wybierz Sieć i Zdobywaj Tokeny" : "💎 Choose Network & Earn Tokens",
       icon: "💎",
       type: 'step',
       content: language === 'pl'
         ? `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Krok 3: Zacznij Zbierać HC Tokeny</p>
-            <div class="space-y-3 text-left">
-              <p>• <span class="text-cyan-300">1 HC token</span> za każdą wiadomość</p>
-              <p>• Limit: <span class="text-cyan-300">10 HC dziennie</span> na użytkownika</p>
-              <p>• Tokeny automatycznie mintowane do portfela</p>
-              <p>• <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span> to prawdziwe tokeny ERC-20 na Celo</p>
-              <p>• Śledź zarobki w panelu użytkownika</p>
+            <p class="text-cyan-300 font-semibold text-center">Krok 3: Multi-Chain Token Rewards</p>
+            
+            <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-3">
+              <p class="text-yellow-300 font-semibold text-center mb-2">📱 CELO NETWORK</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-cyan-300">1 HC token</span> za każdą wiadomość</p>
+                <p>• Limit: <span class="text-cyan-300">10 HC dziennie</span></p>
+                <p>• Dodatkowe codzienne nagrody CELO</p>
+                <p>• Tokeny mintowane bezpośrednio na blockchain</p>
+              </div>
+            </div>
+
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+              <p class="text-blue-300 font-semibold text-center mb-2">🌉 BASE NETWORK</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-purple-300">1 HUB token</span> za każdą wiadomość</p>
+                <p>• <strong class="text-green-400">BRAK LIMITÓW</strong> dziennych</p>
+                <p>• Główne tokeny ekosystemu HUB</p>
+                <p>• Prawdziwa utility i wartość</p>
+              </div>
             </div>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Step 3: Start Collecting HC Tokens</p>
-            <div class="space-y-3 text-left">
-              <p>• <span class="text-cyan-300">1 HC token</span> per message</p>
-              <p>• Limit: <span class="text-cyan-300">10 HC daily</span> per user</p>
-              <p>• Tokens auto-minted to wallet</p>
-              <p>• <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span> are real ERC-20 tokens on Celo</p>
-              <p>• Track earnings in user panel</p>
+            <p class="text-cyan-300 font-semibold text-center">Step 3: Multi-Chain Token Rewards</p>
+            
+            <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-3">
+              <p class="text-yellow-300 font-semibold text-center mb-2">📱 CELO NETWORK</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-cyan-300">1 HC token</span> per message</p>
+                <p>• Limit: <span class="text-cyan-300">10 HC daily</span></p>
+                <p>• Additional daily CELO rewards</p>
+                <p>• Tokens minted directly on blockchain</p>
+              </div>
+            </div>
+
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+              <p class="text-blue-300 font-semibold text-center mb-2">🌉 BASE NETWORK</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-purple-300">1 HUB token</span> per message</p>
+                <p>• <strong class="text-green-400">NO DAILY LIMITS</strong></p>
+                <p>• Main HUB ecosystem tokens</p>
+                <p>• Real utility and value</p>
+              </div>
             </div>
           </div>`,
       buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
@@ -189,6 +218,7 @@ const LoginHelpTooltip = () => {
               <p>• <span class="text-cyan-300">Reakcje emoji</span> - wyrażaj emocje</p>
               <p>• <span class="text-cyan-300">System online</span> - zobacz aktywnych</p>
               <p>• <span class="text-cyan-300">Enter</span> - szybkie wysyłanie</p>
+              <p class="text-yellow-300">💡 Zmieniaj sieci by maksymalizować zarobki!</p>
             </div>
             <p class="text-green-400 font-semibold text-center mt-4">Gotowy by dołączyć? Twoja podróż w <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB Ecosystem</span> właśnie się zaczyna!</p>
           </div>`
@@ -200,6 +230,7 @@ const LoginHelpTooltip = () => {
               <p>• <span class="text-cyan-300">Emoji reactions</span> - express emotions</p>
               <p>• <span class="text-cyan-300">Online system</span> - see active users</p>
               <p>• <span class="text-cyan-300">Enter</span> - quick sending</p>
+              <p class="text-yellow-300">💡 Switch networks to maximize earnings!</p>
             </div>
             <p class="text-green-400 font-semibold text-center mt-4">Ready to join? Your <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB Ecosystem</span> journey starts now!</p>
           </div>`,
@@ -329,12 +360,12 @@ const LoginHelpTooltip = () => {
   return (
     <>
       <button
-  onClick={() => setShowTooltip(true)}
-  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500/30 to-blue-500/30 border border-cyan-400/50 rounded-xl text-white text-sm font-medium hover:from-cyan-500/40 hover:to-blue-500/40 hover:border-cyan-300 transition-all shadow-md hover:shadow-cyan-500/30"
->
-  <span className="text-cyan-300">📚</span>
-  <span>Get Started - Tutorial</span>
-</button>
+        onClick={() => setShowTooltip(true)}
+        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan-500/30 to-blue-500/30 border border-cyan-400/50 rounded-xl text-white text-sm font-medium hover:from-cyan-500/40 hover:to-blue-500/40 hover:border-cyan-300 transition-all shadow-md hover:shadow-cyan-500/30"
+      >
+        <span className="text-cyan-300">📚</span>
+        <span>Get Started - Tutorial</span>
+      </button>
 
       <TooltipContent />
     </>

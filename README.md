@@ -1,12 +1,12 @@
+# <img src="./public/hublogo.svg" alt="HUB Portal" width="30" height="30" /> HUB Portal - Multi-Chain Social Chat Platform
+
 <div align="center">
 
 <img src="./public/hublogo.svg" alt="HUB Portal Logo" width="200" height="200" />
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# <img src="./public/hublogo.svg" alt="HUB Portal" width="30" height="30" /> HUB Portal - Decentralized Social Chat
-
-**HUB Portal** is a revolutionary Web3 social platform on the Celo blockchain that combines real-time chat with a dual token reward system. Experience seamless wallet integration, beautiful design, and true digital ownership.
+**HUB Portal** is a revolutionary Web3 social platform that combines real-time chat with comprehensive token rewards across multiple blockchain networks. Experience seamless wallet integration, beautiful design, and true digital ownership.
 
 </div>
 
@@ -16,14 +16,31 @@
 - **Public Chat** - Community conversations with instant delivery
 - **Private Messages** - Secure 1-on-1 conversations
 - **Real-time Synchronization** - Messages appear instantly across all devices
-- **Dual Token Rewards** - Earn HC tokens for chatting AND CELO tokens daily
+- **Multi-Chain Rewards** - Earn tokens on both Celo and Base networks
 
-### 🎁 Daily CELO Rewards
+### 🎁 Triple Token Reward System
+
+#### 🌉 Base Network - HUB Token Rewards
+- **Chat Mining** - Earn 1 HUB token for every public message
+- **Instant Distribution** - Rewards sent automatically after each message
+- **No Daily Limits** - Reward for every valid message
+- **Advanced Contract** - Secure and gas-optimized rewards distribution
+- **Rewards Contract:** [`0x94D9EFFb0576Cff246D921066183Db816309CC8c`](https://basescan.org/address/0x94D9EFFb0576Cff246D921066183Db816309CC8c)
+
+#### 📱 Celo Network - Dual Rewards
+
+##### HC Token Mining
+- **Message Mining** - Mine 1 HC token for every public message
+- **Daily Limit** - Maximum 10 rewards per day to prevent spam
+- **Direct Minting** - Each message mints new HC tokens on-chain
+- **Contract Address:** [`0x12b6e1f30cb714e8129F6101a7825a910a9982F2`](https://celoscan.io/token/0x12b6e1f30cb714e8129F6101a7825a910a9982F2)
+
+##### Daily CELO Rewards
 - **Daily Claims** - Claim CELO tokens every 24 hours
-- **Secure Smart Contract** - Dedicated contract for reward distribution
+- **Secure Smart Contract** - Dedicated contract for CELO distribution
 - **Easy Claim Process** - Simple one-click claim interface
 - **Transaction History** - Track all your CELO rewards
-- **Contract Address:** [`0xaB54190489aC536EDba25FD4966DDe8D4a1907b4`](https://celoscan.io/address/0xaB54190489aC536EDba25FD4966DDe8D4a1907b4)
+- **Rewards Contract:** [`0xaB54190489aC536EDba25FD4966DDe8D4a1907b4`](https://celoscan.io/address/0xaB54190489aC536EDba25FD4966DDe8D4a1907b4)
 
 ### 👤 Digital Identity
 - **Persistent Profiles** - Custom nicknames with unique emoji avatars
@@ -31,77 +48,80 @@
 - **User Discovery** - Browse and connect with community members
 - **Profile Persistence** - Your identity stays with you forever
 
-### 🔐 Native Web3
+### 🔐 Native Web3 Experience
 - **Multi-Wallet Login** - Support for MetaMask, Rabby, WalletConnect and more
-- **Celo Optimized** - Built specifically for the Celo ecosystem
+- **Multi-Chain Support** - Optimized for both Celo and Base networks
 - **Gas-Efficient Transactions** - Optimized transactions with minimal fees
 - **Mobile First** - Perfect experience on mobile wallets
 
 ## 🚀 Get Started
 
-### Live Application
-Visit our live application: **[hub-portal-chat.vercel.app](https://hub-portal-chat.vercel.app)**
-
-### Farcaster Mini App
-Also available on Farcaster: **[Farcaster Mini App](https://farcaster.xyz/miniapps/7USxyPewQ2B8/hub-chat)**
+### Live Applications
+- **Main Application:** [hub-portal-chat.vercel.app](https://hub-portal-chat.vercel.app)
+- **Farcaster Mini App:** [Farcaster Mini App](https://farcaster.xyz/miniapps/7USxyPewQ2B8/hub-chat)
 
 ### How to Use
-1. **Connect** your compatible Celo wallet
+1. **Connect** your compatible wallet (supports both Celo and Base networks)
 2. **Create** your unique profile with nickname and avatar
-3. **Start chatting** in public rooms or private conversations
-4. **Earn dual rewards** - HC tokens for chatting + daily CELO claims
+3. **Choose Network** - Switch between networks to access different rewards:
+   - **Celo Network**: HC token mining + daily CELO rewards
+   - **Base Network**: HUB token rewards for every message
+4. **Start chatting** in public rooms and earn multiple token rewards
 
-## 💎 Dual Token Ecosystem
+## 💎 Token Ecosystems
 
-### HC Token - Chat Mining
-- **Mine 1 HC** for every public message - each message mints new tokens directly on the blockchain
-- **Daily limit** of 10 rewards to prevent spam
-- **Transparent tracking** of your earnings and limits
-- **Real-time balance** updates
+### 🪙 HUB Token (Base Network)
+The official ecosystem token with advanced features and fixed supply:
+
+#### HUB Token Details
+- **Name:** HUB Ecosystem
+- **Symbol:** HUB
+- **Standard:** ERC20 with ERC677 support
+- **Network:** Base Mainnet
+- **Total Supply:** 10,000,000,000 HUB (fixed)
+- **Contract Address:** [`0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E`](https://basescan.org/address/0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E)
+
+#### Advanced Features:
+- **Transfer with Callback** - ERC677 support for advanced interactions
+- **Role-Based Access** - Secure operator and admin controls
+- **Pausable** - Emergency stop functionality
+- **Max Supply Enforcement** - Hard cap protection
+
+### 💫 HC Token (Celo Network)
+The original chat mining token on Celo:
 
 #### HC Token Details
-- **Name:** HelloCelo (HC)
+- **Name:** HelloCelo
+- **Symbol:** HC
 - **Standard:** ERC20
 - **Network:** Celo Mainnet
 - **Total Supply:** 1,000,000 HC
-- **Mining Mechanism:** Each message mints new HC tokens directly on the blockchain
 - **Contract Address:** [`0x12b6e1f30cb714e8129F6101a7825a910a9982F2`](https://celoscan.io/token/0x12b6e1f30cb714e8129F6101a7825a910a9982F2)
 
-### CELO Token - Daily Rewards
-- **Daily Claims** - Claim CELO tokens every 24 hours
-- **No Chat Required** - Separate from message mining system
-- **Secure Distribution** - Through dedicated smart contract
-- **Progress Tracking** - See your claim status and history
-
-#### CELO Rewards Contract
-- **Contract Address:** [`0xaB54190489aC536EDba25FD4966DDe8D4a1907b4`](https://celoscan.io/address/0xaB54190489aC536EDba25FD4966DDe8D4a1907b4)
-- **Network:** Celo Mainnet
-- **Type:** Daily Reward Distribution
+### 🌟 CELO Token Rewards
+- **Native Token** - CELO, the native token of Celo network
+- **Daily Claims** - Regular rewards separate from chat mining
+- **Sustainable Distribution** - Through dedicated smart contract
 
 ### 🔮 Future Possibilities
-Owning HC and CELO tokens opens doors to exclusive functionalities that will be gradually unveiled within the HUB Ecosystem. These include advanced community engagement mechanisms, governance rights, and special privileges for the most active members.
+Owning HUB, HC, and CELO tokens opens doors to exclusive functionalities within the HUB Ecosystem, including governance rights, premium features, and special privileges for active community members.
 
-## 🎯 Vision
-
-HUB Portal represents the future of social platforms - where users have true ownership of their identity, data, and social capital. By combining the best Web2 user experience with Web3 ownership, we're building a sustainable ecosystem where community engagement is directly rewarded through real token mining and daily rewards.
-
-## 🌐 HUB Ecosystem
+## 🏗️ HUB Ecosystem Architecture
 
 HUB Portal is part of the larger **HUB Ecosystem** - a comprehensive Web3 platform connecting innovations across multiple blockchain networks.
 
-### 🏗️ Ecosystem Architecture
-- **🪙 HUB Token** - Autonomous economy on Base Mainnet
-- **🌐 Multi-chain Platform** - Project incubation across different networks
-- **🚀 Project Incubation** - Development of dApps and Web3 solutions
+### 🌐 Multi-Chain Strategy
+- **Base Network** - Home of HUB Token economy and advanced dApps
+- **Celo Network** - Mobile-first blockchain for accessible Web3 with dual rewards
+- **Cross-Chain Integration** - Unified user experience across networks
 
 ### 🔗 Connected Projects
-HUB Portal coexists with other projects in the ecosystem:
-- **HUB Token Economy** - Core ecosystem token on Base
+- **HUB Token Economy** - Core ecosystem token with advanced features
 - **HelloVote** - Anonymous voting platform
-- **And many more** in development...
+- **Multiple dApps** - Growing suite of Web3 applications
 
 ### 🌍 Main Platform
-Visit the main HUB Ecosystem portal to explore all projects:
+Explore the entire HUB Ecosystem:
 [**🌐 HUB Ecosystem Portal**](https://hub-ecosystem.vercel.app)
 
 ## 📄 License
@@ -112,9 +132,11 @@ This project is open source and available under the **MIT License**.
 
 <div align="center">
 
-**Part of a larger Web3 vision** • **HUB Ecosystem** • **© 2025 Mysticpol**
+**Building the Future of Social Web3** • **HUB Ecosystem** • **© 2025 Mysticpol**
 
 [![Visit HUB Ecosystem](https://img.shields.io/badge/🌐_Visit_HUB_Ecosystem-00ff88?style=for-the-badge&logo=vercel)](https://hub-ecosystem.vercel.app)
 [![Use HUB Chat](https://img.shields.io/badge/💬_Use_HUB_Chat-8844ff?style=for-the-badge)](https://hub-portal-chat.vercel.app)
+[![Base Network](https://img.shields.io/badge/🌉_Base_Network-0052FF?style=for-the-badge)](https://base.org)
+[![Celo Network](https://img.shields.io/badge/📱_Celo_Network-FCFF52?style=for-the-badge)](https://celo.org)
 
 </div>
