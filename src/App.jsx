@@ -35,16 +35,14 @@ function App() {
   const [selectedProfileUser, setSelectedProfileUser] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   
-  // DODANE: Hook do wykrywania sieci
   const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
   useEffect(() => {
     (async () => {
       try {
         await sdk.actions.ready();
-        console.log('✅ Farcaster Mini App ready!');
       } catch (error) {
-        console.error('❌ Farcaster init error:', error);
+        console.error('Farcaster init error:', error);
       }
     })();
   }, []);
@@ -93,7 +91,6 @@ function App() {
     ...currentUser,
     balance,
     remaining,
-    // DODANE: Informacje o sieci dla komponentów
     tokenSymbol,
     networkName,
     supportsDailyRewards,
@@ -114,7 +111,6 @@ function App() {
   }, [activeDMChat, isMobile]);
 
   useEffect(() => {
-    // DODANE: Sprawdzaj nagrody sezonowe tylko na Celo
     if (isCelo) {
       checkAndDistributeRewards();
     }
@@ -142,61 +138,48 @@ function App() {
     setSelectedProfileUser(user);
   };
 
-  // DODANE: Dynamiczny tekst w zależności od sieci
-  const getWelcomeSubtitle = () => {
-    if (isBase) {
-      return `Decentralized Social Chat on ${networkName}`;
-    }
-    return "Decentralized Social Chat on Celo";
-  };
-
-  const getRewardText = () => {
-    if (isBase) {
-      return `💎 Earn ${tokenSymbol} Tokens`;
-    }
-    return "💎 Earn HC Tokens";
-  };
-
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 relative">
         <NetworkBackground />
         
-        <div className="text-center bg-gray-800/70 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-6 sm:p-8 md:p-12 max-w-md w-full relative z-10 mx-4">
-          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center">
+        <div className="text-center bg-gray-800/70 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-6 sm:p-8 md:p-10 max-w-md w-full relative z-10 mx-4">
+          <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center">
             <img 
               src="/hublogo.svg" 
               alt="HUB Portal" 
               className="w-12 h-12"
             />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-4">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-3">
             HUB Portal
           </h1>
-          <p className="text-gray-400 text-lg mb-8">{getWelcomeSubtitle()}</p>
+          <p className="text-gray-400 mb-1">Multi-Chain Social Chat</p>
+          <p className="text-gray-400 text-sm mb-6">Celo + Base Networks</p>
           
-          <div className="flex justify-center mb-8">
+          <div className="flex justify-center mb-6">
             <appkit-button />
           </div>
           
-          <div className="flex justify-center gap-4 flex-wrap mt-8">
-            <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-300 text-sm">
-              {getRewardText()}
-            </span>
-            <span className="px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-300 text-sm">
-              🔒 Private Messages
-            </span>
-            <LoginHelpTooltip />
+          <div className="mb-4">
+            <div className="text-cyan-400 font-semibold text-sm mb-3">🔥 DUAL REWARD SYSTEM</div>
+            
+            <div className="flex justify-center gap-3 text-xs">
+              <div className="bg-gray-700/50 border border-cyan-500/20 rounded-lg p-3 flex-1">
+                <div className="text-cyan-300 font-medium mb-1">🌉 BASE</div>
+                <div className="text-gray-300">• HUB Token Rewards</div>
+              </div>
+              
+              <div className="bg-gray-700/50 border border-yellow-500/20 rounded-lg p-3 flex-1">
+                <div className="text-yellow-300 font-medium mb-1">📱 CELO</div>
+                <div className="text-gray-300">• HC Token Mining</div>
+                <div className="text-gray-300">• Daily CELO Rewards</div>
+              </div>
+            </div>
           </div>
 
-          {/* DODANE: Indicator aktualnej sieci */}
-          <div className="mt-6 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
-            <p className="text-cyan-400 text-sm">
-              🌐 Connected to: <strong>{networkName}</strong>
-            </p>
-            <p className="text-cyan-300 text-xs mt-1">
-              {isBase ? "Earn HUB tokens with unlimited messages!" : "Earn HC tokens with daily limits"}
-            </p>
+          <div className="flex justify-center">
+            <LoginHelpTooltip />
           </div>
         </div>
       </div>
@@ -207,7 +190,6 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white overflow-hidden">
       <NetworkBackground />
       
-      {/* DODANE: Pokazuj leaderboard tylko na Celo */}
       {showLeaderboard && isCelo && (
         <LeaderboardModal 
           isOpen={showLeaderboard}
@@ -237,9 +219,6 @@ function App() {
             onShowLeaderboard={() => {
               if (isCelo) {
                 setShowLeaderboard(true);
-              } else {
-                // Na Base możesz pokazać informację lub nic nie robić
-                console.log("Leaderboard available only on Celo");
               }
             }}
           />
@@ -293,7 +272,6 @@ function App() {
                     <div>
                       <div className="text-white font-semibold text-lg">{currentUser?.nickname}</div>
                       <div className="text-gray-400 text-sm">{address?.slice(0, 8)}...{address?.slice(-6)}</div>
-                      {/* DODANE: Indicator sieci */}
                       <div className="text-cyan-400 text-xs mt-1">
                         🌐 {networkName}
                       </div>
@@ -316,7 +294,6 @@ function App() {
                   </div>
                   
                   <div className="space-y-3">
-                    {/* DODANE: Ukryj daily rewards na Base */}
                     {isCelo && (
                       <button 
                         className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
@@ -467,7 +444,7 @@ function App() {
           currentUser={currentUser}
           nicknameInput={nicknameInput}
           setNicknameInput={setNicknameInput}
-          selectedAvatar={selectedAvatar}
+          selectedAvatar={setSelectedAvatar}
           setSelectedAvatar={setSelectedAvatar}
           onRegister={() => registerUser(nicknameInput, selectedAvatar)}
           onClose={() => setShowNicknameModal(false)}
