@@ -4,6 +4,7 @@ import CeloHub from './CeloHub';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
 import { useState, useRef, useEffect } from 'react';
 import DailyRewardsModal from '../modals/DailyRewardsModal';
+import DailyRewardsModalBase from '../modals/DailyRewardsModalBase';
 import ReactDOM from 'react-dom';
 import { useNetwork } from '../../hooks/useNetwork';
 
@@ -18,6 +19,7 @@ const Header = ({
   onShowLeaderboard
 }) => {
   const [showDailyRewards, setShowDailyRewards] = useState(false);
+  const [showDailyRewardsBase, setShowDailyRewardsBase] = useState(false);
   const [showQuickAccessMenu, setShowQuickAccessMenu] = useState(false);
   const [showNFTInfo, setShowNFTInfo] = useState(false);
   const quickAccessButtonRef = useRef(null);
@@ -25,10 +27,8 @@ const Header = ({
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const isAdmin = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
 
-  // DODANE: Wykrywanie sieci
   const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
 
-  // Stany dla komponentów w dropdown
   const [showHelpTooltip, setShowHelpTooltip] = useState(false);
   const [showCeloHub, setShowCeloHub] = useState(false);
   const [showDonation, setShowDonation] = useState(false);
@@ -43,7 +43,6 @@ const Header = ({
     }
   }, [showQuickAccessMenu]);
 
-  // Zamknij dropdown kiedy klikniesz poza nim
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
@@ -77,24 +76,20 @@ const Header = ({
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
         <div className="bg-gray-800/95 border border-gray-600/50 rounded-2xl shadow-2xl max-w-md w-full p-6">
           <div className="text-center">
-            {/* Icon */}
             <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
               <span className="text-2xl">🎨</span>
             </div>
             
-            {/* Title */}
             <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mb-3">
               HUB Genesis NFT
             </h2>
             
-            {/* Limited Edition Badge */}
             <div className="mb-4">
               <span className="inline-block bg-red-500/20 border border-red-400/50 text-red-300 px-3 py-1 rounded-full text-sm font-semibold">
                 ⚡ Only 1000 Genesis NFTs Available
               </span>
             </div>
             
-            {/* Description - POPRAWIONA KOLEJNOŚĆ */}
             <div className="text-gray-300 text-left space-y-3 mb-6">
               <p className="flex items-start gap-2">
                 <span className="text-purple-400 mt-1">🔄</span>
@@ -138,7 +133,6 @@ const Header = ({
               </div>
             </div>
             
-            {/* Buttons */}
             <div className="flex gap-3">
               <button
                 onClick={() => setShowNFTInfo(false)}
@@ -174,9 +168,6 @@ const Header = ({
           left: dropdownPosition.left
         }}
       >
-        {/* Actions Section */}
-        
-        {/* DODANE: Leaderboard tylko na Celo */}
         {supportsSeasonSystem && (
           <button 
             onClick={() => {
@@ -190,11 +181,14 @@ const Header = ({
           </button>
         )}
         
-        {/* DODANE: Daily Rewards tylko na Celo */}
-        {supportsDailyRewards && (
+        {(supportsDailyRewards || isBase) && (
           <button 
             onClick={() => {
-              setShowDailyRewards(true);
+              if (isCelo) {
+                setShowDailyRewards(true);
+              } else if (isBase) {
+                setShowDailyRewardsBase(true);
+              }
               setShowQuickAccessMenu(false);
             }}
             className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
@@ -204,12 +198,10 @@ const Header = ({
           </button>
         )}
 
-        {/* Separator - pokazuj tylko jeśli są elementy powyżej */}
-        {(supportsSeasonSystem || supportsDailyRewards) && (
+        {(supportsSeasonSystem || supportsDailyRewards || isBase) && (
           <div className="border-t border-gray-600/50 my-1"></div>
         )}
 
-        {/* Resources Section */}
         <button 
           onClick={() => {
             setShowHelpTooltip(true);
@@ -232,7 +224,6 @@ const Header = ({
           <span>{networkName} Ecosystem</span>
         </button>
         
-        {/* ZMIENIONE: Donation pokazuje się na Base i Celo */}
         <button 
           onClick={() => {
             setShowDonation(true);
@@ -265,7 +256,6 @@ const Header = ({
                 {mobileView === 'users' && 'Users'}
                 {mobileView === 'private' && (activeDMChat?.user?.nickname?.slice(0, 12) || 'Chat')}
               </h1>
-              {/* DODANE: Indicator sieci na mobile */}
               <div className="text-cyan-400 text-[10px]">
                 {networkName} • {tokenSymbol}
               </div>
@@ -273,7 +263,6 @@ const Header = ({
           </div>
           
           <div className="flex items-center gap-1 flex-shrink-0">
-            {/* DODANE: Leaderboard tylko na Celo */}
             {supportsSeasonSystem && (
               <button 
                 onClick={onShowLeaderboard}
@@ -284,10 +273,15 @@ const Header = ({
               </button>
             )}
             
-            {/* DODANE: Daily Rewards tylko na Celo */}
-            {supportsDailyRewards && (
+            {(supportsDailyRewards || isBase) && (
               <button 
-                onClick={() => setShowDailyRewards(true)}
+                onClick={() => {
+                  if (isCelo) {
+                    setShowDailyRewards(true);
+                  } else if (isBase) {
+                    setShowDailyRewardsBase(true);
+                  }
+                }}
                 className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
                 title="Daily Rewards"
               >
@@ -298,11 +292,19 @@ const Header = ({
           </div>
         </div>
 
-        {/* DODANE: Daily Rewards Modal tylko na Celo */}
-        {showDailyRewards && supportsDailyRewards && (
+        {showDailyRewards && isCelo && (
           <DailyRewardsModal 
             isOpen={showDailyRewards}
             onClose={() => setShowDailyRewards(false)}
+            currentUser={currentUser}
+            isMobile={true}
+          />
+        )}
+
+        {showDailyRewardsBase && isBase && (
+          <DailyRewardsModalBase 
+            isOpen={showDailyRewardsBase}
+            onClose={() => setShowDailyRewardsBase(false)}
             currentUser={currentUser}
             isMobile={true}
           />
@@ -311,12 +313,10 @@ const Header = ({
     );
   }
 
-  // DESKTOP VERSION
   return (
     <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-8 flex-shrink-0">
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-4">
-          {/* Logo and Brand */}
           <div className="flex items-center gap-3">
             <img 
               src="/hublogo.svg" 
@@ -327,14 +327,12 @@ const Header = ({
               <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
                 HUB Portal
               </h1>
-              {/* DODANE: Indicator sieci */}
               <div className="text-cyan-400 text-sm">
                 {networkName} Network • Earn {tokenSymbol} Tokens
               </div>
             </div>
           </div>
 
-          {/* Mint Genesis NFT Button */}
           <button
             onClick={handleMintNFT}
             className="h-[42px] px-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-semibold transition-all flex items-center justify-center animate-pulse shadow-lg shadow-purple-500/25 hover:scale-105"
@@ -344,7 +342,6 @@ const Header = ({
         </div>
         
         <div className="flex items-center gap-4">
-          {/* Quick Access Dropdown Menu */}
           <div className="relative">
             <button 
               ref={quickAccessButtonRef}
@@ -359,13 +356,11 @@ const Header = ({
             </button>
           </div>
 
-          {/* Balance and Messages - pozostają na stałe */}
           <span className="h-[42px] px-4 flex items-center bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
             💎 {tokenSymbol}: {currentUser?.balance || '0'}
           </span>
           
-          {/* ZMIENIONE: Pokazuj tylko na Celo, ukryj na Base */}
-          {!isBase && (
+          {isCelo && (
             <span className="h-[42px] px-4 flex items-center bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
               🎯 Left: {currentUser?.remaining || '0'}/10
             </span>
@@ -375,13 +370,10 @@ const Header = ({
         </div>
       </div>
 
-      {/* Quick Access Dropdown Portal */}
       <QuickAccessDropdown />
 
-      {/* NFT Info Modal */}
       <NFTInfoModal />
 
-      {/* Renderujemy komponenty ale bez przycisków (showButton={false}) */}
       <HelpTooltip 
         isMobile={false} 
         showButton={false}
@@ -396,7 +388,6 @@ const Header = ({
         onClose={() => setShowCeloHub(false)}
       />
       
-      {/* ZMIENIONE: Donation pokazuje się na Base i Celo */}
       <Donation 
         isMobile={false} 
         showButton={false}
@@ -404,11 +395,19 @@ const Header = ({
         onClose={() => setShowDonation(false)}
       />
 
-      {/* DODANE: Daily Rewards tylko na Celo */}
-      {showDailyRewards && supportsDailyRewards && (
+      {showDailyRewards && isCelo && (
         <DailyRewardsModal 
           isOpen={showDailyRewards}
           onClose={() => setShowDailyRewards(false)}
+          currentUser={currentUser}
+          isMobile={false}
+        />
+      )}
+
+      {showDailyRewardsBase && isBase && (
+        <DailyRewardsModalBase 
+          isOpen={showDailyRewardsBase}
+          onClose={() => setShowDailyRewardsBase(false)}
           currentUser={currentUser}
           isMobile={false}
         />
