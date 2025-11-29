@@ -10,10 +10,10 @@ interface IERC20 {
     function balanceOf(address account) external view returns (uint256);
 }
 
-contract HubChatBaseStreaks {
+contract HubChatBaseDailyStreaks {
     address public owner;
     
-    uint256 public constant DAILY_USDC_REWARD = 10 * 10**6;
+    uint256 public constant DAILY_USDC_REWARD = 10000; // 0.01 USDC
     uint256 public constant CLAIM_COOLDOWN = 24 hours;
     uint256 public constant STREAK_TIMEFRAME = 48 hours;
     uint256 public constant MIN_HUB_REQUIRED = 10 * 10**18;
