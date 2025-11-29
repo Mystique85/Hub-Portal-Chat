@@ -20,12 +20,21 @@
 
 ### 🎁 Triple Token Reward System
 
-#### 🌉 Base Network - HUB Token Rewards
+#### 🌉 Base Network - Dual Rewards
+
+##### HUB Token Mining
 - **Chat Mining** - Earn 1 HUB token for every public message
 - **Instant Distribution** - Rewards sent automatically after each message
 - **No Daily Limits** - Reward for every valid message
 - **Advanced Contract** - Secure and gas-optimized rewards distribution
 - **Rewards Contract:** [`0x94D9EFFb0576Cff246D921066183Db816309CC8c`](https://basescan.org/address/0x94D9EFFb0576Cff246D921066183Db816309CC8c)
+
+##### Daily USDC Rewards
+- **Daily Claims** - Claim USDC tokens every 24 hours on Base network
+- **Secure Smart Contract** - Dedicated contract for USDC distribution
+- **Easy Claim Process** - Simple one-click claim interface
+- **Transaction History** - Track all your USDC rewards
+- **Rewards Contract:** [`0x94fD9248505695f7BA3CbF8598E784B6C44F5924`](https://basescan.org/address/0x94fD9248505695f7BA3CbF8598E784B6C44F5924)
 
 #### 📱 Celo Network - Dual Rewards
 
@@ -64,8 +73,8 @@
 1. **Connect** your compatible wallet (supports both Celo and Base networks)
 2. **Create** your unique profile with nickname and avatar
 3. **Choose Network** - Switch between networks to access different rewards:
+   - **Base Network**: HUB token mining + daily USDC rewards
    - **Celo Network**: HC token mining + daily CELO rewards
-   - **Base Network**: HUB token rewards for every message
 4. **Start chatting** in public rooms and earn multiple token rewards
 
 ## 💎 Token Ecosystems
@@ -81,12 +90,6 @@ The official ecosystem token with advanced features and fixed supply:
 - **Total Supply:** 10,000,000,000 HUB (fixed)
 - **Contract Address:** [`0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E`](https://basescan.org/address/0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E)
 
-#### Advanced Features:
-- **Transfer with Callback** - ERC677 support for advanced interactions
-- **Role-Based Access** - Secure operator and admin controls
-- **Pausable** - Emergency stop functionality
-- **Max Supply Enforcement** - Hard cap protection
-
 ### 💫 HC Token (Celo Network)
 The original chat mining token on Celo:
 
@@ -98,20 +101,25 @@ The original chat mining token on Celo:
 - **Total Supply:** 1,000,000 HC
 - **Contract Address:** [`0x12b6e1f30cb714e8129F6101a7825a910a9982F2`](https://celoscan.io/token/0x12b6e1f30cb714e8129F6101a7825a910a9982F2)
 
+### 💵 USDC Rewards (Base Network)
+- **Stablecoin Rewards** - USDC, the leading stablecoin on Base network
+- **Daily Claims** - Regular rewards separate from chat mining
+- **Secure Distribution** - Through dedicated smart contract
+
 ### 🌟 CELO Token Rewards
 - **Native Token** - CELO, the native token of Celo network
 - **Daily Claims** - Regular rewards separate from chat mining
 - **Sustainable Distribution** - Through dedicated smart contract
 
 ### 🔮 Future Possibilities
-Owning HUB, HC, and CELO tokens opens doors to exclusive functionalities within the HUB Ecosystem, including governance rights, premium features, and special privileges for active community members.
+Owning HUB and HC tokens opens doors to exclusive functionalities within the HUB Ecosystem, including governance rights, premium features, Vote privileges, and special access for active community members.
 
 ## 🏗️ HUB Ecosystem Architecture
 
 HUB Portal is part of the larger **HUB Ecosystem** - a comprehensive Web3 platform connecting innovations across multiple blockchain networks.
 
 ### 🌐 Multi-Chain Strategy
-- **Base Network** - Home of HUB Token economy and advanced dApps
+- **Base Network** - Home of HUB Token economy and advanced dApps with USDC rewards
 - **Celo Network** - Mobile-first blockchain for accessible Web3 with dual rewards
 - **Cross-Chain Integration** - Unified user experience across networks
 
