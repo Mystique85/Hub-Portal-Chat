@@ -16,6 +16,7 @@ import PrivateChatModal from './components/modals/PrivateChatModal';
 import ToastNotification from './components/modals/ToastNotification';
 import UserProfileModal from './components/modals/UserProfileModal';
 import LeaderboardModal from './components/modals/LeaderboardModal';
+import BaseLeaderboardModal from './components/modals/BaseLeaderboardModal';
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
@@ -34,6 +35,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('online');
   const [selectedProfileUser, setSelectedProfileUser] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showBaseLeaderboard, setShowBaseLeaderboard] = useState(false);
   
   const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
@@ -42,7 +44,6 @@ function App() {
       try {
         await sdk.actions.ready();
       } catch (error) {
-        console.error('Farcaster init error:', error);
       }
     })();
   }, []);
@@ -198,6 +199,14 @@ function App() {
         />
       )}
 
+      {showBaseLeaderboard && isBase && (
+        <BaseLeaderboardModal 
+          isOpen={showBaseLeaderboard}
+          onClose={() => setShowBaseLeaderboard(false)}
+          currentUser={userWithBalance}
+        />
+      )}
+
       {toastNotification && (
         <ToastNotification 
           notification={toastNotification}
@@ -219,6 +228,11 @@ function App() {
             onShowLeaderboard={() => {
               if (isCelo) {
                 setShowLeaderboard(true);
+              }
+            }}
+            onShowBaseLeaderboard={() => {
+              if (isBase) {
+                setShowBaseLeaderboard(true);
               }
             }}
           />
@@ -410,6 +424,11 @@ function App() {
               onShowLeaderboard={() => {
                 if (isCelo) {
                   setShowLeaderboard(true);
+                }
+              }}
+              onShowBaseLeaderboard={() => {
+                if (isBase) {
+                  setShowBaseLeaderboard(true);
                 }
               }}
             />

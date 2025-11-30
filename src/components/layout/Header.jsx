@@ -16,7 +16,8 @@ const Header = ({
   onMobileViewChange,
   onUserStatsClick,
   activeDMChat,
-  onShowLeaderboard
+  onShowLeaderboard,
+  onShowBaseLeaderboard
 }) => {
   const [showDailyRewards, setShowDailyRewards] = useState(false);
   const [showDailyRewardsBase, setShowDailyRewardsBase] = useState(false);
@@ -168,19 +169,6 @@ const Header = ({
           left: dropdownPosition.left
         }}
       >
-        {supportsSeasonSystem && (
-          <button 
-            onClick={() => {
-              onShowLeaderboard();
-              setShowQuickAccessMenu(false);
-            }}
-            className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
-          >
-            <span>🏆</span>
-            <span>Leaderboard</span>
-          </button>
-        )}
-        
         {(supportsDailyRewards || isBase) && (
           <button 
             onClick={() => {
@@ -198,7 +186,7 @@ const Header = ({
           </button>
         )}
 
-        {(supportsSeasonSystem || supportsDailyRewards || isBase) && (
+        {(supportsDailyRewards || isBase) && (
           <div className="border-t border-gray-600/50 my-1"></div>
         )}
 
@@ -263,9 +251,15 @@ const Header = ({
           </div>
           
           <div className="flex items-center gap-1 flex-shrink-0">
-            {supportsSeasonSystem && (
+            {(supportsSeasonSystem || isBase) && (
               <button 
-                onClick={onShowLeaderboard}
+                onClick={() => {
+                  if (isCelo) {
+                    onShowLeaderboard();
+                  } else if (isBase) {
+                    onShowBaseLeaderboard();
+                  }
+                }}
                 className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
                 title="Leaderboard"
               >
@@ -342,6 +336,28 @@ const Header = ({
         </div>
         
         <div className="flex items-center gap-4">
+          {/* Base Leaderboard - widoczny tylko na Base */}
+          {isBase && (
+            <button 
+              onClick={onShowBaseLeaderboard}
+              className="h-[42px] px-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-blue-500/25 hover:scale-105"
+            >
+              <span>🏆</span>
+              <span>Base Leaderboard</span>
+            </button>
+          )}
+
+          {/* Celo Leaderboard - widoczny tylko na Celo */}
+          {isCelo && supportsSeasonSystem && (
+            <button 
+              onClick={onShowLeaderboard}
+              className="h-[42px] px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-amber-500/25 hover:scale-105"
+            >
+              <span>🏆</span>
+              <span>Celo Leaderboard</span>
+            </button>
+          )}
+
           <div className="relative">
             <button 
               ref={quickAccessButtonRef}
@@ -356,15 +372,8 @@ const Header = ({
             </button>
           </div>
 
-          <span className="h-[42px] px-4 flex items-center bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
-            💎 {tokenSymbol}: {currentUser?.balance || '0'}
-          </span>
-          
-          {isCelo && (
-            <span className="h-[42px] px-4 flex items-center bg-gray-700/50 border border-gray-600/50 rounded-xl text-cyan-400">
-              🎯 Left: {currentUser?.remaining || '0'}/10
-            </span>
-          )}
+          {/* USUNIĘTE: Stan HUB tokenów na Base */}
+          {/* USUNIĘTE: Stan Left na Celo */}
           
           <appkit-button />
         </div>
