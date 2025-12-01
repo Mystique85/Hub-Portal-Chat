@@ -9,6 +9,7 @@ export const useWeb3 = (address) => {
   const { currentNetwork, isCelo, networkConfig } = useNetwork();
 
   const HUB_TOKEN_ADDRESS_BASE = "0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E";
+  const HUB_TOKEN_ADDRESS_CELO = CONTRACT_ADDRESSES.celo;
 
   const ERC20_ABI = [
     {
@@ -21,8 +22,8 @@ export const useWeb3 = (address) => {
   ];
 
   const { data: balanceData } = useReadContract({
-    address: isCelo ? CONTRACT_ADDRESSES.celo : HUB_TOKEN_ADDRESS_BASE,
-    abi: isCelo ? CONTRACT_ABIS.celo : ERC20_ABI,
+    address: isCelo ? HUB_TOKEN_ADDRESS_CELO : HUB_TOKEN_ADDRESS_BASE,
+    abi: ERC20_ABI,
     functionName: 'balanceOf',
     args: [address],
     query: {
@@ -45,7 +46,7 @@ export const useWeb3 = (address) => {
       const balanceNumber = Number(balanceData) / 1e18;
       setBalance(balanceNumber.toString());
     }
-  }, [balanceData, currentNetwork, networkConfig.symbol]);
+  }, [balanceData]);
 
   useEffect(() => {
     if (isCelo && remainingData) {
@@ -57,19 +58,31 @@ export const useWeb3 = (address) => {
     }
   }, [remainingData, isCelo]);
 
-  const getOtherUserBalance = async (userAddress) => {
-    if (!userAddress) return '0';
-    
+  const fetchBalanceForNetwork = async (userAddress, network) => {
     try {
-      const providerUrl = currentNetwork === 'celo' 
-        ? import.meta.env.VITE_CELO_MAINNET_RPC_URL
-        : import.meta.env.VITE_BASE_MAINNET_RPC_URL;
+      const providerUrls = {
+        celo: import.meta.env.VITE_CELO_MAINNET_RPC_URL || 'https://forno.celo.org',
+        base: import.meta.env.VITE_BASE_MAINNET_RPC_URL || 'https://mainnet.base.org'
+      };
+      
+      const providerUrl = providerUrls[network];
       
       if (!providerUrl) {
         return '0';
       }
 
-      const contractAddress = isCelo ? CONTRACT_ADDRESSES.celo : HUB_TOKEN_ADDRESS_BASE;
+      const contractAddresses = {
+        celo: HUB_TOKEN_ADDRESS_CELO,
+        base: HUB_TOKEN_ADDRESS_BASE
+      };
+      
+      const contractAddress = contractAddresses[network];
+      
+      if (!userAddress.startsWith('0x') || userAddress.length !== 42) {
+        return '0';
+      }
+
+      const dataParam = `0x70a08231000000000000000000000000${userAddress.slice(2).toLowerCase()}`;
 
       const response = await fetch(providerUrl, {
         method: 'POST',
@@ -81,9 +94,9 @@ export const useWeb3 = (address) => {
           method: 'eth_call',
           params: [{
             to: contractAddress,
-            data: `0x70a08231000000000000000000000000${userAddress.slice(2)}`
+            data: dataParam
           }, 'latest'],
-          id: 1
+          id: Date.now()
         })
       });
       
@@ -102,10 +115,40 @@ export const useWeb3 = (address) => {
     }
   };
 
+  const getOtherUserBalance = async (userAddress, targetNetwork = null) => {
+    if (!userAddress) {
+      return { celo: '0', base: '0' };
+    }
+    
+    const results = { celo: '0', base: '0' };
+    
+    try {
+      if (targetNetwork === 'celo' || targetNetwork === 'base') {
+        const balance = await fetchBalanceForNetwork(userAddress, targetNetwork);
+        results[targetNetwork] = balance;
+        return results;
+      }
+      
+      const [celoBalance, baseBalance] = await Promise.all([
+        fetchBalanceForNetwork(userAddress, 'celo'),
+        fetchBalanceForNetwork(userAddress, 'base')
+      ]);
+      
+      results.celo = celoBalance;
+      results.base = baseBalance;
+      
+    } catch (error) {
+      // Silent fail
+    }
+    
+    return results;
+  };
+
   return {
     balance,
     remaining,
     getOtherUserBalance,
+    fetchBalanceForNetwork,
     currentNetwork,
     tokenSymbol: networkConfig.symbol,
     isCelo,
