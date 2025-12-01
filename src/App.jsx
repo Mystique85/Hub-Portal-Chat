@@ -169,6 +169,7 @@ function App() {
               <div className="bg-gray-700/50 border border-cyan-500/20 rounded-lg p-3 flex-1">
                 <div className="text-cyan-300 font-medium mb-1">🌉 BASE</div>
                 <div className="text-gray-300">• HUB Token Rewards</div>
+                <div className="text-gray-300">• Daily USDC Rewards</div>
               </div>
               
               <div className="bg-gray-700/50 border border-yellow-500/20 rounded-lg p-3 flex-1">
