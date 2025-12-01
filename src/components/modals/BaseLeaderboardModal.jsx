@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useReadContract } from 'wagmi';
 import { useNetwork } from '../../hooks/useNetwork';
 
 const BaseLeaderboardModal = ({ isOpen, onClose, currentUser }) => {
@@ -15,46 +16,30 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser }) => {
   const launchDate = new Date('2026-01-01T00:00:00');
   const GENESIS_NFT_CONTRACT = "0xdAf7B15f939F6a8faf87d338010867883AAB366a";
 
-  const checkNFTBalance = async (userAddress) => {
-    try {
-      const providerUrl = import.meta.env.VITE_BASE_MAINNET_RPC_URL;
-      
-      if (!providerUrl) {
-        return 0;
-      }
-
-      const functionSignature = '0x70a08231';
-      const addressParam = userAddress.slice(2).padStart(64, '0');
-      const data = functionSignature + addressParam;
-
-      const response = await fetch(providerUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'eth_call',
-          params: [{
-            to: GENESIS_NFT_CONTRACT,
-            data: data
-          }, 'latest'],
-          id: 1
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.result && result.result !== '0x') {
-        const balance = BigInt(result.result);
-        return Number(balance);
-      }
-      
-      return 0;
-    } catch (error) {
-      return 0;
+  const NFT_ABI = [
+    {
+      "inputs": [{ "name": "owner", "type": "address" }],
+      "name": "balanceOf",
+      "outputs": [{ "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
     }
-  };
+  ];
+
+  const { 
+    data: nftBalanceData, 
+    isLoading: nftLoading,
+    error: nftError 
+  } = useReadContract({
+    address: GENESIS_NFT_CONTRACT,
+    abi: NFT_ABI,
+    functionName: 'balanceOf',
+    args: [currentUser?.walletAddress],
+    query: {
+      enabled: !!currentUser?.walletAddress && isOpen && isBase,
+      refetchInterval: 30000,
+    }
+  });
 
   useEffect(() => {
     if (!isOpen || !currentUser || !isBase) return;
@@ -66,8 +51,11 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser }) => {
         const hubBalance = parseFloat(currentUser?.balance || '0');
         const hasEnoughTokens = hubBalance >= 100;
 
-        const nftBalance = await checkNFTBalance(currentUser.walletAddress);
-        const hasNFT = nftBalance > 0;
+        let hasNFT = false;
+        if (nftBalanceData !== undefined) {
+          const balance = Number(nftBalanceData);
+          hasNFT = balance > 0;
+        }
 
         const isEligible = hasNFT && hasEnoughTokens;
 
@@ -76,7 +64,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser }) => {
           hasEnoughTokens,
           hubBalance,
           isEligible,
-          loading: false
+          loading: nftLoading
         });
 
       } catch (error) {
@@ -85,7 +73,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser }) => {
     };
 
     checkEligibility();
-  }, [isOpen, currentUser, isBase]);
+  }, [isOpen, currentUser, isBase, nftBalanceData, nftLoading]);
 
   useEffect(() => {
     if (!isOpen) return;
