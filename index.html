@@ -1,14 +1,16 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <!-- POLYFILL BUFFER - NAJWAŻNIEJSZE! -->
-    <script>
-      if (typeof window !== 'undefined') {
-        window.global = window;
-        if (!window.Buffer) {
-          window.Buffer = function Buffer() {};
-        }
-      }
+    <!-- BUFFER POLYFILL Z CDN - POPRAWIONA WERSJA -->
+    <script type="module">
+      // Importuj Buffer PRZED wszystkim
+      import { Buffer } from 'https://cdn.jsdelivr.net/npm/buffer@6/+esm'
+      
+      // Ustaw globalnie
+      window.Buffer = Buffer
+      window.global = window
+      
+      console.log('✅ Buffer loaded from CDN')
     </script>
     
     <meta charset="UTF-8" />
