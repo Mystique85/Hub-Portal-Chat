@@ -323,6 +323,13 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser }) => {
           <div className="text-center text-gray-400 text-[10px]">
             <p>Base Network Leaderboard • Launching: January 1st, 2026 • $2000 USDC Total Rewards</p>
             <p className="mt-1">Start preparing today to compete for amazing rewards! 🎉</p>
+            
+            {/* DODANY DISCLAIMER */}
+            <div className="mt-2 pt-2 border-t border-gray-700/30">
+              <p className="text-gray-500 text-[9px]">
+                ℹ️ Leaderboard launch requires minimum 20 qualified users (Genesis NFT + 100 HUB tokens)
+              </p>
+            </div>
           </div>
         </div>
       </div>
