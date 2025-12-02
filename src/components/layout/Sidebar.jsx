@@ -98,7 +98,7 @@ const Sidebar = ({
             >
               <div className="flex items-center gap-2">
                 <span>👑</span>
-                <span>Message Admin</span>
+                <span>Contact Admin</span>
               </div>
               <span className={`transform transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`}>
                 ▼
@@ -278,8 +278,8 @@ const Sidebar = ({
             className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/50 rounded-xl text-white hover:bg-purple-500/30 transition-all"
           >
             <div className="flex items-center gap-2">
-              <span>👑</span>
-              <span>Message Admin</span>
+              <span>👨‍💼</span>
+              <span>Contact Admin</span>
             </div>
             <span className={`transform transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`}>
               ▼
