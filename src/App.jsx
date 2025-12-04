@@ -17,6 +17,7 @@ import ToastNotification from './components/modals/ToastNotification';
 import UserProfileModal from './components/modals/UserProfileModal';
 import LeaderboardModal from './components/modals/LeaderboardModal';
 import BaseLeaderboardModal from './components/modals/BaseLeaderboardModal';
+import SubscriptionModal from './components/modals/SubscriptionModal'; // DODAJEMY IMPORT
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
@@ -36,6 +37,7 @@ function App() {
   const [selectedProfileUser, setSelectedProfileUser] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showBaseLeaderboard, setShowBaseLeaderboard] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false); // DODAJEMY STATE
   
   const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
@@ -79,7 +81,13 @@ function App() {
     isStartingDM
   } = useChat(address, currentUser, allUsers);
 
-  const { balance, remaining, getOtherUserBalance } = useWeb3(address);
+  // POPRAWIONE: Dodaj subscriptionInfo z useWeb3
+  const { 
+    balance, 
+    remaining, 
+    getOtherUserBalance, 
+    subscriptionInfo // DODAJEMY
+  } = useWeb3(address);
 
   const { checkAndDistributeRewards } = useSeasons();
 
@@ -88,10 +96,12 @@ function App() {
   const [selectedAvatar, setSelectedAvatar] = useState('🐶');
   const [toastNotification, setToastNotification] = useState(null);
 
+  // POPRAWIONE: Dodaj subscriptionInfo do userWithBalance
   const userWithBalance = currentUser ? {
     ...currentUser,
     balance,
     remaining,
+    subscriptionInfo, // KLUCZOWE: DODAJEMY subscriptionInfo
     tokenSymbol,
     networkName,
     supportsDailyRewards,
@@ -139,6 +149,17 @@ function App() {
     setSelectedProfileUser(user);
   };
 
+  // DODANA FUNKCJA - Otwiera profil aktualnego użytkownika
+  const handleShowMyProfile = () => {
+    if (currentUser) {
+      setSelectedProfileUser({
+        walletAddress: currentUser.walletAddress,
+        nickname: currentUser.nickname || 'Anonymous',
+        avatar: currentUser.avatar || '👤'
+      });
+    }
+  };
+
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 relative">
@@ -169,7 +190,7 @@ function App() {
               <div className="bg-gray-700/50 border border-cyan-500/20 rounded-lg p-3 flex-1">
                 <div className="text-cyan-300 font-medium mb-1">🌉 BASE</div>
                 <div className="text-gray-300">• HUB Token Rewards</div>
-                <div className="text-gray-300">• Daily USDC Rewards</div>
+                <div className="text-gray-300">• Subscription System</div>
               </div>
               
               <div className="bg-gray-700/50 border border-yellow-500/20 rounded-lg p-3 flex-1">
@@ -208,6 +229,16 @@ function App() {
         />
       )}
 
+      {/* DODAJEMY SubscriptionModal */}
+      {showSubscriptionModal && (
+        <SubscriptionModal
+          isOpen={showSubscriptionModal}
+          onClose={() => setShowSubscriptionModal(false)}
+          currentUser={userWithBalance}
+          subscriptionInfo={subscriptionInfo}
+        />
+      )}
+
       {toastNotification && (
         <ToastNotification 
           notification={toastNotification}
@@ -234,6 +265,11 @@ function App() {
             onShowBaseLeaderboard={() => {
               if (isBase) {
                 setShowBaseLeaderboard(true);
+              }
+            }}
+            onShowSubscriptionModal={() => {
+              if (isBase) {
+                setShowSubscriptionModal(true);
               }
             }}
           />
@@ -264,6 +300,8 @@ function App() {
                 onStartPrivateChat={handleStartPrivateChat}
                 activeDMChat={activeDMChat}
                 onMobileViewChange={setMobileView}
+                markAsRead={markAsRead}
+                onShowUserProfile={handleShowMyProfile}
               />
             )}
             
@@ -307,6 +345,17 @@ function App() {
                       </div>
                     </div>
                   </div>
+                  
+                  {/* DODAJEMY PRZYCISK SUBSCRIPTION DLA BASE */}
+                  {isBase && (
+                    <button 
+                      onClick={() => setShowSubscriptionModal(true)}
+                      className="w-full mb-3 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all"
+                    >
+                      <span>🎫</span>
+                      Manage Subscription
+                    </button>
+                  )}
                   
                   <div className="space-y-3">
                     {isCelo && (
@@ -379,6 +428,19 @@ function App() {
                     </div>
                   </div>
                   
+                  {/* DODAJEMY SUBSCRIPTION INFO DLA BASE */}
+                  {isBase && userWithBalance?.subscriptionInfo && (
+                    <div className="mb-3 p-3 bg-gray-700/30 rounded-lg">
+                      <div className="text-center">
+                        <div className="text-white font-medium text-sm">
+                          Subscription: {userWithBalance.subscriptionInfo.whitelisted ? 'Whitelisted' : 
+                            userWithBalance.subscriptionInfo.tier === 2 ? 'Premium' : 
+                            userWithBalance.subscriptionInfo.tier === 1 ? 'Basic' : 'Free'}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="space-y-2">
                     {isCelo && (
                       <button 
@@ -405,6 +467,7 @@ function App() {
         </div>
       ) : (
         <div className="flex h-screen relative z-10">
+          {/* DESKTOP SIDEBAR */}
           <Sidebar
             currentUser={userWithBalance}
             onlineUsers={onlineUsers}
@@ -416,6 +479,7 @@ function App() {
             onStartPrivateChat={startPrivateChat}
             activeDMChat={activeDMChat}
             markAsRead={markAsRead}
+            onShowUserProfile={handleShowMyProfile}
           />
 
           <div className="flex-1 flex flex-col bg-gray-900/50 min-w-0 relative">
@@ -430,6 +494,11 @@ function App() {
               onShowBaseLeaderboard={() => {
                 if (isBase) {
                   setShowBaseLeaderboard(true);
+                }
+              }}
+              onShowSubscriptionModal={() => {
+                if (isBase) {
+                  setShowSubscriptionModal(true);
                 }
               }}
             />
@@ -464,7 +533,7 @@ function App() {
           currentUser={currentUser}
           nicknameInput={nicknameInput}
           setNicknameInput={setNicknameInput}
-          selectedAvatar={setSelectedAvatar}
+          selectedAvatar={selectedAvatar}
           setSelectedAvatar={setSelectedAvatar}
           onRegister={() => registerUser(nicknameInput, selectedAvatar)}
           onClose={() => setShowNicknameModal(false)}
@@ -493,6 +562,7 @@ function App() {
           onClose={() => setSelectedProfileUser(null)}
           getOtherUserBalance={getOtherUserBalance}
           currentUser={userWithBalance}
+          onOpenSubscription={() => setShowSubscriptionModal(true)} // KLUCZOWA ZMIANA - DODAJEMY TEN PROP!
         />
       )}
     </div>

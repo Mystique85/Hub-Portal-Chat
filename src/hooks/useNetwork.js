@@ -27,12 +27,26 @@ export const useNetwork = () => {
     tokenSymbol: networkConfig.symbol,
     networkName: networkConfig.name,
     
-    // Flagi funkcjonalności
+    // Flagi funkcjonalności - ZAKTUALIZOWANE
     supportsDailyRewards: currentNetwork === 'celo',
     supportsSeasonSystem: currentNetwork === 'celo',
-    supportsTokenTransfers: true, // Obie sieci wspierają wysyłanie tokenów
+    supportsSubscriptions: currentNetwork === 'base', // Tylko Base ma subskrypcje
+    supportsTokenTransfers: true,
+    supportsHUBRewards: true, // Obie sieci nagradzają tokenami
     
     // Informacje o explorerze
-    explorerUrl: networkConfig.explorer
+    explorerUrl: networkConfig.explorer,
+    
+    // DODANE: Informacje o subskrypcjach dla Base
+    subscriptionConfig: currentNetwork === 'base' ? {
+      hasSubscriptions: true,
+      tiers: [
+        { id: 0, name: 'FREE', dailyLimit: 10, price: 0 },
+        { id: 1, name: 'BASIC', dailyLimit: 50, price: 10 },
+        { id: 2, name: 'PREMIUM', dailyLimit: 999999, price: 50 }
+      ],
+      currency: 'USDC',
+      duration: '30 days'
+    } : null
   };
 };

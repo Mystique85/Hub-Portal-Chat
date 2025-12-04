@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import UserList from '../users/UserList';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
-import { useNetwork } from '../../hooks/useNetwork'; // DODANE: Import hooka sieci
+import { useNetwork } from '../../hooks/useNetwork';
 
 const Sidebar = ({
   currentUser,
@@ -15,20 +15,19 @@ const Sidebar = ({
   activeDMChat,
   isMobile = false,
   onMobileViewChange,
-  markAsRead
+  markAsRead,
+  onShowUserProfile // PROP do otwarcia modala profilu
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAdminDropdown, setShowAdminDropdown] = useState(false);
   const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
 
-  // DODANE: Wykrywanie sieci
   const { isCelo, isBase, tokenSymbol } = useNetwork();
 
   const filteredUsers = (activeTab === 'online' ? onlineUsers : allUsers).filter(user =>
     user.nickname?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Użytkownicy z nieprzeczytanymi wiadomościami
   const usersWithUnread = allUsers.filter(user => unreadCounts[user.walletAddress] > 0);
 
   const admins = allUsers.filter(user => 
@@ -40,18 +39,51 @@ const Sidebar = ({
     )
   }));
 
-  // Funkcja do obsługi kliknięcia użytkownika z notifications dropdown
   const handleNotificationClick = async (user) => {
-    // Oznacz wiadomości jako przeczytane w Firebase
     if (markAsRead) {
       await markAsRead(user.walletAddress);
     }
     
-    // Otwórz czat prywatny
     onStartPrivateChat(user);
-    
-    // Zamknij dropdown
     setShowNotificationsDropdown(false);
+  };
+
+  // Funkcja pomocnicza do wyświetlania badge subskrypcji
+  const getSubscriptionBadge = () => {
+    if (!currentUser?.subscriptionInfo) return null;
+    
+    const { tier, whitelisted, isActive } = currentUser.subscriptionInfo;
+    
+    if (whitelisted) {
+      return (
+        <span className="ml-1 text-purple-300 text-xs font-medium">
+          👑 WHITE
+        </span>
+      );
+    }
+    
+    if (isActive) {
+      if (tier === 2) {
+        return (
+          <span className="ml-1 text-yellow-300 text-xs font-medium">
+            ✨ PREM
+          </span>
+        );
+      }
+      if (tier === 1) {
+        return (
+          <span className="ml-1 text-cyan-300 text-xs font-medium">
+            ⭐ BASIC
+          </span>
+        );
+      }
+    }
+    
+    return (
+      <span className="ml-1 text-gray-300 text-xs font-medium">
+        FREE
+      </span>
+    );
   };
 
   if (isMobile) {
@@ -170,6 +202,7 @@ const Sidebar = ({
   // DESKTOP VERSION
   return (
     <div className="w-80 bg-gray-800/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col h-full overflow-hidden">
+      {/* NOWY NAGŁÓWEK (TAKI SAM JAK W DRUGIM PLIKU) */}
       <div className="p-6 border-b border-gray-700/50 flex-shrink-0">
         <div className="flex items-center justify-center gap-3 mb-3">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
@@ -189,26 +222,50 @@ const Sidebar = ({
         </div>
       </div>
 
+      {/* KLIKALNA KARTA PROFILU UŻYTKOWNIKA */}
       <div className="p-4 border-b border-gray-700/50 flex-shrink-0">
         {currentUser && (
-          <div className="flex items-center gap-3 p-3 bg-gray-700/30 rounded-xl border border-gray-600/50">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-xl">
-              {currentUser.avatar}
+          <div 
+            className="bg-gray-700/30 rounded-xl border border-gray-600/50 p-3 hover:bg-gray-700/40 hover:border-cyan-500/30 transition-all cursor-pointer group"
+            onClick={onShowUserProfile}
+            title="Click to view your profile"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-lg group-hover:scale-105 transition-transform">
+                  {currentUser.avatar}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-white font-semibold text-sm truncate flex items-center">
+                    {currentUser.nickname}
+                    {getSubscriptionBadge()}
+                  </div>
+                  <div className="text-cyan-400 text-xs">{tokenSymbol}: {currentUser.balance || '0'}</div>
+                </div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-white font-semibold truncate">{currentUser.nickname}</div>
-              {/* ZMIENIONE: Dynamiczny symbol tokena */}
-              <div className="text-cyan-400 text-sm">{tokenSymbol}: {currentUser.balance || '0'}</div>
-              {/* ZMIENIONE: Tylko na Celo pokazuj rewards, na Base nic */}
-              {isCelo && (
-                <div className="text-gray-400 text-xs">Rewards: {currentUser.remaining || '0'}/10 left</div>
+            
+            <div className="text-center text-gray-400 text-[10px]">
+              {isBase && currentUser?.subscriptionInfo && (
+                <div>
+                  <span>
+                    {currentUser.subscriptionInfo.whitelisted ? '👑 Whitelisted' : 
+                     currentUser.subscriptionInfo.tier === 2 ? '✨ Premium' :
+                     currentUser.subscriptionInfo.tier === 1 ? '⭐ Basic' : '🎫 Free'}
+                  </span>
+                  <span className="text-gray-500 mx-1">•</span>
+                  <span className="text-cyan-300">Click to view profile</span>
+                </div>
+              )}
+              {!isBase && !isCelo && (
+                <div className="text-cyan-300">Click to view profile</div>
               )}
             </div>
           </div>
         )}
       </div>
 
-      {/* INBOX DROPDOWN - BEZ ZERA, POKAZUJE LICZNIK DOPIERO OD 1 */}
+      {/* INBOX DROPDOWN */}
       <div className="p-4 border-b border-gray-700/50 flex-shrink-0 relative">
         <button
           onClick={() => setShowNotificationsDropdown(!showNotificationsDropdown)}
@@ -226,7 +283,6 @@ const Sidebar = ({
             )}
           </div>
           <div className="flex items-center gap-2">
-            {/* POKAZUJ LICZNIK TYLKO GDY SĄ NIEPRZECZYTANE WIADOMOŚCI */}
             {totalUnreadCount > 0 && (
               <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse min-w-6 text-center">
                 {totalUnreadCount}
@@ -238,7 +294,6 @@ const Sidebar = ({
           </div>
         </button>
 
-        {/* DROPDOWN CONTENT */}
         {showNotificationsDropdown && (
           <div className="absolute top-full left-4 right-4 mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-lg z-20 max-h-48 overflow-y-auto">
             {usersWithUnread.length > 0 ? (
@@ -338,7 +393,7 @@ const Sidebar = ({
                 : 'text-gray-400 hover:text-white'
             }`}
             onClick={() => setActiveTab('online')}
-          >
+            >
             🟢 Online
           </button>
           <button 
