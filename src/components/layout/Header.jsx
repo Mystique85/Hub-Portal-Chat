@@ -108,11 +108,6 @@ const Header = ({
               </p>
               
               <p className="flex items-start gap-2">
-                <span className="text-purple-400 mt-1">⭐</span>
-                <span><strong>Free VIP access</strong> to all future paid subscriptions</span>
-              </p>
-              
-              <p className="flex items-start gap-2">
                 <span className="text-purple-400 mt-1">🚀</span>
                 <span><strong>10x airdrop multiplier</strong> for active early users</span>
               </p>
