@@ -6,7 +6,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**HUB Portal** is a revolutionary Web3 social platform that combines real-time chat with comprehensive token rewards across multiple blockchain networks. Experience seamless wallet integration, beautiful design, and true digital ownership.
+**HUB Portal** is a revolutionary Web3 social platform that combines real-time chat with comprehensive token rewards across multiple blockchain networks. Experience seamless wallet integration, beautiful design, and true digital ownership through innovative subscription models.
 
 </div>
 
@@ -14,20 +14,24 @@
 
 ### 💬 Intelligent Messaging System
 - **Public Chat** - Community conversations with instant delivery
-- **Private Messages** - Secure 1-on-1 conversations
+- **Private Messages** - Secure 1-on-1 conversations  
 - **Real-time Synchronization** - Messages appear instantly across all devices
 - **Multi-Chain Rewards** - Earn tokens on both Celo and Base networks
 
-### 🎁 Triple Token Reward System
+### 🎁 Advanced Token Reward System
 
-#### 🌉 Base Network - Dual Rewards
+#### 🌉 Base Network - Tiered Subscription Model
 
-##### HUB Token Mining
-- **Chat Mining** - Earn 1 HUB token for every public message
-- **Instant Distribution** - Rewards sent automatically after each message
-- **No Daily Limits** - Reward for every valid message
-- **Advanced Contract** - Secure and gas-optimized rewards distribution
-- **Rewards Contract:** [`0x94D9EFFb0576Cff246D921066183Db816309CC8c`](https://basescan.org/address/0x94D9EFFb0576Cff246D921066183Db816309CC8c)
+##### HUB Token Mining with Smart Limits
+- **Tiered Messaging** - Choose from FREE, BASIC, or PREMIUM subscription tiers
+- **Earn 1 HUB per message** - Instant rewards for every valid message
+- **Smart Daily Limits** - Prevent spam while ensuring fair distribution
+- **Cooldown Protection** - 30-second cooldown between messages
+- **Flexible Tiers:**
+  - **FREE**: 10 messages/day - Perfect for casual users
+  - **BASIC**: 50 messages/day - Enhanced limits for active community members
+  - **PREMIUM**: Unlimited messages - Maximum engagement for power users
+- **Rewards Contract:** [`0x8ea3818294887376673e4e64fBd518598e3a2306`](https://basescan.org/address/0x8ea3818294887376673e4e64fBd518598e3a2306)
 
 ##### Daily USDC Rewards
 - **Daily Claims** - Claim USDC tokens every 24 hours on Base network
@@ -36,7 +40,7 @@
 - **Transaction History** - Track all your USDC rewards
 - **Rewards Contract:** [`0x94fD9248505695f7BA3CbF8598E784B6C44F5924`](https://basescan.org/address/0x94fD9248505695f7BA3CbF8598E784B6C44F5924)
 
-#### 📱 Celo Network - Dual Rewards
+#### 📱 Celo Network - Classic Mining System
 
 ##### HC Token Mining
 - **Message Mining** - Mine 1 HC token for every public message
@@ -50,6 +54,13 @@
 - **Easy Claim Process** - Simple one-click claim interface
 - **Transaction History** - Track all your CELO rewards
 - **Rewards Contract:** [`0xaB54190489aC536EDba25FD4966DDe8D4a1907b4`](https://celoscan.io/address/0xaB54190489aC536EDba25FD4966DDe8D4a1907b4)
+
+### 💼 Subscription Management
+- **Easy Upgrades** - Seamlessly upgrade between tiers with USDC payments
+- **Transparent Pricing** - Clear monthly costs: 10 USDC (BASIC), 50 USDC (PREMIUM)
+- **Auto-renewal** - Subscription continues with additional payments
+- **Whitelist Access** - Special unlimited tier for selected community members
+- **Real-time Tracking** - Monitor your daily message usage and limits
 
 ### 👤 Digital Identity
 - **Persistent Profiles** - Custom nicknames with unique emoji avatars
@@ -73,9 +84,11 @@
 1. **Connect** your compatible wallet (supports both Celo and Base networks)
 2. **Create** your unique profile with nickname and avatar
 3. **Choose Network** - Switch between networks to access different rewards:
-   - **Base Network**: HUB token mining + daily USDC rewards
-   - **Celo Network**: HC token mining + daily CELO rewards
-4. **Start chatting** in public rooms and earn multiple token rewards
+   - **Base Network**: Advanced tiered system with HUB rewards + USDC claims
+   - **Celo Network**: Classic mining system with HC tokens + CELO claims
+4. **Check Your Tier** - View your current subscription level and daily limits
+5. **Start Chatting** - Earn tokens with every message within your daily allowance
+6. **Upgrade Anytime** - Purchase BASIC or PREMIUM subscriptions for enhanced limits
 
 ## 💎 Token Ecosystems
 
@@ -101,35 +114,67 @@ The original chat mining token on Celo:
 - **Total Supply:** 1,000,000 HC
 - **Contract Address:** [`0x12b6e1f30cb714e8129F6101a7825a910a9982F2`](https://celoscan.io/token/0x12b6e1f30cb714e8129F6101a7825a910a9982F2)
 
-### 💵 USDC Rewards (Base Network)
-- **Stablecoin Rewards** - USDC, the leading stablecoin on Base network
-- **Daily Claims** - Regular rewards separate from chat mining
-- **Secure Distribution** - Through dedicated smart contract
+### 💵 USDC Integration
+- **Subscription Payments** - Pay for BASIC/PREMIUM tiers with USDC
+- **Daily Rewards** - Regular USDC claims separate from chat mining
+- **Base Network Native** - Utilizing the official Base USDC contract
+- **Secure Transactions** - All payments handled through audited smart contracts
 
 ### 🌟 CELO Token Rewards
 - **Native Token** - CELO, the native token of Celo network
 - **Daily Claims** - Regular rewards separate from chat mining
 - **Sustainable Distribution** - Through dedicated smart contract
 
-### 🔮 Future Possibilities
-Owning HUB and HC tokens opens doors to exclusive functionalities within the HUB Ecosystem, including governance rights, premium features, Vote privileges, and special access for active community members.
+### 🔮 Ecosystem Benefits
+Owning HUB and HC tokens grants access to exclusive functionalities within the HUB Ecosystem, including governance participation, premium feature access, voting privileges, and special recognition for active community members.
 
-## 🏗️ HUB Ecosystem Architecture
+## 🏗️ Technical Architecture
 
-HUB Portal is part of the larger **HUB Ecosystem** - a comprehensive Web3 platform connecting innovations across multiple blockchain networks.
+### Smart Contract System
+HUB Portal utilizes a sophisticated smart contract architecture designed for security, scalability, and user-friendly experience:
 
-### 🌐 Multi-Chain Strategy
-- **Base Network** - Home of HUB Token economy and advanced dApps with USDC rewards
-- **Celo Network** - Mobile-first blockchain for accessible Web3 with dual rewards
-- **Cross-Chain Integration** - Unified user experience across networks
+#### Base Network Contracts
+- **HUBChatRewards:** `0x8ea3818294887376673e4e64fBd518598e3a2306`
+  - Manages tiered subscription system
+  - Distributes HUB token rewards
+  - Enforces daily limits and cooldowns
+  - Handles subscription payments
 
-### 🔗 Connected Projects
-- **HUB Token Economy** - Core ecosystem token with advanced features
-- **HelloVote** - Anonymous voting platform
-- **Multiple dApps** - Growing suite of Web3 applications
+- **USDC Rewards:** `0x94fD9248505695f7BA3CbF8598E784B6C44F5924`
+  - Daily USDC distribution
+  - Secure claim mechanisms
 
-### 🌍 Main Platform
-Explore the entire HUB Ecosystem:
+#### Celo Network Contracts  
+- **HC Token:** `0x12b6e1f30cb714e8129F6101a7825a910a9982F2`
+  - Direct token minting per message
+  - Simple daily limit system
+
+- **CELO Rewards:** `0xaB54190489aC536EDba25FD4966DDe8D4a1907b4`
+  - Daily CELO distribution
+  - Sustainable reward pool
+
+### Key Features
+- **UTC-Based Reset** - Daily limits reset at 00:00 UTC
+- **Real-time Tracking** - Live updates of remaining messages
+- **Wallet Integration** - Seamless connection with major Web3 wallets
+- **Cross-Chain Compatibility** - Unified experience across networks
+
+## 🌐 HUB Ecosystem Integration
+
+HUB Portal is the flagship social application within the **HUB Ecosystem** - a comprehensive Web3 platform connecting innovations across multiple blockchain networks.
+
+### Multi-Chain Strategy
+- **Base Network** - Advanced dApp platform with sophisticated token economics
+- **Celo Network** - Mobile-first blockchain for accessible Web3 adoption
+- **Unified Experience** - Consistent identity and rewards across chains
+
+### Connected Ecosystem
+- **HUB Token Economy** - Core governance and utility token
+- **HelloVote** - Anonymous voting and decision-making platform
+- **Growing dApp Suite** - Continuously expanding Web3 application portfolio
+
+### Central Platform
+Discover the complete HUB Ecosystem:
 [**🌐 HUB Ecosystem Portal**](https://hub-ecosystem.vercel.app)
 
 ## 📄 License
