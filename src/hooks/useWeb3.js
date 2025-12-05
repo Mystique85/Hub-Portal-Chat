@@ -16,7 +16,6 @@ export const useWeb3 = (address) => {
   const { currentNetwork, isCelo, isBase, networkConfig } = useNetwork();
   const { chain } = useAccount();
 
-  // ABI dla tokenów ERC20
   const ERC20_ABI = [
     {
       "constant": true,
@@ -47,7 +46,6 @@ export const useWeb3 = (address) => {
     }
   ];
 
-  // Pobierz balans HUB tokena
   const { data: balanceData } = useReadContract({
     address: HUB_TOKEN_ADDRESS[currentNetwork],
     abi: ERC20_ABI,
@@ -58,7 +56,6 @@ export const useWeb3 = (address) => {
     }
   });
 
-  // DLA CELO: Pozostałe nagrody
   const { data: remainingData } = useReadContract({
     address: CONTRACT_ADDRESSES.celo,
     abi: CONTRACT_ABIS.celo,
@@ -69,33 +66,30 @@ export const useWeb3 = (address) => {
     }
   });
 
-  // DLA BASE: Informacje o subskrypcji
-  const { data: subscriptionData } = useReadContract({
+  const { data: userSubscriptionInfoData } = useReadContract({
     address: CONTRACT_ADDRESSES.base,
     abi: CONTRACT_ABIS.base,
-    functionName: 'getSubscriptionInfo',
+    functionName: 'getUserSubscriptionInfo',
     args: [address],
     query: {
       enabled: !!address && isBase,
     }
   });
 
-  // DLA BASE: Pozostałe dzienne wiadomości
-  const { data: remainingMessagesData } = useReadContract({
-    address: CONTRACT_ADDRESSES.base,
-    abi: CONTRACT_ABIS.base,
-    functionName: 'getRemainingDailyMessages',
-    args: [address],
-    query: {
-      enabled: !!address && isBase,
-    }
-  });
-
-  // DLA BASE: Statystyki użytkownika
   const { data: userBasicStatsData } = useReadContract({
     address: CONTRACT_ADDRESSES.base,
     abi: CONTRACT_ABIS.base,
     functionName: 'getUserBasicStats',
+    args: [address],
+    query: {
+      enabled: !!address && isBase,
+    }
+  });
+
+  const { data: simpleSubscriptionData } = useReadContract({
+    address: CONTRACT_ADDRESSES.base,
+    abi: CONTRACT_ABIS.base,
+    functionName: 'getSubscriptionInfo',
     args: [address],
     query: {
       enabled: !!address && isBase,
@@ -115,9 +109,8 @@ export const useWeb3 = (address) => {
     } else if (isCelo) {
       setRemaining('0');
     } else if (isBase) {
-      // Na Base użyjemy remainingMessages jako indicator
-      if (remainingMessagesData !== undefined) {
-        const remainingMsgs = Number(remainingMessagesData);
+      if (userSubscriptionInfoData) {
+        const remainingMsgs = Number(userSubscriptionInfoData[0]);
         if (remainingMsgs === 999999 || remainingMsgs > 1000) {
           setRemaining('∞');
         } else {
@@ -125,33 +118,72 @@ export const useWeb3 = (address) => {
         }
       }
     }
-  }, [remainingData, remainingMessagesData, isCelo, isBase]);
+  }, [remainingData, userSubscriptionInfoData, isCelo, isBase]);
 
   useEffect(() => {
-    if (subscriptionData && isBase) {
-      const [tier, expiry, whitelisted, isActive] = subscriptionData;
-      setSubscriptionInfo({
-        tier: Number(tier),
-        expiry: Number(expiry),
-        whitelisted,
-        isActive
-      });
-    }
-  }, [subscriptionData, isBase]);
+    if (isBase && address) {
+      let completeSubscriptionInfo = {
+        tier: 0,
+        expiry: 0,
+        whitelisted: false,
+        isActive: false,
+        remainingMessages: 0,
+        messagesToday: 0,
+        lastResetDay: 0
+      };
 
-  useEffect(() => {
-    if (userBasicStatsData && isBase) {
-      const [totalMessages, totalEarned, lastMessageTime, isBlocked, messagesToday, lastResetDay] = userBasicStatsData;
-      setUserStats({
-        totalMessages: Number(totalMessages),
-        totalEarned: Number(totalEarned) / 1e18, // Konwersja z wei
-        lastMessageTime: Number(lastMessageTime),
-        isBlocked,
-        messagesToday: Number(messagesToday),
-        lastResetDay: Number(lastResetDay)
-      });
+      if (userSubscriptionInfoData && Array.isArray(userSubscriptionInfoData)) {
+        const [remainingMessages, tier, whitelisted, subscriptionExpiry] = userSubscriptionInfoData;
+        
+        completeSubscriptionInfo = {
+          ...completeSubscriptionInfo,
+          remainingMessages: Number(remainingMessages),
+          tier: Number(tier),
+          whitelisted: whitelisted,
+          expiry: Number(subscriptionExpiry),
+          isActive: whitelisted || (Number(subscriptionExpiry) > Math.floor(Date.now() / 1000))
+        };
+      }
+
+      if (userBasicStatsData && Array.isArray(userBasicStatsData) && userBasicStatsData.length >= 6) {
+        const [totalMessages, totalEarned, lastMessageTime, isBlocked, messagesToday, lastResetDay] = userBasicStatsData;
+        
+        completeSubscriptionInfo = {
+          ...completeSubscriptionInfo,
+          messagesToday: Number(messagesToday),
+          lastResetDay: Number(lastResetDay)
+        };
+
+        setUserStats({
+          totalMessages: Number(totalMessages),
+          totalEarned: Number(totalEarned) / 1e18,
+          lastMessageTime: Number(lastMessageTime),
+          isBlocked,
+          messagesToday: Number(messagesToday),
+          lastResetDay: Number(lastResetDay)
+        });
+      }
+
+      if (simpleSubscriptionData && Array.isArray(simpleSubscriptionData) && simpleSubscriptionData.length >= 4) {
+        const [tier, expiry, whitelisted, isActive] = simpleSubscriptionData;
+        
+        if (!completeSubscriptionInfo.tier) {
+          completeSubscriptionInfo.tier = Number(tier);
+        }
+        if (!completeSubscriptionInfo.expiry) {
+          completeSubscriptionInfo.expiry = Number(expiry);
+        }
+        if (!completeSubscriptionInfo.whitelisted) {
+          completeSubscriptionInfo.whitelisted = whitelisted;
+        }
+        if (!completeSubscriptionInfo.isActive) {
+          completeSubscriptionInfo.isActive = isActive || (Number(expiry) > Math.floor(Date.now() / 1000));
+        }
+      }
+
+      setSubscriptionInfo(completeSubscriptionInfo);
     }
-  }, [userBasicStatsData, isBase]);
+  }, [userSubscriptionInfoData, userBasicStatsData, simpleSubscriptionData, isBase, address]);
 
   const fetchBalanceForNetwork = async (userAddress, network) => {
     try {
@@ -240,7 +272,6 @@ export const useWeb3 = (address) => {
     return results;
   };
 
-  // Funkcja do sprawdzenia czy można wysłać wiadomość
   const checkCanSendMessage = async () => {
     if (!address || !isBase) return { canSend: false, reason: 'Not on Base network' };
     
@@ -264,7 +295,6 @@ export const useWeb3 = (address) => {
     }
   };
 
-  // Funkcja do sprawdzenia allowance USDC
   const checkUSDCAllowance = async () => {
     if (!address || !isBase) return '0';
     
@@ -277,7 +307,7 @@ export const useWeb3 = (address) => {
       });
       
       if (allowanceData) {
-        return Number(allowanceData) / 1e6; // USDC ma 6 decimal places
+        return Number(allowanceData) / 1e6;
       }
       
       return '0';
@@ -287,7 +317,6 @@ export const useWeb3 = (address) => {
     }
   };
 
-  // Funkcja do pobrania cen subskrypcji
   const getSubscriptionPrices = async () => {
     if (!isBase) return { basic: 0, premium: 0 };
     
@@ -316,33 +345,24 @@ export const useWeb3 = (address) => {
   };
 
   return {
-    // Balanse i podstawowe info
     balance,
     remaining,
     subscriptionInfo,
     userStats,
-    
-    // Informacje o sieci
     currentNetwork,
     tokenSymbol: networkConfig.symbol,
     networkName: networkConfig.name,
     isCelo,
     isBase,
-    
-    // Flagi funkcjonalności
     supportsDailyRewards: isCelo,
     supportsSeasonSystem: isCelo,
     supportsSubscriptions: isBase,
     supportsTokenTransfers: true,
-    
-    // Funkcje pomocnicze
     getOtherUserBalance,
     fetchBalanceForNetwork,
     checkCanSendMessage,
     checkUSDCAllowance,
     getSubscriptionPrices,
-    
-    // Info o sieci dla UI
     explorerUrl: networkConfig.explorer
   };
 };
