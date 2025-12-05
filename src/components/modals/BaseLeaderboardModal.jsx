@@ -293,11 +293,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser }) => {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-400 mt-1">•</span>
-                    <span><strong>Track messages on Base network</strong> - every message counts</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span><strong>Top 20 users share rewards</strong> - compete for USDC prizes</span>
+                    <span><strong>Total messages on Base network</strong> - count every message sent during the season</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-400 mt-1">•</span>
@@ -324,7 +320,6 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser }) => {
             <p>Base Network Leaderboard • Launching: January 1st, 2026 • $2000 USDC Total Rewards</p>
             <p className="mt-1">Start preparing today to compete for amazing rewards! 🎉</p>
             
-            {/* DODANY DISCLAIMER */}
             <div className="mt-2 pt-2 border-t border-gray-700/30">
               <p className="text-gray-500 text-[9px]">
                 ℹ️ Leaderboard launch requires minimum 20 qualified users (Genesis NFT + 100 HUB tokens)
