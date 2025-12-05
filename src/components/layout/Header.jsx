@@ -7,6 +7,8 @@ import DailyRewardsModal from '../modals/DailyRewardsModal';
 import DailyRewardsModalBase from '../modals/DailyRewardsModalBase';
 import ReactDOM from 'react-dom';
 import { useNetwork } from '../../hooks/useNetwork';
+import { useSwitchChain } from 'wagmi';
+import { base, celo } from '@reown/appkit/networks';
 
 const Header = ({ 
   currentUser, 
@@ -17,7 +19,8 @@ const Header = ({
   onUserStatsClick,
   activeDMChat,
   onShowLeaderboard,
-  onShowBaseLeaderboard
+  onShowBaseLeaderboard,
+  onShowSubscriptionModal
 }) => {
   const [showDailyRewards, setShowDailyRewards] = useState(false);
   const [showDailyRewardsBase, setShowDailyRewardsBase] = useState(false);
@@ -29,10 +32,24 @@ const Header = ({
   const isAdmin = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
 
   const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
+  
+  const { switchChain } = useSwitchChain();
 
   const [showHelpTooltip, setShowHelpTooltip] = useState(false);
   const [showCeloHub, setShowCeloHub] = useState(false);
   const [showDonation, setShowDonation] = useState(false);
+
+  const handleSwitchNetwork = async () => {
+    try {
+      if (isCelo) {
+        await switchChain({ chainId: base.id });
+      } else if (isBase) {
+        await switchChain({ chainId: celo.id });
+      }
+    } catch (error) {
+      console.error('Error switching network:', error);
+    }
+  };
 
   useEffect(() => {
     if (showQuickAccessMenu && quickAccessButtonRef.current) {
@@ -246,6 +263,14 @@ const Header = ({
           </div>
           
           <div className="flex items-center gap-1 flex-shrink-0">
+            <button 
+              onClick={handleSwitchNetwork}
+              className="bg-gradient-to-r from-gray-700 to-gray-800 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs border border-gray-600"
+              title={`Switch to ${isCelo ? 'Base' : 'Celo'}`}
+            >
+              🌐
+            </button>
+            
             {(supportsSeasonSystem || isBase) && (
               <button 
                 onClick={() => {
@@ -353,6 +378,7 @@ const Header = ({
             </button>
           )}
 
+          {/* Quick Access */}
           <div className="relative">
             <button 
               ref={quickAccessButtonRef}
@@ -367,8 +393,17 @@ const Header = ({
             </button>
           </div>
 
-          {/* USUNIĘTE: Stan HUB tokenów na Base */}
-          {/* USUNIĘTE: Stan Left na Celo */}
+          {/* PRZEŁĄCZNIK SIECI - Z IKONĄ 🌐 */}
+          <button 
+            onClick={handleSwitchNetwork}
+            className="h-[42px] px-4 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white rounded-xl font-semibold transition-all flex items-center gap-2 text-sm border border-gray-600 hover:border-gray-500 shadow-lg hover:scale-105 group"
+            title={`Switch to ${isCelo ? 'Base' : 'Celo'} network`}
+          >
+            <span className="text-lg">🌐</span>
+            <span className="text-white font-medium">
+              Switch to {isCelo ? 'Base' : 'Celo'}
+            </span>
+          </button>
           
           <appkit-button />
         </div>
