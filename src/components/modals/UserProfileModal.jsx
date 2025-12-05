@@ -4,13 +4,15 @@ import { db } from '../../config/firebase';
 import { getCurrentSeason, getSeasonBadge } from '../../utils/seasons';
 import SendHCModal from './SendHCModal';
 import { useNetwork } from '../../hooks/useNetwork';
+import { useReadContract } from 'wagmi';
+import { CONTRACT_ADDRESSES, CONTRACT_ABIS } from '../../utils/constants';
 
 const UserProfileModal = ({ 
   user, 
   onClose, 
   getOtherUserBalance, 
   currentUser,
-  onOpenSubscription // DODAJEMY TEN PROP
+  onOpenSubscription
 }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [celoBalance, setCeloBalance] = useState('0');
@@ -22,20 +24,103 @@ const UserProfileModal = ({
     celo: 'loading',
     base: 'loading'
   });
+  const [dailyUsage, setDailyUsage] = useState({
+    used: 0,
+    limit: 10,
+    percentage: 0,
+    tier: 'FREE'
+  });
 
   const { isCelo, isBase, tokenSymbol } = useNetwork();
   const season = getCurrentSeason();
   
   const isCurrentUserProfile = currentUser?.walletAddress?.toLowerCase() === user?.walletAddress?.toLowerCase();
 
-  // Funkcja do formatowania dużych liczb
+  const { data: externalBasicStatsData, refetch: refetchExternalStats } = useReadContract({
+    address: CONTRACT_ADDRESSES.base,
+    abi: CONTRACT_ABIS.base,
+    functionName: 'getUserBasicStats',
+    args: [user?.walletAddress],
+    query: {
+      enabled: !!user?.walletAddress && isBase && !isCurrentUserProfile,
+    }
+  });
+
+  const { data: externalSubscriptionData, refetch: refetchExternalSubscription } = useReadContract({
+    address: CONTRACT_ADDRESSES.base,
+    abi: CONTRACT_ABIS.base,
+    functionName: 'getUserSubscriptionInfo',
+    args: [user?.walletAddress],
+    query: {
+      enabled: !!user?.walletAddress && isBase && !isCurrentUserProfile,
+    }
+  });
+
+  const calculateDailyUsage = (subscriptionInfo, userStats, isExternalUser = false) => {
+    let tier = 0;
+    let whitelisted = false;
+    let isActive = false;
+    let messagesToday = 0;
+    
+    if (!isExternalUser && subscriptionInfo) {
+      tier = subscriptionInfo.tier || 0;
+      whitelisted = subscriptionInfo.whitelisted || false;
+      isActive = subscriptionInfo.isActive || false;
+      messagesToday = subscriptionInfo.messagesToday || 0;
+    }
+    
+    if (isExternalUser) {
+      if (externalSubscriptionData && Array.isArray(externalSubscriptionData)) {
+        const [remainingMessages, tierFromContract, whitelistedFromContract, subscriptionExpiry] = externalSubscriptionData;
+        tier = Number(tierFromContract);
+        whitelisted = whitelistedFromContract;
+        isActive = whitelistedFromContract || (Number(subscriptionExpiry) > Math.floor(Date.now() / 1000));
+      }
+      
+      if (externalBasicStatsData && Array.isArray(externalBasicStatsData) && externalBasicStatsData.length >= 6) {
+        messagesToday = Number(externalBasicStatsData[4]);
+      }
+    }
+    
+    let limit = 10;
+    let currentTier = 'FREE';
+    
+    if (whitelisted) {
+      limit = Infinity;
+      currentTier = 'WHITELIST';
+    } else if (isActive) {
+      switch(tier) {
+        case 1:
+          limit = 50;
+          currentTier = 'BASIC';
+          break;
+        case 2:
+          limit = Infinity;
+          currentTier = 'PREMIUM';
+          break;
+        default:
+          limit = 10;
+          currentTier = 'FREE';
+      }
+    }
+
+    const used = messagesToday;
+    const percentage = limit === Infinity ? 0 : Math.min(100, (used / limit) * 100);
+
+    return {
+      used,
+      limit: limit === Infinity ? '∞' : limit,
+      percentage,
+      tier: currentTier
+    };
+  };
+
   const formatLargeNumber = (num) => {
     if (!num || num === '0') return '0';
     
     const number = parseFloat(num);
     if (isNaN(number)) return '0';
     
-    // Dla bardzo dużych liczb używamy skrótów
     if (number >= 1000000) {
       return (number / 1000000).toFixed(2) + 'M';
     }
@@ -43,7 +128,6 @@ const UserProfileModal = ({
       return (number / 1000).toFixed(2) + 'K';
     }
     
-    // Dla liczb z dużą ilością miejsc po przecinku
     if (number.toString().includes('.') && number.toString().split('.')[1].length > 4) {
       return number.toFixed(4);
     }
@@ -62,6 +146,16 @@ const UserProfileModal = ({
         const userDoc = await getDoc(doc(db, 'users', user.walletAddress.toLowerCase()));
         const firestoreProfile = userDoc.exists() ? userDoc.data() : null;
         setUserProfile(firestoreProfile);
+        
+        if (isCurrentUserProfile && isBase && currentUser?.subscriptionInfo) {
+          const usage = calculateDailyUsage(currentUser.subscriptionInfo, null, false);
+          setDailyUsage(usage);
+        }
+        
+        if (!isCurrentUserProfile && isBase) {
+          refetchExternalStats();
+          refetchExternalSubscription();
+        }
         
         if (getOtherUserBalance) {
           if (currentUser && user.walletAddress === currentUser.walletAddress) {
@@ -120,7 +214,14 @@ const UserProfileModal = ({
     };
     
     loadProfileData();
-  }, [user, getOtherUserBalance, isCelo, isBase, currentUser]);
+  }, [user, getOtherUserBalance, isCelo, isBase, currentUser, isCurrentUserProfile]);
+
+  useEffect(() => {
+    if (!isCurrentUserProfile && isBase && (externalBasicStatsData || externalSubscriptionData)) {
+      const usage = calculateDailyUsage(null, null, true);
+      setDailyUsage(usage);
+    }
+  }, [externalBasicStatsData, externalSubscriptionData, isCurrentUserProfile, isBase]);
 
   const getBadgeColor = (badgeType) => {
     switch(badgeType) {
@@ -144,25 +245,30 @@ const UserProfileModal = ({
     }
   };
 
-  // Funkcja do otwierania modala subskrypcji
-  const handleOpenSubscription = () => {
-    if (onOpenSubscription) {
-      onOpenSubscription(); // Otwiera główny modal subskrypcji
-      onClose(); // Zamyka modal profilu
-    }
-  };
-
-  // Funkcja do wyświetlania informacji o subskrypcji (tylko dla Base)
   const renderSubscriptionInfo = () => {
     if (!isBase) return null;
 
-    // Dla obecnego użytkownika używamy subscriptionInfo z currentUser
-    // Dla innych użytkowników pokazujemy tylko podstawowe info
     const subscriptionInfo = isCurrentUserProfile ? currentUser?.subscriptionInfo : null;
     
     const getTierDisplay = () => {
-      // Dla innych użytkowników - domyślnie FREE
-      if (!subscriptionInfo && !isCurrentUserProfile) {
+      if (!isCurrentUserProfile && externalSubscriptionData) {
+        if (Array.isArray(externalSubscriptionData) && externalSubscriptionData.length >= 4) {
+          const [remainingMessages, tier, whitelisted, subscriptionExpiry] = externalSubscriptionData;
+          
+          if (whitelisted) {
+            return { name: 'WHITELIST', color: 'text-purple-400', icon: '👑' };
+          }
+          
+          const isActive = whitelisted || (Number(subscriptionExpiry) > Math.floor(Date.now() / 1000));
+          
+          if (isActive) {
+            switch(Number(tier)) {
+              case 1: return { name: 'BASIC', color: 'text-cyan-400', icon: '⭐' };
+              case 2: return { name: 'PREMIUM', color: 'text-yellow-400', icon: '✨' };
+              default: return { name: 'FREE', color: 'text-gray-400', icon: '🎫' };
+            }
+          }
+        }
         return { name: 'FREE', color: 'text-gray-400', icon: '🎫' };
       }
       
@@ -187,52 +293,6 @@ const UserProfileModal = ({
       }
     };
 
-    const formatExpiry = () => {
-      // Dla innych użytkowników nie pokazujemy expiry
-      if (!isCurrentUserProfile) return '';
-      
-      if (!subscriptionInfo || !subscriptionInfo.isActive || subscriptionInfo.whitelisted) {
-        return 'Not subscribed';
-      }
-      
-      const expiry = subscriptionInfo.expiry;
-      if (expiry === 0) return 'Never';
-      
-      const now = Math.floor(Date.now() / 1000);
-      const timeLeft = expiry - now;
-      
-      if (timeLeft <= 0) return 'Expired';
-      
-      const days = Math.floor(timeLeft / (24 * 3600));
-      const hours = Math.floor((timeLeft % (24 * 3600)) / 3600);
-      
-      if (days > 0) return `${days} days, ${hours} hours`;
-      if (hours > 0) return `${hours} hours`;
-      
-      const minutes = Math.floor((timeLeft % 3600) / 60);
-      return `${minutes} minutes`;
-    };
-
-    const getDailyLimit = () => {
-      // Dla innych użytkowników - domyślnie 10
-      if (!subscriptionInfo && !isCurrentUserProfile) {
-        return '10';
-      }
-      
-      if (!subscriptionInfo) return '10';
-      
-      const { tier, whitelisted, isActive } = subscriptionInfo;
-      
-      if (whitelisted) return '∞';
-      if (!isActive) return '10';
-      
-      switch(tier) {
-        case 1: return '50';
-        case 2: return '∞';
-        default: return '10';
-      }
-    };
-
     const tierInfo = getTierDisplay();
 
     return (
@@ -241,47 +301,76 @@ const UserProfileModal = ({
           <div className="text-cyan-400 font-bold text-xs mb-0.5">BASE SUBSCRIPTION</div>
           <div className="text-gray-400 text-[9px]">
             {isCurrentUserProfile 
-              ? 'Upgrade for more daily messages' 
-              : 'User subscription tier'}
+              ? 'Manage your daily message limit' 
+              : 'User subscription status'}
           </div>
         </div>
         
-        {/* Tier info */}
+        <div className="mb-3 p-2 bg-gray-800/50 rounded-lg border border-gray-700/50">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-gray-300 text-xs font-medium">Daily Usage</span>
+            <span className="text-cyan-400 text-xs font-bold">
+              {dailyUsage.used} / {dailyUsage.limit}
+              {isCurrentUserProfile && ' (You)'}
+            </span>
+          </div>
+          
+          <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden mb-1">
+            <div 
+              className={`h-full rounded-full transition-all duration-300 ${
+                dailyUsage.percentage >= 90 ? 'bg-red-500' :
+                dailyUsage.percentage >= 75 ? 'bg-yellow-500' :
+                'bg-green-500'
+              }`}
+              style={{ width: `${Math.min(dailyUsage.percentage, 100)}%` }}
+            />
+          </div>
+          
+          <div className="flex justify-between text-[10px]">
+            <span className={`font-medium ${
+              dailyUsage.percentage >= 90 ? 'text-red-400' :
+              dailyUsage.percentage >= 75 ? 'text-yellow-400' :
+              'text-green-400'
+            }`}>
+              {dailyUsage.percentage >= 90 ? 'Almost full!' :
+               dailyUsage.percentage >= 75 ? 'Getting busy' :
+               'Good to go'}
+            </span>
+            <span className="text-gray-400">
+              {dailyUsage.limit === '∞' ? 'Unlimited' : `${dailyUsage.percentage.toFixed(0)}%`}
+            </span>
+          </div>
+        </div>
+        
         <div className={`mb-2 p-2 rounded-lg border ${tierInfo.color.replace('text', 'border')}/30 ${tierInfo.color.replace('text', 'bg')}/10`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
               <span className="text-sm">{tierInfo.icon}</span>
               <span className={`font-bold ${tierInfo.color} text-xs`}>{tierInfo.name}</span>
             </div>
-            {isCurrentUserProfile && subscriptionInfo?.isActive && (
-              <span className="text-green-400 text-[10px]">Active</span>
-            )}
+            <span className={`text-[10px] ${
+              tierInfo.name === 'WHITELIST' ? 'text-purple-400' :
+              tierInfo.name === 'PREMIUM' ? 'text-yellow-400' :
+              tierInfo.name === 'BASIC' ? 'text-cyan-400' :
+              'text-gray-400'
+            }`}>
+              {tierInfo.name === 'WHITELIST' ? '👑 Special' :
+               tierInfo.name === 'PREMIUM' ? '✨ Premium' :
+               tierInfo.name === 'BASIC' ? '⭐ Basic' : '🎫 Free'}
+            </span>
           </div>
           
-          {isCurrentUserProfile ? (
-            <div className="text-gray-300 text-[10px] mt-1">
-              {subscriptionInfo?.whitelisted ? (
-                <span className="text-purple-300">Whitelisted user</span>
-              ) : subscriptionInfo?.isActive ? (
-                <span>Expires: {formatExpiry()}</span>
-              ) : (
-                <span>Free tier: 10/day</span>
-              )}
-            </div>
-          ) : (
-            <div className="text-gray-300 text-[10px] mt-1">
-              {tierInfo.name === 'WHITELIST' ? 'Whitelisted user' : 
-               tierInfo.name === 'PREMIUM' ? 'Premium subscriber' :
-               tierInfo.name === 'BASIC' ? 'Basic subscriber' : 'Free tier user'}
-            </div>
-          )}
+          <div className="text-gray-300 text-[10px] mt-1">
+            {tierInfo.name === 'WHITELIST' ? 'Whitelisted user' : 
+             tierInfo.name === 'PREMIUM' ? 'Unlimited messages' :
+             tierInfo.name === 'BASIC' ? '50 messages/day' : '10 messages/day (free)'}
+          </div>
         </div>
         
-        {/* Daily limit & rewards */}
         <div className="grid grid-cols-2 gap-2 mb-2">
           <div className="bg-gray-800/50 rounded p-1.5 text-center">
             <div className="text-cyan-400 font-bold text-xs">
-              {getDailyLimit()}
+              {dailyUsage.limit === '∞' ? '∞' : dailyUsage.limit}
             </div>
             <div className="text-gray-400 text-[8px]">Messages/day</div>
           </div>
@@ -292,30 +381,23 @@ const UserProfileModal = ({
           </div>
         </div>
         
-        {/* Action button for current user */}
         {isCurrentUserProfile && !subscriptionInfo?.whitelisted && (
           <button
-            onClick={handleOpenSubscription}
-            className="w-full mt-2 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all text-sm"
+            onClick={() => {
+              if (onOpenSubscription) {
+                onOpenSubscription();
+                onClose();
+              }
+            }}
+            className={`w-full mt-2 py-2.5 ${
+              dailyUsage.percentage >= 90 ? 'bg-gradient-to-r from-red-500 to-orange-500' :
+              'bg-gradient-to-r from-cyan-500 to-blue-500'
+            } text-white font-semibold rounded-lg hover:opacity-90 transition-all text-sm`}
           >
             <span className="text-lg mr-1">🎫</span>
             {subscriptionInfo?.isActive ? 'Upgrade Subscription' : 'Get Subscription'}
+            {dailyUsage.percentage >= 90 && ' (Recommended)'}
           </button>
-        )}
-        
-        {/* Status for other users */}
-        {!isCurrentUserProfile && (
-          <div className="text-center">
-            {tierInfo.name === 'WHITELIST' ? (
-              <div className="text-purple-300 text-[10px]">🎖️ Special access</div>
-            ) : tierInfo.name === 'PREMIUM' ? (
-              <div className="text-yellow-300 text-[10px]">✨ Premium</div>
-            ) : tierInfo.name === 'BASIC' ? (
-              <div className="text-cyan-300 text-[10px]">⭐ Basic</div>
-            ) : (
-              <div className="text-gray-400 text-[10px]">🎫 Free tier</div>
-            )}
-          </div>
         )}
       </div>
     );
@@ -355,12 +437,10 @@ const UserProfileModal = ({
             </div>
           ) : (
             <div className="space-y-4">
-              {/* IMPROVED DUAL BALANCE SECTION */}
               <div className="space-y-3">
                 <div className="text-gray-400 text-xs text-center">Token Balance</div>
                 
                 <div className="grid grid-cols-2 gap-2">
-                  {/* Base Network - $HUB */}
                   <div className={`bg-blue-500/10 border rounded-xl p-3 text-center ${
                     isBase ? 'border-blue-500/40' : 'border-blue-500/20'
                   }`}>
@@ -388,7 +468,6 @@ const UserProfileModal = ({
                     )}
                   </div>
                   
-                  {/* Celo Network - $HC */}
                   <div className={`bg-amber-500/10 border rounded-xl p-3 text-center ${
                     isCelo ? 'border-amber-500/40' : 'border-amber-500/20'
                   }`}>
@@ -418,7 +497,6 @@ const UserProfileModal = ({
                 </div>
               </div>
               
-              {/* Total Messages */}
               <div className="bg-gray-700/40 rounded-lg p-3 text-center">
                 <div className="text-green-400 font-bold text-base">
                   {userProfile?.totalMessages || '0'}
@@ -426,7 +504,6 @@ const UserProfileModal = ({
                 <div className="text-gray-400 text-[10px]">Total Messages</div>
               </div>
 
-              {/* Celo-specific stats */}
               {isCelo && (
                 <>
                   <div className="grid grid-cols-2 gap-2">
@@ -484,10 +561,8 @@ const UserProfileModal = ({
                 </>
               )}
 
-              {/* Subscription info (only for Base network) */}
               {isBase && renderSubscriptionInfo()}
 
-              {/* Buttons */}
               <div className="flex gap-2 pt-2">
                 <button 
                   onClick={onClose}
