@@ -50,10 +50,11 @@
 
 ##### Daily CELO Rewards
 - **Daily Claims** - Claim CELO tokens every 24 hours
+- **HC Token Requirement** - Must hold at least 100 HC tokens to claim rewards
 - **Secure Smart Contract** - Dedicated contract for CELO distribution
 - **Easy Claim Process** - Simple one-click claim interface
 - **Transaction History** - Track all your CELO rewards
-- **Rewards Contract:** [`0xaB54190489aC536EDba25FD4966DDe8D4a1907b4`](https://celoscan.io/address/0xaB54190489aC536EDba25FD4966DDe8D4a1907b4)
+- **Rewards Contract:** [`0xfc389eF5bE3Ab44738AeCCE261987F48E3960771`](https://celoscan.io/address/0xfc389eF5bE3Ab44738AeCCE261987F48E3960771)
 
 ### 💼 Subscription Management
 - **Easy Upgrades** - Seamlessly upgrade between tiers with USDC payments
@@ -85,7 +86,7 @@
 2. **Create** your unique profile with nickname and avatar
 3. **Choose Network** - Switch between networks to access different rewards:
    - **Base Network**: Advanced tiered system with HUB rewards + USDC claims
-   - **Celo Network**: Classic mining system with HC tokens + CELO claims
+   - **Celo Network**: Classic mining system with HC tokens + CELO claims (requires 100+ HC for CELO rewards)
 4. **Check Your Tier** - View your current subscription level and daily limits
 5. **Start Chatting** - Earn tokens with every message within your daily allowance
 6. **Upgrade Anytime** - Purchase BASIC or PREMIUM subscriptions for enhanced limits
@@ -123,6 +124,7 @@ The original chat mining token on Celo:
 ### 🌟 CELO Token Rewards
 - **Native Token** - CELO, the native token of Celo network
 - **Daily Claims** - Regular rewards separate from chat mining
+- **HC Requirement** - Must hold 100+ HC tokens to claim CELO rewards
 - **Sustainable Distribution** - Through dedicated smart contract
 
 ### 🔮 Ecosystem Benefits
@@ -149,8 +151,9 @@ HUB Portal utilizes a sophisticated smart contract architecture designed for sec
   - Direct token minting per message
   - Simple daily limit system
 
-- **CELO Rewards:** `0xaB54190489aC536EDba25FD4966DDe8D4a1907b4`
-  - Daily CELO distribution
+- **CELO Rewards:** `0xfc389eF5bE3Ab44738AeCCE261987F48E3960771`
+  - Daily CELO distribution with HC token requirement (100+ HC)
+  - Enhanced anti-sybil protection
   - Sustainable reward pool
 
 ### Key Features
