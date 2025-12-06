@@ -1,21 +1,25 @@
-/**
- *Submitted for verification at celoscan.io on 2025-11-20
-*/
-
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-contract HubChatDailyRewards {
+interface IERC20 {
+    function balanceOf(address account) external view returns (uint256);
+}
+
+contract CeloChatDailyRewards {
     address public owner;
     
     uint256 public constant DAILY_CELO_REWARD = 0.1 ether;
     uint256 public constant CLAIM_COOLDOWN = 24 hours;
     uint256 public constant STREAK_TIMEFRAME = 48 hours;
     
-    string public welcomeMessage = "Daily CELO reward claimed! Thank you for using HUB Chat!";
-    string public cooldownMessage = "Please wait 24 hours between claims. Stay active in HUB Chat!";
-    string public blacklistMessage = "This address cannot claim rewards. Contact HUB Chat support.";
-    string public appLink = "https://hub-portal-chat.vercel.app/";
+    address public constant HC_TOKEN_ADDRESS = 0x12b6e1f30cb714e8129F6101a7825a910a9982F2;
+    uint256 public constant MIN_HC_REQUIRED = 100 * 10**18;
+    
+    string public welcomeMessage = "Daily CELO reward claimed! Thank you for using Celo Chat!";
+    string public cooldownMessage = "Please wait 24 hours between claims. Stay active in Celo Chat!";
+    string public blacklistMessage = "This address cannot claim rewards. Contact Celo Chat support.";
+    string public insufficientHCMessage = "You need at least 100 HC tokens to claim CELO reward";
+    string public appLink = "https://celo-chat-dapp.vercel.app/";
     
     struct UserStats {
         uint256 lastClaimTime;
@@ -64,6 +68,9 @@ contract HubChatDailyRewards {
         require(block.timestamp >= stats.lastClaimTime + CLAIM_COOLDOWN, cooldownMessage);
         require(address(this).balance >= DAILY_CELO_REWARD, "Insufficient funds");
         
+        uint256 hcBalance = IERC20(HC_TOKEN_ADDRESS).balanceOf(user);
+        require(hcBalance >= MIN_HC_REQUIRED, insufficientHCMessage);
+        
         if (stats.lastClaimTime == 0) {
             stats.streakCount = 1;
         } else {
@@ -100,6 +107,11 @@ contract HubChatDailyRewards {
     function canClaim(address user) public view returns (bool, string memory) {
         if (blacklist[user] || userStats[user].isBlocked) return (false, blacklistMessage);
         
+        uint256 hcBalance = IERC20(HC_TOKEN_ADDRESS).balanceOf(user);
+        if (hcBalance < MIN_HC_REQUIRED) {
+            return (false, insufficientHCMessage);
+        }
+        
         UserStats memory stats = userStats[user];
         
         if (stats.lastClaimTime == 0) return (true, "Welcome! Claim your first daily CELO!");
@@ -125,12 +137,15 @@ contract HubChatDailyRewards {
         uint256 longestStreak,
         uint256 totalClaims,
         uint256 totalEarned,
-        string memory message
+        string memory message,
+        bool userHasEnoughHC
     ) {
         UserStats memory stats = userStats[user];
+        uint256 hcBalance = IERC20(HC_TOKEN_ADDRESS).balanceOf(user);
+        userHasEnoughHC = hcBalance >= MIN_HC_REQUIRED;
         
         if (blacklist[user] || stats.isBlocked) {
-            return (false, stats.lastClaimTime, 0, 0, 0, 0, 0, 0, blacklistMessage);
+            return (false, stats.lastClaimTime, 0, 0, 0, 0, 0, 0, blacklistMessage, userHasEnoughHC);
         }
         
         lastClaim = stats.lastClaimTime;
@@ -141,7 +156,15 @@ contract HubChatDailyRewards {
         totalEarned = stats.totalEarned;
         
         if (stats.lastClaimTime == 0) {
-            return (true, 0, 0, 0, 0, 0, 0, 0, "Welcome! Claim your first daily CELO!");
+            if (userHasEnoughHC) {
+                return (true, 0, 0, 0, 0, 0, 0, 0, "Welcome! Claim your first daily CELO!", userHasEnoughHC);
+            } else {
+                return (false, 0, 0, 0, 0, 0, 0, 0, insufficientHCMessage, userHasEnoughHC);
+            }
+        }
+        
+        if (!userHasEnoughHC) {
+            return (false, lastClaim, nextAvailableClaim, 0, currentStreak, longestStreak, totalClaims, totalEarned, insufficientHCMessage, userHasEnoughHC);
         }
         
         if (block.timestamp >= nextAvailableClaim) {
@@ -150,7 +173,7 @@ contract HubChatDailyRewards {
                 uint2str(currentStreak),
                 " days"
             ));
-            return (true, lastClaim, nextAvailableClaim, 0, currentStreak, longestStreak, totalClaims, totalEarned, message);
+            return (true, lastClaim, nextAvailableClaim, 0, currentStreak, longestStreak, totalClaims, totalEarned, message, userHasEnoughHC);
         } else {
             timeRemaining = nextAvailableClaim - block.timestamp;
             message = string(abi.encodePacked(
@@ -159,7 +182,7 @@ contract HubChatDailyRewards {
                 uint2str(currentStreak),
                 " days"
             ));
-            return (false, lastClaim, nextAvailableClaim, timeRemaining, currentStreak, longestStreak, totalClaims, totalEarned, message);
+            return (false, lastClaim, nextAvailableClaim, timeRemaining, currentStreak, longestStreak, totalClaims, totalEarned, message, userHasEnoughHC);
         }
     }
     
@@ -168,7 +191,8 @@ contract HubChatDailyRewards {
         uint256 longestStreak,
         uint256 totalClaims,
         uint256 lastClaimTime,
-        bool isActive
+        bool isActive,
+        bool userHasEnoughHC
     ) {
         UserStats memory stats = userStats[user];
         currentStreak = stats.streakCount;
@@ -176,6 +200,7 @@ contract HubChatDailyRewards {
         totalClaims = stats.totalClaims;
         lastClaimTime = stats.lastClaimTime;
         isActive = (block.timestamp <= stats.lastClaimTime + STREAK_TIMEFRAME);
+        userHasEnoughHC = IERC20(HC_TOKEN_ADDRESS).balanceOf(user) >= MIN_HC_REQUIRED;
     }
 
     function setWelcomeMessage(string memory _newMessage) external onlyOwner {
@@ -190,6 +215,11 @@ contract HubChatDailyRewards {
     
     function setBlacklistMessage(string memory _newMessage) external onlyOwner {
         blacklistMessage = _newMessage;
+        emit MessageUpdated(_newMessage);
+    }
+    
+    function setInsufficientHCMessage(string memory _newMessage) external onlyOwner {
+        insufficientHCMessage = _newMessage;
         emit MessageUpdated(_newMessage);
     }
     
@@ -227,17 +257,27 @@ contract HubChatDailyRewards {
         return address(this).balance;
     }
     
+    function getHCBalance(address user) public view returns (uint256) {
+        return IERC20(HC_TOKEN_ADDRESS).balanceOf(user);
+    }
+    
+    function hasEnoughHC(address user) public view returns (bool) {
+        return IERC20(HC_TOKEN_ADDRESS).balanceOf(user) >= MIN_HC_REQUIRED;
+    }
+    
     function getHubChatInfo() public view returns (
         string memory message,
         string memory link,
         uint256 rewardAmount,
-        uint256 cooldownHours
+        uint256 cooldownHours,
+        uint256 minHCRequired
     ) {
         return (
-            "HUB Chat Daily Rewards",
+            "Celo Chat Daily Rewards",
             appLink,
             DAILY_CELO_REWARD,
-            CLAIM_COOLDOWN / 1 hours
+            CLAIM_COOLDOWN / 1 hours,
+            MIN_HC_REQUIRED
         );
     }
 
