@@ -561,10 +561,12 @@ function App() {
             setShowDMModal(false);
             setSelectedUser(null);
             setPrivateMessage('');
+            // Dodajemy powrót do zakładki users na mobile
+            if (isMobile) setMobileView('users');
           }}
           isStartingDM={isStartingDM}
           isConfirming={isConfirming}
-          isMobile={isMobile} // ← DODANE isMobile prop!
+          isMobile={isMobile}
         />
       )}
 
