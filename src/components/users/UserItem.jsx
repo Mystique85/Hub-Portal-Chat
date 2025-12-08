@@ -7,7 +7,8 @@ const UserItem = ({
   onlineUsers, 
   onStartPrivateChat,
   isActive,
-  showOnlineStatus = true
+  showOnlineStatus = true,
+  isMobile = false
 }) => {
   const unreadCount = unreadCounts[user.walletAddress] || 0;
   const isOnline = onlineUsers.some(onlineUser => 
@@ -18,47 +19,69 @@ const UserItem = ({
 
   return (
     <div 
-      className={`relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border group ${
+      className={`relative flex items-center gap-3 cursor-pointer transition-all border group flex-shrink-0 ${
+        isMobile 
+          ? 'p-2 rounded-lg' 
+          : 'p-3 rounded-xl'
+      } ${
         isActive
           ? 'bg-cyan-500/20 border-cyan-500/50' 
           : 'border-gray-600/50 hover:bg-gray-700/50 hover:border-cyan-500/30'
-      } flex-shrink-0`}
+      }`}
       onClick={() => onStartPrivateChat(user)}
     >
       {/* User Avatar */}
       <div className="relative">
-        <div className={`w-10 h-10 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-base shadow-lg ${
-          unreadCount > 0 ? 'animate-pulse' : ''
-        }`}>
+        <div className={`rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg ${
+          isMobile
+            ? 'w-8 h-8 text-sm'
+            : 'w-10 h-10 text-base'
+        } ${unreadCount > 0 ? 'animate-pulse' : ''}`}>
           {user.avatar}
         </div>
         {showOnlineStatus && isOnline && (
-          <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-800 animate-pulse"></div>
+          <div className={`absolute border-2 border-gray-800 bg-green-400 rounded-full animate-pulse ${
+            isMobile
+              ? '-bottom-0.5 -right-0.5 w-2 h-2'
+              : '-bottom-1 -right-1 w-3 h-3'
+          }`}></div>
         )}
       </div>
       
       {/* User Info */}
       <div className="flex-1 min-w-0">
-        <div className="text-white font-medium truncate flex items-center gap-2">
+        <div className={`text-white font-medium truncate flex items-center gap-1 ${
+          isMobile ? 'text-xs' : 'text-sm'
+        }`}>
           {user.nickname}
           {isAdmin && (
-            <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium">
+            <span className={`bg-gradient-to-r from-purple-500 to-pink-500 text-white px-1 py-0.5 rounded-full font-medium ${
+              isMobile ? 'text-[8px]' : 'text-[10px]'
+            }`}>
               ADMIN
             </span>
           )}
-          {isCurrentUser && <span className="text-cyan-400 text-xs">(You)</span>}
+          {isCurrentUser && <span className={`text-cyan-400 ${
+            isMobile ? 'text-[10px]' : 'text-xs'
+          }`}>(You)</span>}
           {showOnlineStatus && isOnline && !isCurrentUser && (
-            <span className="text-green-400 text-xs">🟢</span>
+            <span className={`text-green-400 ${
+              isMobile ? 'text-[10px]' : 'text-xs'
+            }`}>🟢</span>
           )}
         </div>
-        <div className="text-gray-400 text-xs truncate">
+        <div className={`text-gray-400 truncate ${
+          isMobile ? 'text-[10px]' : 'text-xs'
+        }`}>
           {user.walletAddress.slice(0, 8)}...{user.walletAddress.slice(-6)}
         </div>
       </div>
       
       {/* Online Status Dot */}
       {showOnlineStatus && isOnline && (
-        <div className="w-2 h-2 bg-green-400 rounded-full flex-shrink-0 animate-pulse"></div>
+        <div className={`bg-green-400 rounded-full flex-shrink-0 animate-pulse ${
+          isMobile ? 'w-1.5 h-1.5' : 'w-2 h-2'
+        }`}></div>
       )}
     </div>
   );

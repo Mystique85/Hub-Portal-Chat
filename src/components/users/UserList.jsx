@@ -8,7 +8,8 @@ const UserList = ({
   onlineUsers, 
   onStartPrivateChat,
   activeDMChat,
-  isOnlineList = false // Nowy prop do rozróżnienia list
+  isOnlineList = false, // Nowy prop do rozróżnienia list
+  isMobile = false // DODAJEMY PROP DLA MOBILE
 }) => {
   // NIE FILTRUJ użytkowników - pokazuj WSZYSTKICH
   // Dla obu zakładek pokazujemy wszystkich użytkowników
@@ -16,18 +17,24 @@ const UserList = ({
 
   if (displayedUsers.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-400">
+      <div className={`flex-1 flex items-center justify-center text-gray-400 ${
+        isMobile ? 'p-2' : 'p-4'
+      }`}>
         <div className="text-center">
-          <div className="text-4xl mb-2">
+          <div className={`mb-2 ${
+            isMobile ? 'text-2xl' : 'text-4xl'
+          }`}>
             {isOnlineList ? "🟢" : "👥"}
           </div>
-          <p>
+          <p className={isMobile ? 'text-xs' : 'text-sm'}>
             {isOnlineList 
               ? "No users online" 
               : "No users found"}
           </p>
           {isOnlineList && (
-            <p className="text-sm text-gray-500 mt-2">
+            <p className={`mt-1 ${
+              isMobile ? 'text-[10px] text-gray-500' : 'text-sm text-gray-500'
+            }`}>
               You're the only one here
             </p>
           )}
@@ -37,7 +44,9 @@ const UserList = ({
   }
 
   return (
-    <div className="flex-1 overflow-y-auto space-y-2">
+    <div className={`flex-1 overflow-y-auto ${
+      isMobile ? 'space-y-1.5' : 'space-y-2'
+    }`}>
       {displayedUsers.map(user => (
         <UserItem
           key={user.walletAddress}
@@ -47,7 +56,8 @@ const UserList = ({
           onlineUsers={onlineUsers}
           onStartPrivateChat={onStartPrivateChat}
           isActive={activeDMChat?.user?.walletAddress === user.walletAddress}
-          showOnlineStatus={isOnlineList} // Pokazuj status online tylko w zakładce online
+          showOnlineStatus={isOnlineList}
+          isMobile={isMobile} // PRZEKAZUJEMY DO UserItem
         />
       ))}
     </div>
