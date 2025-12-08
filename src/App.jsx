@@ -102,6 +102,13 @@ function App() {
     }
   }, [showDMModal]);
 
+  const usersWithUnreadMessages = allUsers
+    .filter(user => unreadCounts[user.walletAddress] > 0)
+    .map(user => ({
+      ...user,
+      unreadCount: unreadCounts[user.walletAddress]
+    }));
+
   const userWithBalance = currentUser ? {
     ...currentUser,
     balance,
@@ -388,6 +395,9 @@ function App() {
             onMobileViewChange={setMobileView}
             totalUnreadCount={totalUnreadCount}
             activeDMChat={activeDMChat}
+            usersWithUnreadMessages={usersWithUnreadMessages}
+            onStartPrivateChat={handleStartPrivateChat}
+            markAsRead={markAsRead}
           />
 
           {showUserStats && (
