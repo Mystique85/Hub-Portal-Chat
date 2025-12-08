@@ -561,7 +561,6 @@ function App() {
             setShowDMModal(false);
             setSelectedUser(null);
             setPrivateMessage('');
-            // Dodajemy powrót do zakładki users na mobile
             if (isMobile) setMobileView('users');
           }}
           isStartingDM={isStartingDM}
@@ -577,6 +576,7 @@ function App() {
           getOtherUserBalance={getOtherUserBalance}
           currentUser={userWithBalance}
           onOpenSubscription={() => setShowSubscriptionModal(true)}
+          isMobile={isMobile}
         />
       )}
     </div>
