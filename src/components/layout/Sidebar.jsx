@@ -89,12 +89,21 @@ const Sidebar = ({
   if (isMobile) {
     return (
       <div className="h-full flex flex-col bg-gray-900/50">
-        <div className="p-4 border-b border-gray-700/50">
-          <div className="flex bg-gray-700/50 rounded-xl p-1 border border-gray-600/50 mb-4">
+        {/* TYLKO DODANIE INFORMACJI O LICZBIE UŻYTKOWNIKÓW */}
+        <div className="p-2 border-b border-gray-700/50 flex-shrink-0 text-center">
+          <div className="flex items-center justify-center gap-1 text-gray-400 text-xs">
+            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+            {onlineUsers.length} online • {allUsers.length} total
+          </div>
+        </div>
+
+        {/* ZAKŁADKI ONLINE/ALL USERS NA MOBILE - ZMNIEJSZONE */}
+        <div className="p-2 border-b border-gray-700/50 flex-shrink-0">
+          <div className="flex bg-gray-700/50 rounded-md p-0.5 border border-gray-600/50 mb-1">
             <button 
-              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 py-1 px-1.5 rounded text-xs font-medium transition-all ${
                 activeTab === 'online' 
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg' 
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-sm' 
                   : 'text-gray-400 hover:text-white'
               }`}
               onClick={() => setActiveTab('online')}
@@ -102,9 +111,9 @@ const Sidebar = ({
               🟢 Online
             </button>
             <button 
-              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+              className={`flex-1 py-1 px-1.5 rounded text-xs font-medium transition-all ${
                 activeTab === 'all' 
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-lg' 
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-sm' 
                   : 'text-gray-400 hover:text-white'
               }`}
               onClick={() => setActiveTab('all')}
@@ -113,32 +122,44 @@ const Sidebar = ({
             </button>
           </div>
 
+          {/* TYTUŁ Z LICZBĄ UŻYTKOWNIKÓW - DODANE */}
+          <h4 className="text-gray-400 text-xs font-semibold px-0.5">
+            {activeTab === 'online' 
+              ? `🟢 Online Now (${filteredUsers.length})` 
+              : `👥 All Users (${filteredUsers.length})`
+            }
+          </h4>
+        </div>
+
+        {/* INPUT WYSZUKIWANIA NA MOBILE - ZMNIEJSZONY */}
+        <div className="p-2 border-b border-gray-700/50 flex-shrink-0">
           <input
             type="text"
             placeholder="🔍 Search users..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-sm"
+            className="w-full px-2 py-1 bg-gray-700/50 border border-gray-600/50 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-cyan-500 text-xs"
           />
         </div>
 
+        {/* ADMIN DROPDOWN NA MOBILE - ZMNIEJSZONY */}
         {admins.length > 0 && (
-          <div className="p-4 border-b border-gray-700/50 flex-shrink-0 relative">
+          <div className="p-2 border-b border-gray-700/50 flex-shrink-0 relative">
             <button
               onClick={() => setShowAdminDropdown(!showAdminDropdown)}
-              className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/50 rounded-xl text-white hover:bg-purple-500/30 transition-all"
+              className="w-full flex items-center justify-between gap-1 px-2 py-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/50 rounded-md text-white hover:bg-purple-500/30 transition-all text-xs"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <span>👑</span>
                 <span>Contact Admin</span>
               </div>
-              <span className={`transform transition-transform ${showAdminDropdown ? 'rotate-180' : ''}`}>
+              <span className={`transform transition-transform text-[10px] ${showAdminDropdown ? 'rotate-180' : ''}`}>
                 ▼
               </span>
             </button>
 
             {showAdminDropdown && (
-              <div className="absolute top-full left-4 right-4 mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-lg z-20 max-h-48 overflow-y-auto">
+              <div className="absolute top-full left-2 right-2 mt-0.5 bg-gray-800 border border-gray-600 rounded-md shadow-md z-20 max-h-32 overflow-y-auto">
                 {admins.map(admin => (
                   <div
                     key={admin.walletAddress}
@@ -147,27 +168,27 @@ const Sidebar = ({
                       setShowAdminDropdown(false);
                       onMobileViewChange('private');
                     }}
-                    className="flex items-center gap-2 p-2 hover:bg-gray-700/50 cursor-pointer transition-all border-b border-gray-700/50 last:border-b-0"
+                    className="flex items-center gap-1.5 p-1.5 hover:bg-gray-700/50 cursor-pointer transition-all border-b border-gray-700/50 last:border-b-0"
                   >
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-xs">
+                    <div className="w-5 h-5 rounded bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-[10px]">
                       {admin.avatar}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-white text-sm font-medium truncate flex items-center gap-1">
+                      <div className="text-white text-xs font-medium truncate flex items-center gap-0.5">
                         {admin.nickname}
-                        <span className="text-purple-400 text-xs font-medium">
+                        <span className="text-purple-400 text-[10px] font-medium">
                           Admin
                         </span>
                       </div>
-                      <div className="text-gray-400 text-xs flex items-center gap-1">
+                      <div className="text-gray-400 text-[10px] flex items-center gap-0.5">
                         {admin.isOnline ? (
                           <>
-                            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                            <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse"></div>
                             Online
                           </>
                         ) : (
                           <>
-                            <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
+                            <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
                             Offline
                           </>
                         )}
@@ -180,7 +201,8 @@ const Sidebar = ({
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-4">
+        {/* LISTA UŻYTKOWNIKÓW NA MOBILE */}
+        <div className="flex-1 overflow-y-auto">
           <UserList
             users={filteredUsers}
             currentUser={currentUser}
@@ -199,7 +221,7 @@ const Sidebar = ({
     );
   }
 
-  // DESKTOP VERSION
+  // DESKTOP VERSION - NIE ZMIENIONE (dokładnie tak jak było)
   return (
     <div className="w-80 bg-gray-800/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col h-full overflow-hidden">
       {/* NOWY NAGŁÓWEK (TAKI SAM JAK W DRUGIM PLIKU) */}
