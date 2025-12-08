@@ -12,7 +12,8 @@ const UserProfileModal = ({
   onClose, 
   getOtherUserBalance, 
   currentUser,
-  onOpenSubscription
+  onOpenSubscription,
+  isMobile = false // DODAJEMY PROP
 }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [celoBalance, setCeloBalance] = useState('0');
@@ -296,10 +297,16 @@ const UserProfileModal = ({
     const tierInfo = getTierDisplay();
 
     return (
-      <div className="mt-4 p-3 bg-gray-700/30 rounded-lg border border-gray-600/30">
+      <div className={`mt-4 p-3 bg-gray-700/30 rounded-lg border border-gray-600/30 ${
+        isMobile ? 'p-2.5' : ''
+      }`}>
         <div className="text-center mb-2">
-          <div className="text-cyan-400 font-bold text-xs mb-0.5">BASE SUBSCRIPTION</div>
-          <div className="text-gray-400 text-[9px]">
+          <div className={`text-cyan-400 font-bold ${
+            isMobile ? 'text-[10px] mb-0.5' : 'text-xs mb-0.5'
+          }`}>BASE SUBSCRIPTION</div>
+          <div className={`text-gray-400 ${
+            isMobile ? 'text-[8px]' : 'text-[9px]'
+          }`}>
             {isCurrentUserProfile 
               ? 'Manage your daily message limit' 
               : 'User subscription status'}
@@ -308,14 +315,18 @@ const UserProfileModal = ({
         
         <div className="mb-3 p-2 bg-gray-800/50 rounded-lg border border-gray-700/50">
           <div className="flex justify-between items-center mb-1">
-            <span className="text-gray-300 text-xs font-medium">Daily Usage</span>
-            <span className="text-cyan-400 text-xs font-bold">
+            <span className={`text-gray-300 font-medium ${
+              isMobile ? 'text-[10px]' : 'text-xs'
+            }`}>Daily Usage</span>
+            <span className={`text-cyan-400 font-bold ${
+              isMobile ? 'text-[10px]' : 'text-xs'
+            }`}>
               {dailyUsage.used} / {dailyUsage.limit}
               {isCurrentUserProfile && ' (You)'}
             </span>
           </div>
           
-          <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden mb-1">
+          <div className="w-full h-1.5 bg-gray-700 rounded-full overflow-hidden mb-1">
             <div 
               className={`h-full rounded-full transition-all duration-300 ${
                 dailyUsage.percentage >= 90 ? 'bg-red-500' :
@@ -326,17 +337,17 @@ const UserProfileModal = ({
             />
           </div>
           
-          <div className="flex justify-between text-[10px]">
+          <div className="flex justify-between">
             <span className={`font-medium ${
               dailyUsage.percentage >= 90 ? 'text-red-400' :
               dailyUsage.percentage >= 75 ? 'text-yellow-400' :
               'text-green-400'
-            }`}>
+            } ${isMobile ? 'text-[9px]' : 'text-[10px]'}`}>
               {dailyUsage.percentage >= 90 ? 'Almost full!' :
                dailyUsage.percentage >= 75 ? 'Getting busy' :
                'Good to go'}
             </span>
-            <span className="text-gray-400">
+            <span className={`text-gray-400 ${isMobile ? 'text-[9px]' : 'text-[10px]'}`}>
               {dailyUsage.limit === '∞' ? 'Unlimited' : `${dailyUsage.percentage.toFixed(0)}%`}
             </span>
           </div>
@@ -345,39 +356,53 @@ const UserProfileModal = ({
         <div className={`mb-2 p-2 rounded-lg border ${tierInfo.color.replace('text', 'border')}/30 ${tierInfo.color.replace('text', 'bg')}/10`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
-              <span className="text-sm">{tierInfo.icon}</span>
-              <span className={`font-bold ${tierInfo.color} text-xs`}>{tierInfo.name}</span>
+              <span className={`${isMobile ? 'text-xs' : 'text-sm'}`}>{tierInfo.icon}</span>
+              <span className={`font-bold ${tierInfo.color} ${
+                isMobile ? 'text-xs' : 'text-xs'
+              }`}>{tierInfo.name}</span>
             </div>
-            <span className={`text-[10px] ${
+            <span className={`${
               tierInfo.name === 'WHITELIST' ? 'text-purple-400' :
               tierInfo.name === 'PREMIUM' ? 'text-yellow-400' :
               tierInfo.name === 'BASIC' ? 'text-cyan-400' :
               'text-gray-400'
-            }`}>
+            } ${isMobile ? 'text-[9px]' : 'text-[10px]'}`}>
               {tierInfo.name === 'WHITELIST' ? '👑 Special' :
                tierInfo.name === 'PREMIUM' ? '✨ Premium' :
                tierInfo.name === 'BASIC' ? '⭐ Basic' : '🎫 Free'}
             </span>
           </div>
           
-          <div className="text-gray-300 text-[10px] mt-1">
+          <div className={`text-gray-300 mt-0.5 ${
+            isMobile ? 'text-[9px]' : 'text-[10px]'
+          }`}>
             {tierInfo.name === 'WHITELIST' ? 'Whitelisted user' : 
              tierInfo.name === 'PREMIUM' ? 'Unlimited messages' :
              tierInfo.name === 'BASIC' ? '50 messages/day' : '10 messages/day (free)'}
           </div>
         </div>
         
-        <div className="grid grid-cols-2 gap-2 mb-2">
+        <div className={`grid grid-cols-2 gap-2 mb-2 ${
+          isMobile ? 'gap-1.5' : 'gap-2'
+        }`}>
           <div className="bg-gray-800/50 rounded p-1.5 text-center">
-            <div className="text-cyan-400 font-bold text-xs">
+            <div className={`text-cyan-400 font-bold ${
+              isMobile ? 'text-xs' : 'text-xs'
+            }`}>
               {dailyUsage.limit === '∞' ? '∞' : dailyUsage.limit}
             </div>
-            <div className="text-gray-400 text-[8px]">Messages/day</div>
+            <div className={`text-gray-400 ${
+              isMobile ? 'text-[8px]' : 'text-[8px]'
+            }`}>Messages/day</div>
           </div>
           
           <div className="bg-gray-800/50 rounded p-1.5 text-center">
-            <div className="text-green-400 font-bold text-xs">1 HUB</div>
-            <div className="text-gray-400 text-[8px]">Reward/message</div>
+            <div className={`text-green-400 font-bold ${
+              isMobile ? 'text-xs' : 'text-xs'
+            }`}>1 HUB</div>
+            <div className={`text-gray-400 ${
+              isMobile ? 'text-[8px]' : 'text-[8px]'
+            }`}>Reward/message</div>
           </div>
         </div>
         
@@ -389,12 +414,14 @@ const UserProfileModal = ({
                 onClose();
               }
             }}
-            className={`w-full mt-2 py-2.5 ${
+            className={`w-full mt-2 py-2 ${
               dailyUsage.percentage >= 90 ? 'bg-gradient-to-r from-red-500 to-orange-500' :
               'bg-gradient-to-r from-cyan-500 to-blue-500'
-            } text-white font-semibold rounded-lg hover:opacity-90 transition-all text-sm`}
+            } text-white font-semibold rounded-lg hover:opacity-90 transition-all ${
+              isMobile ? 'text-xs' : 'text-sm'
+            }`}
           >
-            <span className="text-lg mr-1">🎫</span>
+            <span className={`${isMobile ? 'text-base' : 'text-lg'} mr-1`}>🎫</span>
             {subscriptionInfo?.isActive ? 'Upgrade Subscription' : 'Get Subscription'}
             {dailyUsage.percentage >= 90 && ' (Recommended)'}
           </button>
@@ -407,89 +434,135 @@ const UserProfileModal = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-5 max-w-sm w-full">
-          <div className="text-center mb-4">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-3">
+      <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 ${
+        isMobile ? 'p-2' : 'p-4'
+      }`}>
+        <div className={`bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 w-full ${
+          isMobile 
+            ? 'rounded-xl p-3 max-w-sm' 
+            : 'rounded-3xl p-5 max-w-sm'
+        }`}>
+          <div className="text-center mb-3">
+            <h2 className={`font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2 ${
+              isMobile ? 'text-lg' : 'text-xl'
+            }`}>
               User Profile
             </h2>
             
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-16 h-16 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-2xl">
+            <div className={`flex items-center justify-center gap-3 mb-3 ${
+              isMobile ? 'mb-3' : 'mb-4'
+            }`}>
+              <div className={`rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center ${
+                isMobile 
+                  ? 'w-12 h-12 text-lg'
+                  : 'w-16 h-16 text-2xl'
+              }`}>
                 {user.avatar}
               </div>
               <div className="text-left">
-                <div className="text-white font-semibold text-lg">{user.nickname}</div>
-                <div className="text-gray-400 text-xs mt-0.5">
+                <div className={`text-white font-semibold ${
+                  isMobile ? 'text-base' : 'text-lg'
+                }`}>{user.nickname}</div>
+                <div className={`text-gray-400 mt-0.5 ${
+                  isMobile ? 'text-[10px]' : 'text-xs'
+                }`}>
                   {user.walletAddress?.slice(0, 6)}...{user.walletAddress?.slice(-4)}
                 </div>
                 {isCurrentUserProfile && (
-                  <div className="text-cyan-400 text-[10px] mt-0.5">(Your Profile)</div>
+                  <div className={`text-cyan-400 mt-0.5 ${
+                    isMobile ? 'text-[9px]' : 'text-[10px]'
+                  }`}>(Your Profile)</div>
                 )}
               </div>
             </div>
           </div>
           
           {loading ? (
-            <div className="text-center py-6">
-              <div className="animate-spin rounded-full h-7 w-7 border-b-2 border-cyan-500 mx-auto"></div>
-              <div className="text-gray-400 text-sm mt-2">Loading profile...</div>
+            <div className="text-center py-4">
+              <div className={`animate-spin rounded-full border-b-2 border-cyan-500 mx-auto ${
+                isMobile ? 'h-5 w-5' : 'h-7 w-7'
+              }`}></div>
+              <div className={`text-gray-400 mt-1.5 ${
+                isMobile ? 'text-xs' : 'text-sm'
+              }`}>Loading profile...</div>
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="space-y-3">
-                <div className="text-gray-400 text-xs text-center">Token Balance</div>
+            <div className={`space-y-3 ${isMobile ? 'space-y-3' : 'space-y-4'}`}>
+              <div className="space-y-2">
+                <div className={`text-gray-400 text-center ${
+                  isMobile ? 'text-[10px]' : 'text-xs'
+                }`}>Token Balance</div>
                 
                 <div className="grid grid-cols-2 gap-2">
-                  <div className={`bg-blue-500/10 border rounded-xl p-3 text-center ${
+                  <div className={`bg-blue-500/10 border rounded-xl p-2 text-center ${
                     isBase ? 'border-blue-500/40' : 'border-blue-500/20'
                   }`}>
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-0.5">
                       <div className="flex items-center gap-1">
-                        <span className="text-blue-400 text-xs">🌉</span>
-                        <span className="text-blue-300 text-[10px]">Base</span>
+                        <span className={`text-blue-400 ${
+                          isMobile ? 'text-[10px]' : 'text-xs'
+                        }`}>🌉</span>
+                        <span className={`text-blue-300 ${
+                          isMobile ? 'text-[9px]' : 'text-[10px]'
+                        }`}>Base</span>
                       </div>
-                      <div className={`text-[9px] px-1 py-0.5 rounded ${
+                      <div className={`px-0.5 py-0.5 rounded ${
                         networkStatus.base === 'live' ? 'bg-blue-500/30 text-blue-300' :
                         networkStatus.base === 'fetched' ? 'bg-blue-500/20 text-blue-400' :
                         'bg-gray-700/50 text-gray-400'
-                      }`}>
+                      } ${isMobile ? 'text-[8px]' : 'text-[9px]'}`}>
                         {getNetworkStatusText('base', networkStatus.base)}
                       </div>
                     </div>
-                    <div className="text-blue-400 font-bold text-lg truncate" title={baseBalance}>
+                    <div className={`text-blue-400 font-bold truncate ${
+                      isMobile ? 'text-base' : 'text-lg'
+                    }`} title={baseBalance}>
                       {formatLargeNumber(baseBalance)}
                     </div>
-                    <div className="text-blue-300 text-[10px]">$HUB Token</div>
+                    <div className={`text-blue-300 ${
+                      isMobile ? 'text-[9px]' : 'text-[10px]'
+                    }`}>$HUB Token</div>
                     {parseFloat(baseBalance) >= 1000 && (
-                      <div className="text-blue-500/70 text-[8px] mt-0.5 truncate" title={baseBalance}>
+                      <div className={`text-blue-500/70 truncate ${
+                        isMobile ? 'text-[7px] mt-0.5' : 'text-[8px] mt-0.5'
+                      }`} title={baseBalance}>
                         ({baseBalance})
                       </div>
                     )}
                   </div>
                   
-                  <div className={`bg-amber-500/10 border rounded-xl p-3 text-center ${
+                  <div className={`bg-amber-500/10 border rounded-xl p-2 text-center ${
                     isCelo ? 'border-amber-500/40' : 'border-amber-500/20'
                   }`}>
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center justify-between mb-0.5">
                       <div className="flex items-center gap-1">
-                        <span className="text-amber-400 text-xs">📱</span>
-                        <span className="text-amber-300 text-[10px]">Celo</span>
+                        <span className={`text-amber-400 ${
+                          isMobile ? 'text-[10px]' : 'text-xs'
+                        }`}>📱</span>
+                        <span className={`text-amber-300 ${
+                          isMobile ? 'text-[9px]' : 'text-[10px]'
+                        }`}>Celo</span>
                       </div>
-                      <div className={`text-[9px] px-1 py-0.5 rounded ${
+                      <div className={`px-0.5 py-0.5 rounded ${
                         networkStatus.celo === 'live' ? 'bg-amber-500/30 text-amber-300' :
                         networkStatus.celo === 'fetched' ? 'bg-amber-500/20 text-amber-400' :
                         'bg-gray-700/50 text-gray-400'
-                      }`}>
+                      } ${isMobile ? 'text-[8px]' : 'text-[9px]'}`}>
                         {getNetworkStatusText('celo', networkStatus.celo)}
                       </div>
                     </div>
-                    <div className="text-amber-400 font-bold text-lg truncate" title={celoBalance}>
+                    <div className={`text-amber-400 font-bold truncate ${
+                      isMobile ? 'text-base' : 'text-lg'
+                    }`} title={celoBalance}>
                       {formatLargeNumber(celoBalance)}
                     </div>
-                    <div className="text-amber-300 text-[10px]">$HC Token</div>
+                    <div className={`text-amber-300 ${
+                      isMobile ? 'text-[9px]' : 'text-[10px]'
+                    }`}>$HC Token</div>
                     {parseFloat(celoBalance) >= 1000 && (
-                      <div className="text-amber-500/70 text-[8px] mt-0.5 truncate" title={celoBalance}>
+                      <div className={`text-amber-500/70 truncate ${
+                        isMobile ? 'text-[7px] mt-0.5' : 'text-[8px] mt-0.5'
+                      }`} title={celoBalance}>
                         ({celoBalance})
                       </div>
                     )}
@@ -497,32 +570,48 @@ const UserProfileModal = ({
                 </div>
               </div>
               
-              <div className="bg-gray-700/40 rounded-lg p-3 text-center">
-                <div className="text-green-400 font-bold text-base">
+              <div className={`bg-gray-700/40 rounded-lg p-2 text-center ${
+                isMobile ? 'p-2' : 'p-3'
+              }`}>
+                <div className={`text-green-400 font-bold ${
+                  isMobile ? 'text-sm' : 'text-base'
+                }`}>
                   {userProfile?.totalMessages || '0'}
                 </div>
-                <div className="text-gray-400 text-[10px]">Total Messages</div>
+                <div className={`text-gray-400 ${
+                  isMobile ? 'text-[9px]' : 'text-[10px]'
+                }`}>Total Messages</div>
               </div>
 
               {isCelo && (
                 <>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-gray-700/40 rounded-lg p-2 text-center">
-                      <div className="text-purple-400 font-bold text-sm">
+                    <div className="bg-gray-700/40 rounded-lg p-1.5 text-center">
+                      <div className={`text-purple-400 font-bold ${
+                        isMobile ? 'text-xs' : 'text-sm'
+                      }`}>
                         {seasonStats?.seasonMessages || '0'}
                       </div>
-                      <div className="text-gray-400 text-[9px]">{season.displayName}</div>
+                      <div className={`text-gray-400 ${
+                        isMobile ? 'text-[8px]' : 'text-[9px]'
+                      }`}>{season.displayName}</div>
                     </div>
-                    <div className="bg-gray-700/40 rounded-lg p-2 text-center">
-                      <div className="text-amber-400 font-bold text-sm">
+                    <div className="bg-gray-700/40 rounded-lg p-1.5 text-center">
+                      <div className={`text-amber-400 font-bold ${
+                        isMobile ? 'text-xs' : 'text-sm'
+                      }`}>
                         {seasonStats?.seasonRank || '-'}
                       </div>
-                      <div className="text-gray-400 text-[9px]">Rank</div>
+                      <div className={`text-gray-400 ${
+                        isMobile ? 'text-[8px]' : 'text-[9px]'
+                      }`}>Rank</div>
                     </div>
                   </div>
 
-                  <div className="bg-gray-700/40 rounded-lg p-2 text-center">
-                    <div className="text-blue-400 font-bold text-sm">
+                  <div className="bg-gray-700/40 rounded-lg p-1.5 text-center">
+                    <div className={`text-blue-400 font-bold ${
+                      isMobile ? 'text-xs' : 'text-sm'
+                    }`}>
                       {userProfile?.createdAt ? 
                         new Date(userProfile.createdAt.toDate()).toLocaleDateString('en-GB', {
                           day: '2-digit',
@@ -532,26 +621,34 @@ const UserProfileModal = ({
                         'Unknown'
                       }
                     </div>
-                    <div className="text-gray-400 text-[9px]">Joined</div>
+                    <div className={`text-gray-400 ${
+                      isMobile ? 'text-[8px]' : 'text-[9px]'
+                    }`}>Joined</div>
                   </div>
 
                   {seasonStats?.badges && seasonStats.badges.length > 0 && (
-                    <div className="bg-gray-700/30 rounded-xl p-3">
-                      <h3 className="text-white font-semibold text-xs mb-2 text-center">Season Badges</h3>
+                    <div className="bg-gray-700/30 rounded-lg p-2">
+                      <h3 className={`text-white font-semibold mb-1.5 text-center ${
+                        isMobile ? 'text-[10px]' : 'text-xs'
+                      }`}>Season Badges</h3>
                       <div className="flex flex-wrap gap-1 justify-center">
                         {seasonStats.badges.slice(0, 3).map((badge, index) => {
                           const badgeInfo = Object.values(season.rewards).find(r => r.badge === badge);
                           return (
                             <div
                               key={index}
-                              className={`bg-gradient-to-r ${getBadgeColor(badgeInfo?.type)} text-white rounded-lg px-2 py-1 text-[10px] font-medium`}
+                              className={`bg-gradient-to-r ${getBadgeColor(badgeInfo?.type)} text-white rounded px-1.5 py-0.5 font-medium ${
+                                isMobile ? 'text-[9px]' : 'text-[10px]'
+                              }`}
                             >
                               {badge.length > 10 ? badge.substring(0, 8) + '...' : badge}
                             </div>
                           );
                         })}
                         {seasonStats.badges.length > 3 && (
-                          <div className="text-gray-400 text-[10px] px-2 py-1">
+                          <div className={`text-gray-400 px-1.5 py-0.5 ${
+                            isMobile ? 'text-[9px]' : 'text-[10px]'
+                          }`}>
                             +{seasonStats.badges.length - 3} more
                           </div>
                         )}
@@ -563,17 +660,23 @@ const UserProfileModal = ({
 
               {isBase && renderSubscriptionInfo()}
 
-              <div className="flex gap-2 pt-2">
+              <div className={`flex gap-2 pt-1 ${
+                isMobile ? 'pt-1' : 'pt-2'
+              }`}>
                 <button 
                   onClick={onClose}
-                  className="flex-1 py-2.5 bg-gray-700/40 border border-gray-600/40 rounded-lg text-gray-400 hover:text-white transition-all text-sm"
+                  className={`flex-1 bg-gray-700/40 border border-gray-600/40 rounded-lg text-gray-400 hover:text-white transition-all ${
+                    isMobile ? 'py-2 text-xs' : 'py-2.5 text-sm'
+                  }`}
                 >
                   Close
                 </button>
                 <button 
                   onClick={() => setShowSendModal(true)}
                   disabled={!currentUser || user.walletAddress === currentUser.walletAddress}
-                  className="flex-1 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all text-sm disabled:opacity-40 disabled:cursor-not-allowed"
+                  className={`flex-1 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                    isMobile ? 'py-2 text-xs' : 'py-2.5 text-sm'
+                  }`}
                 >
                   Send {tokenSymbol}
                 </button>
@@ -589,6 +692,7 @@ const UserProfileModal = ({
           currentUser={currentUser}
           onClose={() => setShowSendModal(false)}
           getOtherUserBalance={getOtherUserBalance}
+          isMobile={isMobile}
         />
       )}
     </>
