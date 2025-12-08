@@ -16,6 +16,7 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
   const [privateMessages, setPrivateMessages] = useState([]);
   const [privateMessageInput, setPrivateMessageInput] = useState('');
   const [isSendingPrivate, setIsSendingPrivate] = useState(false);
+  const [hasLoadedMessages, setHasLoadedMessages] = useState(false); // DODANE: flaga czy wiadomości zostały załadowane
   
   const privateMessagesEndRef = useRef(null);
 
@@ -40,6 +41,7 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
         ...doc.data()
       }));
       setPrivateMessages(privateMessagesData);
+      setHasLoadedMessages(true); // Ustaw flagę, że wiadomości zostały załadowane
     });
 
     return () => unsubscribePrivateMessages();
@@ -90,6 +92,9 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
 
   const isOtherAdmin = ADMIN_ADDRESSES.includes(otherParticipant?.toLowerCase());
 
+  // Sprawdź czy pokazać pusty stan chatu
+  const showEmptyState = hasLoadedMessages && privateMessages.length === 0;
+
   return (
     <div className="w-96 bg-gray-800/50 backdrop-blur-xl border-l border-gray-700/50 flex flex-col h-full">
       <div className="p-4 border-b border-gray-700/50 flex items-center justify-between">
@@ -118,7 +123,7 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
-        {privateMessages.length === 0 ? (
+        {showEmptyState ? (
           <div className="text-center text-gray-400 mt-8">
             <div className="text-6xl mb-4">💬</div>
             <p>Start a private conversation</p>
@@ -153,6 +158,7 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
             placeholder={`Type a private message...`}
             onKeyPress={handlePrivateKeyPress}
             className="flex-1 bg-gray-700/50 border border-gray-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-transparent"
+            disabled={isSendingPrivate}
           />
           <button
             onClick={sendPrivateMessage}

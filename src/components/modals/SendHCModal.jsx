@@ -14,13 +14,10 @@ const SendHCModal = ({ user, onClose }) => {
     hash: txHash,
   });
 
-  // DODANE: Wykrywanie sieci
   const { currentNetwork, isCelo, isBase, tokenSymbol, networkConfig } = useNetwork();
 
-  // DODANE: Adres tokena HUB na Base
   const HUB_TOKEN_ADDRESS_BASE = "0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E";
 
-  // DODANE: Standardowe ABI ERC-20 dla transferu
   const ERC20_ABI = [
     {
       "constant": false,
@@ -74,16 +71,13 @@ const SendHCModal = ({ user, onClose }) => {
         network: currentNetwork
       });
 
-      // DODANE: Różne kontrakty w zależności od sieci
       let contractAddress;
       let contractAbi;
 
       if (isCelo) {
-        // Celo: używamy kontraktu chat (który jest tokenem HC)
         contractAddress = CONTRACT_ADDRESSES.celo;
         contractAbi = CONTRACT_ABIS.celo;
       } else if (isBase) {
-        // Base: używamy osobnego kontraktu tokena HUB
         contractAddress = HUB_TOKEN_ADDRESS_BASE;
         contractAbi = ERC20_ABI;
       }
@@ -112,7 +106,6 @@ const SendHCModal = ({ user, onClose }) => {
     setSendAmount(amount);
   };
 
-  // DODANE: Dynamiczny tekst w zależności od sieci
   const getExplorerUrl = () => {
     return `${networkConfig.explorer}/tx/${txHash}`;
   };
@@ -160,7 +153,7 @@ const SendHCModal = ({ user, onClose }) => {
           <div className="text-6xl mb-4">🎉</div>
           <h2 className="text-2xl font-bold text-cyan-400 mb-2">{`${tokenSymbol} Sent Successfully!`}</h2>
           <p className="text-gray-400 mb-4">
-            {`You sent ${sendAmount} ${tokenSymbol} to ${user.nickname}`}
+            You sent {sendAmount} {tokenSymbol} to <strong>{user.nickname}</strong>
           </p>
           <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
             <p className="text-green-300 font-semibold">
@@ -189,18 +182,18 @@ const SendHCModal = ({ user, onClose }) => {
 
         <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mb-6 text-center">
           <p className="text-cyan-300 text-sm">
-            {`Sending to: <strong>${user.nickname}</strong>`}
+            Sending to: <strong>{user.nickname}</strong>
           </p>
           <p className="text-cyan-400 text-xs mt-1">
             {user.walletAddress?.slice(0, 8)}...{user.walletAddress?.slice(-6)}
           </p>
           <p className="text-cyan-300 text-xs mt-2">
-            {`Network: ${networkConfig.name}`}
+            Network: {networkConfig.name}
           </p>
         </div>
 
         <div className="mb-6">
-          <h3 className="text-cyan-400 font-semibold mb-3 text-center">{`Select amount:`}</h3>
+          <h3 className="text-cyan-400 font-semibold mb-3 text-center">Select amount:</h3>
           <div className="grid grid-cols-2 gap-3 mb-4">
             {presetAmounts.map((amount) => (
               <button
