@@ -115,9 +115,32 @@ export const useUsers = (address, currentUser) => {
           const unread = messages.filter(msg => {
             // Wiadomość od innego użytkownika
             const isFromOtherUser = msg.sender !== address.toLowerCase();
-            // Wiadomość jest nowsza niż ostatni przeczytany timestamp
-            const isUnread = !lastReadTimestamp || 
-              (msg.timestamp && msg.timestamp.toDate() > lastReadTimestamp.toDate());
+            
+            // Konwersja timestampa wiadomości do Date
+            let messageDate;
+            if (msg.timestamp && typeof msg.timestamp.toDate === 'function') {
+              messageDate = msg.timestamp.toDate();
+            } else if (msg.timestamp) {
+              messageDate = new Date(msg.timestamp);
+            } else {
+              messageDate = new Date(); // fallback
+            }
+            
+            // Konwersja lastReadTimestamp do Date
+            let lastReadDate = null;
+            if (lastReadTimestamp) {
+              if (typeof lastReadTimestamp.toDate === 'function') {
+                lastReadDate = lastReadTimestamp.toDate();
+              } else if (lastReadTimestamp.seconds) {
+                // Jeśli to obiekt Firestore Timestamp z seconds i nanoseconds
+                lastReadDate = new Date(lastReadTimestamp.seconds * 1000);
+              } else {
+                lastReadDate = new Date(lastReadTimestamp);
+              }
+            }
+            
+            // Wiadomość jest nieprzeczytana jeśli nie ma lastReadDate lub jest nowsza
+            const isUnread = !lastReadDate || messageDate > lastReadDate;
             
             return isFromOtherUser && isUnread;
           }).length;
@@ -154,7 +177,8 @@ export const useUsers = (address, currentUser) => {
     if (!chat) return;
     
     try {
-      const now = serverTimestamp();
+      // Użyj normalnego Date zamiast serverTimestamp() dla read status
+      const now = new Date();
       
       // Zaktualizuj read status w Firestore
       const readStatusRef = doc(db, 'user_read_status', address.toLowerCase());
@@ -163,8 +187,8 @@ export const useUsers = (address, currentUser) => {
         readStatus: {
           ...readStatus,
           [chat.id]: {
-            lastReadTimestamp: now,
-            lastReadAt: new Date().toISOString()
+            lastReadTimestamp: now.toISOString(), // Zapisujemy jako string ISO
+            lastReadAt: now.toISOString()
           }
         }
       }, { merge: true });
@@ -173,8 +197,8 @@ export const useUsers = (address, currentUser) => {
       setReadStatus(prev => ({
         ...prev,
         [chat.id]: {
-          lastReadTimestamp: now,
-          lastReadAt: new Date().toISOString()
+          lastReadTimestamp: now.toISOString(),
+          lastReadAt: now.toISOString()
         }
       }));
       

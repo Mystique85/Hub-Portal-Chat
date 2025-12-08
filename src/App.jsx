@@ -17,7 +17,7 @@ import ToastNotification from './components/modals/ToastNotification';
 import UserProfileModal from './components/modals/UserProfileModal';
 import LeaderboardModal from './components/modals/LeaderboardModal';
 import BaseLeaderboardModal from './components/modals/BaseLeaderboardModal';
-import SubscriptionModal from './components/modals/SubscriptionModal'; // DODAJEMY IMPORT
+import SubscriptionModal from './components/modals/SubscriptionModal';
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
@@ -37,7 +37,7 @@ function App() {
   const [selectedProfileUser, setSelectedProfileUser] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showBaseLeaderboard, setShowBaseLeaderboard] = useState(false);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false); // DODAJEMY STATE
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   
   const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
@@ -78,15 +78,15 @@ function App() {
     startPrivateChat,
     confirmPrivateChat,
     closeDMChat,
-    isStartingDM
+    isStartingDM,
+    isConfirming
   } = useChat(address, currentUser, allUsers);
 
-  // POPRAWIONE: Dodaj subscriptionInfo z useWeb3
   const { 
     balance, 
     remaining, 
     getOtherUserBalance, 
-    subscriptionInfo // DODAJEMY
+    subscriptionInfo
   } = useWeb3(address);
 
   const { checkAndDistributeRewards } = useSeasons();
@@ -96,12 +96,17 @@ function App() {
   const [selectedAvatar, setSelectedAvatar] = useState('🐶');
   const [toastNotification, setToastNotification] = useState(null);
 
-  // POPRAWIONE: Dodaj subscriptionInfo do userWithBalance
+  useEffect(() => {
+    if (showDMModal) {
+      setPrivateMessage('');
+    }
+  }, [showDMModal]);
+
   const userWithBalance = currentUser ? {
     ...currentUser,
     balance,
     remaining,
-    subscriptionInfo, // KLUCZOWE: DODAJEMY subscriptionInfo
+    subscriptionInfo,
     tokenSymbol,
     networkName,
     supportsDailyRewards,
@@ -149,7 +154,6 @@ function App() {
     setSelectedProfileUser(user);
   };
 
-  // DODANA FUNKCJA - Otwiera profil aktualnego użytkownika
   const handleShowMyProfile = () => {
     if (currentUser) {
       setSelectedProfileUser({
@@ -229,7 +233,6 @@ function App() {
         />
       )}
 
-      {/* DODAJEMY SubscriptionModal */}
       {showSubscriptionModal && (
         <SubscriptionModal
           isOpen={showSubscriptionModal}
@@ -346,7 +349,6 @@ function App() {
                     </div>
                   </div>
                   
-                  {/* DODAJEMY PRZYCISK SUBSCRIPTION DLA BASE */}
                   {isBase && (
                     <button 
                       onClick={() => setShowSubscriptionModal(true)}
@@ -428,7 +430,6 @@ function App() {
                     </div>
                   </div>
                   
-                  {/* DODAJEMY SUBSCRIPTION INFO DLA BASE */}
                   {isBase && userWithBalance?.subscriptionInfo && (
                     <div className="mb-3 p-3 bg-gray-700/30 rounded-lg">
                       <div className="text-center">
@@ -467,7 +468,6 @@ function App() {
         </div>
       ) : (
         <div className="flex h-screen relative z-10">
-          {/* DESKTOP SIDEBAR */}
           <Sidebar
             currentUser={userWithBalance}
             onlineUsers={onlineUsers}
@@ -553,6 +553,7 @@ function App() {
             setPrivateMessage('');
           }}
           isStartingDM={isStartingDM}
+          isConfirming={isConfirming}
         />
       )}
 
@@ -562,7 +563,7 @@ function App() {
           onClose={() => setSelectedProfileUser(null)}
           getOtherUserBalance={getOtherUserBalance}
           currentUser={userWithBalance}
-          onOpenSubscription={() => setShowSubscriptionModal(true)} // KLUCZOWA ZMIANA - DODAJEMY TEN PROP!
+          onOpenSubscription={() => setShowSubscriptionModal(true)}
         />
       )}
     </div>

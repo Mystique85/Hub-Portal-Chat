@@ -1,5 +1,5 @@
 // src/hooks/useChat.js
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   doc, 
   getDoc, 
@@ -12,7 +12,7 @@ import {
   onSnapshot,
   serverTimestamp
 } from 'firebase/firestore';
-import { useWriteContract } from 'wagmi';
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useNetwork } from './useNetwork';
 import { db } from '../config/firebase';
 import { CONTRACT_ADDRESSES, CONTRACT_ABIS } from '../utils/constants';
@@ -22,9 +22,23 @@ export const useChat = (address, currentUser, allUsers) => {
   const [showDMModal, setShowDMModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isStartingDM, setIsStartingDM] = useState(false);
+  const [pendingFirstMessage, setPendingFirstMessage] = useState(null);
   
-  const { writeContract } = useWriteContract();
-  const { currentNetwork, isCelo } = useNetwork(); // DODANE: Wykrywanie sieci
+  const { writeContract, data: transactionHash } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash: transactionHash,
+  });
+  
+  const { currentNetwork, isCelo } = useNetwork();
+
+  // Obsługa potwierdzenia transakcji dla pierwszej wiadomości
+  useEffect(() => {
+    if (isConfirmed && pendingFirstMessage && selectedUser) {
+      // Transakcja potwierdzona - teraz tworzymy chat
+      createPrivateChatAfterConfirmation(pendingFirstMessage);
+      setPendingFirstMessage(null);
+    }
+  }, [isConfirmed, pendingFirstMessage, selectedUser]);
 
   const startPrivateChat = async (user) => {
     const chatId = [address.toLowerCase(), user.walletAddress.toLowerCase()].sort().join('_');
@@ -33,6 +47,7 @@ export const useChat = (address, currentUser, allUsers) => {
       const chatDoc = await getDoc(doc(db, 'private_chats', chatId));
       
       if (chatDoc.exists()) {
+        // Chat już istnieje - otwórz go bez transakcji
         setActiveDMChat({
           id: chatId,
           user: user,
@@ -47,6 +62,7 @@ export const useChat = (address, currentUser, allUsers) => {
         });
         setShowDMModal(false);
       } else {
+        // Nowy chat - pokaż modal (pierwsza wiadomość wymaga transakcji)
         setSelectedUser(user);
         setShowDMModal(true);
       }
@@ -61,8 +77,15 @@ export const useChat = (address, currentUser, allUsers) => {
     if (!selectedUser || !privateMessage.trim()) return;
     
     setIsStartingDM(true);
+    
     try {
-      // DODANE: Użyj odpowiedniego kontraktu w zależności od sieci
+      // ZAPISZ dane wiadomości
+      setPendingFirstMessage({
+        content: privateMessage,
+        selectedUser: selectedUser
+      });
+      
+      // Wyślij transakcję na łańcuchu (tylko pierwsza wiadomość)
       writeContract({
         address: CONTRACT_ADDRESSES[currentNetwork],
         abi: CONTRACT_ABIS[currentNetwork],
@@ -70,58 +93,83 @@ export const useChat = (address, currentUser, allUsers) => {
         args: [`[PRIVATE] ${privateMessage}`],
       });
       
-      const chatId = [address.toLowerCase(), selectedUser.walletAddress.toLowerCase()].sort().join('_');
+      // NIE dodawaj jeszcze nic do Firestore!
+      // Czekamy na isConfirmed w useEffect
       
+    } catch (error) {
+      console.error('Failed to start private chat:', error);
+      alert('Failed to start private chat: ' + error.message);
+      setIsStartingDM(false);
+      setPendingFirstMessage(null);
+    }
+  };
+
+  const createPrivateChatAfterConfirmation = async (messageData) => {
+    try {
+      const { content, selectedUser: user } = messageData;
+      
+      if (!user || !currentUser || !address) return;
+      
+      const chatId = [address.toLowerCase(), user.walletAddress.toLowerCase()].sort().join('_');
+      
+      // Teraz dopiero tworzymy chat w Firestore (po potwierdzeniu transakcji)
       await setDoc(doc(db, 'private_chats', chatId), {
-        participants: [address.toLowerCase(), selectedUser.walletAddress.toLowerCase()],
+        participants: [address.toLowerCase(), user.walletAddress.toLowerCase()],
         participantNames: {
           [address.toLowerCase()]: currentUser.nickname,
-          [selectedUser.walletAddress.toLowerCase()]: selectedUser.nickname
+          [user.walletAddress.toLowerCase()]: user.nickname
         },
         participantAvatars: {
           [address.toLowerCase()]: currentUser.avatar,
-          [selectedUser.walletAddress.toLowerCase()]: selectedUser.avatar
+          [user.walletAddress.toLowerCase()]: user.avatar
         },
         createdAt: serverTimestamp(),
         lastMessage: serverTimestamp(),
-        lastMessageContent: privateMessage,
+        lastMessageContent: content,
         paidBy: address.toLowerCase(),
-        // DODANE: Zapisujemy sieć dla czatu
-        network: currentNetwork
+        network: currentNetwork,
+        transactionHash: transactionHash // Zapisz hash transakcji
       });
 
+      // Dodaj pierwszą wiadomość
       await addDoc(collection(db, 'private_chats', chatId, 'messages'), {
-        content: privateMessage,
+        content: content,
         sender: address.toLowerCase(),
         senderNickname: currentUser.nickname,
         senderAvatar: currentUser.avatar,
         timestamp: serverTimestamp(),
         isFirstMessage: true,
-        // DODANE: Sieć dla wiadomości
-        network: currentNetwork
+        network: currentNetwork,
+        transactionHash: transactionHash
       });
 
+      // Ustaw aktywny chat
       setActiveDMChat({
         id: chatId,
-        user: selectedUser,
+        user: user,
         participantNames: {
           [address.toLowerCase()]: currentUser.nickname,
-          [selectedUser.walletAddress.toLowerCase()]: selectedUser.nickname
+          [user.walletAddress.toLowerCase()]: user.nickname
         },
         participantAvatars: {
           [address.toLowerCase()]: currentUser.avatar,
-          [selectedUser.walletAddress.toLowerCase()]: selectedUser.avatar
+          [user.walletAddress.toLowerCase()]: user.avatar
         }
       });
 
+      // Zamknij modal
       setShowDMModal(false);
       setSelectedUser(null);
+      setIsStartingDM(false);
+      
+      console.log('✅ Private chat created after transaction confirmation');
       
     } catch (error) {
-      console.error('Failed to start private chat:', error);
-      alert('Failed to start private chat: ' + error.message);
-    } finally {
+      console.error('Failed to create chat after transaction:', error);
+      alert('Chat creation failed after transaction');
       setIsStartingDM(false);
+      setShowDMModal(false);
+      setSelectedUser(null);
     }
   };
 
@@ -137,6 +185,7 @@ export const useChat = (address, currentUser, allUsers) => {
     selectedUser,
     setSelectedUser,
     isStartingDM,
+    isConfirming,
     startPrivateChat,
     confirmPrivateChat,
     closeDMChat
