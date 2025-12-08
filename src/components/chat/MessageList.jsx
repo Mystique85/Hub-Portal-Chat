@@ -15,14 +15,14 @@ const MessageList = ({ messages, currentUser, onDeleteMessage, isMobile = false,
 
   return (
     <div className={`
-      w-full
+      w-full max-w-full
       ${isMobile 
         ? 'space-y-3 px-2'
         : 'space-y-4 px-6'
       }
     `}>
       {messages.map(msg => (
-        <div key={msg.id} data-message-id={msg.id}>
+        <div key={msg.id} data-message-id={msg.id} className="max-w-full">
           <MessageItem 
             msg={msg}
             currentUser={currentUser}

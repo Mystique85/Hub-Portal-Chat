@@ -203,7 +203,8 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
 
   return (
     <section className={`flex flex-col h-full min-h-0 ${isMobile ? 'p-2' : 'p-6'}`}>
-      <div className={`flex-1 min-h-0 overflow-y-auto ${isMobile ? 'mb-2' : 'mb-4'}`}>
+      {/* KONTENER WIADOMOŚCI - DODANO overflow-x-hidden */}
+      <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden ${isMobile ? 'mb-2' : 'mb-4'}`}>
         <MessageList 
           messages={messages}
           currentUser={currentUser}
@@ -219,10 +220,10 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
 
       {/* Wyświetl informację o odpowiedzi - ZMNIEJSZONA SZEROKOŚĆ Z UCIĘTYM CYTATEM */}
       {replyingTo && (
-        <div className="bg-cyan-500/20 border border-cyan-500/30 rounded-xl p-3 mb-3 flex items-center justify-between max-w-md">
+        <div className="bg-cyan-500/20 border border-cyan-500/30 rounded-xl p-3 mb-3 flex items-center justify-between max-w-full">
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <span className="text-cyan-400 text-lg flex-shrink-0">↶</span>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 overflow-hidden">
               <div className="text-cyan-400 text-sm font-medium truncate">
                 Replying to <strong>@{replyingTo.nickname}</strong>
               </div>
@@ -258,18 +259,18 @@ const PublicChat = ({ currentUser, onUpdateLastSeen, onDeleteMessage, isMobile =
           disabled={!newMessage.trim() || isSending}
           className={`bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold hover:from-cyan-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0 ${
             isMobile 
-              ? 'px-3 py-2 rounded-lg text-sm min-h-[40px]' 
+              ? 'px-3 py-2 rounded-lg text-xs min-h-[36px]' 
               : 'px-6 py-3 rounded-xl'
           }`}
         >
           {isSending ? (
             <div className="flex items-center">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
               {isMobile ? '' : 'Sending...'}
             </div>
           ) : isConfirming ? (
             <div className="flex items-center">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
               {isMobile ? '' : 'Confirming...'}
             </div>
           ) : (
