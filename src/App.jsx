@@ -564,6 +564,7 @@ function App() {
           }}
           isStartingDM={isStartingDM}
           isConfirming={isConfirming}
+          isMobile={isMobile} // ← DODANE isMobile prop!
         />
       )}
 
