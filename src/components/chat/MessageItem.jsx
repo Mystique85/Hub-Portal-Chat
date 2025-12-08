@@ -63,8 +63,11 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-cyan-400 hover:text-cyan-300 underline font-medium"
+            className={`text-cyan-400 hover:text-cyan-300 underline font-medium break-words ${
+              isMobile ? 'text-xs' : ''
+            }`}
             onClick={(e) => e.stopPropagation()}
+            style={{ wordBreak: 'break-word' }}
           >
             {part}
           </a>
@@ -95,17 +98,15 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
     // Sprawdzamy gdzie jest więcej miejsca - na górze czy na dole
     const spaceAbove = rect.top;
     const spaceBelow = viewportHeight - rect.bottom;
-    const menuHeight = 200; // Przybliżona wysokość menu
+    const menuHeight = isMobile ? 160 : 200;
     
     let direction = 'down';
-    let yPosition = rect.bottom + window.scrollY + 5; // domyślnie w dół
+    let yPosition = rect.bottom + window.scrollY + 5;
     
-    // Jeśli jest więcej miejsca na górze niż potrzeba dla menu, pokazujemy do góry
     if (spaceAbove > menuHeight && spaceAbove > spaceBelow) {
       direction = 'up';
-      yPosition = rect.top + window.scrollY - 5; // pokazujemy nad elementem
+      yPosition = rect.top + window.scrollY - 5;
     }
-    // Jeśli jest mało miejsca na dole, a więcej na górze - też pokazujemy do góry
     else if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
       direction = 'up';
       yPosition = rect.top + window.scrollY - 5;
@@ -153,27 +154,35 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
     <div className={`
       bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 hover:border-cyan-500/50 transition-all group relative
       ${isMobile 
-        ? 'rounded-xl p-3'
+        ? 'rounded-lg p-2.5 max-w-full'
         : 'rounded-2xl p-4'
       }
     `}>
       {canDelete && (
         <div className={`absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 ${
-          isMobile ? '-top-1 -right-1' : '-top-2 -right-2'
+          isMobile ? '-top-0.5 -right-0.5' : '-top-2 -right-2'
         }`}>
           {showDeleteConfirm ? (
-            <div className="bg-red-500/90 backdrop-blur-sm border border-red-400 rounded-xl p-2 shadow-lg flex items-center gap-2 animate-in slide-in-from-top duration-200">
-              <span className="text-white text-xs font-medium">Delete?</span>
+            <div className={`bg-red-500/90 backdrop-blur-sm border border-red-400 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-top duration-200 ${
+              isMobile ? 'p-1.5' : 'p-2 rounded-xl'
+            }`}>
+              <span className={`text-white font-medium ${
+                isMobile ? 'text-[10px]' : 'text-xs'
+              }`}>Delete?</span>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="bg-white text-red-600 text-xs px-2 py-1 rounded hover:bg-gray-100 disabled:opacity-50 transition-all"
+                className={`bg-white text-red-600 hover:bg-gray-100 disabled:opacity-50 transition-all ${
+                  isMobile ? 'text-[10px] px-1.5 py-0.5 rounded' : 'text-xs px-2 py-1 rounded'
+                }`}
               >
                 {isDeleting ? '...' : 'Yes'}
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="bg-gray-600 text-white text-xs px-2 py-1 rounded hover:bg-gray-500 transition-all"
+                className={`bg-gray-600 text-white hover:bg-gray-500 transition-all ${
+                  isMobile ? 'text-[10px] px-1.5 py-0.5 rounded' : 'text-xs px-2 py-1 rounded'
+                }`}
               >
                 No
               </button>
@@ -181,8 +190,8 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
           ) : (
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className={`bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center text-xs transition-all hover:scale-110 shadow-lg ${
-                isMobile ? 'w-5 h-5' : 'w-6 h-6'
+              className={`bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all ${
+                isMobile ? 'w-4 h-4 text-[10px]' : 'w-6 h-6 text-xs'
               }`}
               title="Delete message"
             >
@@ -197,7 +206,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
           className={`
             rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center font-bold cursor-pointer transition-all relative
             ${isMobile 
-              ? 'w-6 h-6 text-xs hover:scale-110'
+              ? 'w-5 h-5 text-[10px] hover:scale-110'
               : `w-8 h-8 text-sm ${isHovered ? 'scale-110 shadow-lg ring-2 ring-cyan-400/50' : 'hover:scale-110'}`
             }
           `}
@@ -207,7 +216,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
           title={isMobile ? "Tap for options" : "Click for options"}
         >
           {msg.avatar}
-          {/* Indicator dot for desktop */}
           {!isMobile && isHovered && (
             <div className="absolute -top-1 -right-1 w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
           )}
@@ -219,7 +227,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
               className={`
                 cursor-pointer transition-all duration-200 relative
                 ${isMobile 
-                  ? 'text-white text-sm hover:text-cyan-300' 
+                  ? 'text-white text-xs hover:text-cyan-300' 
                   : `text-white ${isHovered ? 'text-cyan-300 underline' : 'hover:text-cyan-300 hover:underline'}`
                 }
               `}
@@ -229,7 +237,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
               title={isMobile ? "Tap for options" : "Click for options"}
             >
               {msg.nickname}
-              {/* Visual indicator */}
               <span className={`
                 transition-opacity duration-200
                 ${isMobile 
@@ -240,13 +247,17 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
             </strong>
             
             {isAdmin && (
-              <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium">
+              <span className={`bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-medium ${
+                isMobile 
+                  ? 'text-[8px] px-1 py-0.5' 
+                  : 'text-[10px] px-1.5 py-0.5'
+              }`}>
                 ADMIN
               </span>
             )}
           </div>
           
-          <span className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+          <span className={`text-gray-400 ${isMobile ? 'text-[10px]' : 'text-sm'}`}>
             {formatMessageTime(msg.timestamp)}
           </span>
         </div>
@@ -255,22 +266,33 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
       {/* REPLY QUOTE - CLICKABLE */}
       {msg.replyTo && (
         <div 
-          className="bg-gray-700/30 border-l-2 border-cyan-500 pl-3 py-2 mb-3 rounded-r-lg cursor-pointer hover:bg-gray-700/50 transition-all group/quote"
+          className={`bg-gray-700/30 border-l-2 border-cyan-500 rounded-r-lg cursor-pointer hover:bg-gray-700/50 transition-all group/quote mb-3 ${
+            isMobile ? 'pl-2 py-1.5' : 'pl-3 py-2'
+          }`}
           onClick={handleQuoteClick}
         >
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-cyan-400 text-sm">↶</span>
-            <span className="text-cyan-400 text-sm font-medium group-hover/quote:text-cyan-300 transition-colors">
+            <span className={`text-cyan-400 ${
+              isMobile ? 'text-xs' : 'text-sm'
+            }`}>↶</span>
+            <span className={`text-cyan-400 font-medium group-hover/quote:text-cyan-300 transition-colors ${
+              isMobile ? 'text-xs' : 'text-sm'
+            }`}>
               Replying to @{msg.replyTo.nickname}
             </span>
           </div>
-          <div className="text-gray-300 text-sm group-hover/quote:text-white transition-colors">
+          <div className={`text-gray-300 group-hover/quote:text-white transition-colors ${
+            isMobile ? 'text-xs' : 'text-sm'
+          }`}>
             {msg.replyTo.content}
           </div>
         </div>
       )}
       
-      <div className={`${isMobile ? 'text-white text-sm mb-2' : 'text-white mb-2'} break-all overflow-hidden`}>
+      {/* GŁÓWNA TREŚĆ WIADOMOŚCI - POPRAWIONE ZAWIJANIE */}
+      <div className={`text-white break-words overflow-x-hidden mb-2 max-w-full ${
+        isMobile ? 'text-xs' : 'text-sm'
+      }`}>
         {renderedContent}
       </div>
       
@@ -290,7 +312,11 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
             onClick={() => setShowSimpleMenu(false)}
           />
           <div 
-            className="fixed bg-white border border-gray-200 rounded-xl p-2 shadow-2xl z-[9999] min-w-[180px]"
+            className={`fixed bg-white border border-gray-200 rounded-lg shadow-2xl z-[9999] ${
+              isMobile 
+                ? 'min-w-[160px] p-1.5' 
+                : 'min-w-[180px] p-2 rounded-xl'
+            }`}
             style={{
               left: menuPosition.x + 'px',
               top: menuPosition.y + 'px',
@@ -299,26 +325,44 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
           >
             <button 
               onClick={() => { setShowSimpleMenu(false); onReply(msg); }}
-              className="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-green-50 hover:text-green-700 group/button"
+              className={`w-full text-left rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-green-50 hover:text-green-700 group/button ${
+                isMobile ? 'px-3 py-2' : 'px-4 py-3'
+              }`}
             >
-              <span className="text-green-500 text-lg transition-transform duration-150 group-hover/button:scale-110">↶</span>
-              <span className="font-medium">Reply</span>
+              <span className={`text-green-500 transition-transform duration-150 group-hover/button:scale-110 ${
+                isMobile ? 'text-base' : 'text-lg'
+              }`}>↶</span>
+              <span className={`font-medium ${
+                isMobile ? 'text-xs' : ''
+              }`}>Reply</span>
             </button>
             
             <button 
               onClick={() => { setShowSimpleMenu(false); onPrivateMessage(msg); }}
-              className="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-cyan-50 hover:text-cyan-700 group/button"
+              className={`w-full text-left rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-cyan-50 hover:text-cyan-700 group/button ${
+                isMobile ? 'px-3 py-2' : 'px-4 py-3'
+              }`}
             >
-              <span className="text-cyan-500 text-lg transition-transform duration-150 group-hover/button:scale-110">💬</span>
-              <span className="font-medium">Private Message</span>
+              <span className={`text-cyan-500 transition-transform duration-150 group-hover/button:scale-110 ${
+                isMobile ? 'text-base' : 'text-lg'
+              }`}>💬</span>
+              <span className={`font-medium ${
+                isMobile ? 'text-xs' : ''
+              }`}>Private Message</span>
             </button>
             
             <button 
               onClick={handleReact}
-              className="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-yellow-50 hover:text-yellow-700 group/button"
+              className={`w-full text-left rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-yellow-50 hover:text-yellow-700 group/button ${
+                isMobile ? 'px-3 py-2' : 'px-4 py-3'
+              }`}
             >
-              <span className="text-yellow-500 text-lg transition-transform duration-150 group-hover/button:scale-110">👍</span>
-              <span className="font-medium">Add Reaction</span>
+              <span className={`text-yellow-500 transition-transform duration-150 group-hover/button:scale-110 ${
+                isMobile ? 'text-base' : 'text-lg'
+              }`}>👍</span>
+              <span className={`font-medium ${
+                isMobile ? 'text-xs' : ''
+              }`}>Add Reaction</span>
             </button>
             
             <button 
@@ -328,10 +372,16 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
                   onViewProfile(msg);
                 }
               }}
-              className="w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-purple-50 hover:text-purple-700 group/button"
+              className={`w-full text-left rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-purple-50 hover:text-purple-700 group/button ${
+                isMobile ? 'px-3 py-2' : 'px-4 py-3'
+              }`}
             >
-              <span className="text-purple-500 text-lg transition-transform duration-150 group-hover/button:scale-110">👁️</span>
-              <span className="font-medium">View Profile</span>
+              <span className={`text-purple-500 transition-transform duration-150 group-hover/button:scale-110 ${
+                isMobile ? 'text-base' : 'text-lg'
+              }`}>👁️</span>
+              <span className={`font-medium ${
+                isMobile ? 'text-xs' : ''
+              }`}>View Profile</span>
             </button>
           </div>
         </>,
@@ -342,6 +392,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         <ReactionPicker 
           onReactionSelect={handleReactionSelect}
           onClose={() => setShowReactionPicker(false)}
+          isMobile={isMobile}
         />
       )}
     </div>
