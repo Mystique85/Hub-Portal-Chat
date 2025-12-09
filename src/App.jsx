@@ -18,6 +18,7 @@ import UserProfileModal from './components/modals/UserProfileModal';
 import LeaderboardModal from './components/modals/LeaderboardModal';
 import BaseLeaderboardModal from './components/modals/BaseLeaderboardModal';
 import SubscriptionModal from './components/modals/SubscriptionModal';
+import StakingModal from './components/modals/StakingModal'; // DODANO IMPORT
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
@@ -38,6 +39,7 @@ function App() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showBaseLeaderboard, setShowBaseLeaderboard] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [showStakingModal, setShowStakingModal] = useState(false); // DODANO STAN
   
   const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
@@ -138,6 +140,15 @@ function App() {
       checkAndDistributeRewards();
     }
   }, [isCelo]);
+
+  // HANDLER DLA STAKING MODAL - DODANO
+  const handleShowStakingModal = () => {
+    setShowStakingModal(true);
+  };
+
+  const handleCloseStakingModal = () => {
+    setShowStakingModal(false);
+  };
 
   const openChatFromToast = async (userId) => {
     const user = allUsers.find(u => u.walletAddress === userId);
@@ -249,6 +260,16 @@ function App() {
         />
       )}
 
+      {/* DODANO STAKING MODAL */}
+      {showStakingModal && isBase && (
+        <StakingModal
+          isOpen={showStakingModal}
+          onClose={handleCloseStakingModal}
+          currentUser={userWithBalance}
+          isMobile={isMobile}
+        />
+      )}
+
       {toastNotification && (
         <ToastNotification 
           notification={toastNotification}
@@ -282,6 +303,7 @@ function App() {
                 setShowSubscriptionModal(true);
               }
             }}
+            onShowStakingModal={handleShowStakingModal} // DODANO PROP
           />
           
           <div className="flex-1 min-h-0 bg-gray-900/50 overflow-hidden">
@@ -511,6 +533,7 @@ function App() {
                   setShowSubscriptionModal(true);
                 }
               }}
+              onShowStakingModal={handleShowStakingModal} // DODANO PROP
             />
             
             <div className="flex-1 flex min-h-0">
