@@ -389,11 +389,17 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const formatNumber = (num) => {
     if (!num || isNaN(num)) return '0';
     const n = parseFloat(num);
+    
+    // Dodajemy obsługę miliardów (B)
+    if (n >= 1000000000) return (n / 1000000000).toFixed(2) + 'B';
     if (n >= 1000000) return (n / 1000000).toFixed(2) + 'M';
     if (n >= 1000) return (n / 1000).toFixed(2) + 'K';
+    
+    // Dla małych liczb z długimi miejscami dziesiętnymi
     if (n.toString().includes('.') && n.toString().split('.')[1].length > 4) {
       return n.toFixed(4);
     }
+    
     return n.toString();
   };
 
@@ -770,8 +776,9 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-xl p-4">
                 <h3 className="text-cyan-400 font-bold mb-2">💡 Fund the Reward Pool</h3>
                 <p className="text-gray-300 text-sm">
-                  Add HUB tokens to the staking reward pool. All funded tokens will be distributed as rewards to stakers.
-                  This helps maintain a healthy reward system for everyone.
+                  You can contribute HUB tokens to the pool, from which rewards are distributed to stakers.
+                  This is 100% a support action — it does not generate any profits or returns for you.
+                  All contributed tokens go directly to the stakers.
                 </p>
               </div>
               
