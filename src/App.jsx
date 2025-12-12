@@ -18,7 +18,7 @@ import UserProfileModal from './components/modals/UserProfileModal';
 import LeaderboardModal from './components/modals/LeaderboardModal';
 import BaseLeaderboardModal from './components/modals/BaseLeaderboardModal';
 import SubscriptionModal from './components/modals/SubscriptionModal';
-import StakingModal from './components/modals/StakingModal'; // DODANO IMPORT
+import StakingModal from './components/modals/StakingModal';
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
@@ -33,13 +33,12 @@ function App() {
   const { isConnected, address } = useAccount();
   const [isMobile, setIsMobile] = useState(false);
   const [mobileView, setMobileView] = useState('public');
-  const [showUserStats, setShowUserStats] = useState(false);
   const [activeTab, setActiveTab] = useState('online');
   const [selectedProfileUser, setSelectedProfileUser] = useState(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showBaseLeaderboard, setShowBaseLeaderboard] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
-  const [showStakingModal, setShowStakingModal] = useState(false); // DODANO STAN
+  const [showStakingModal, setShowStakingModal] = useState(false);
   
   const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
@@ -47,8 +46,7 @@ function App() {
     (async () => {
       try {
         await sdk.actions.ready();
-      } catch (error) {
-      }
+      } catch (error) {}
     })();
   }, []);
 
@@ -141,7 +139,6 @@ function App() {
     }
   }, [isCelo]);
 
-  // HANDLER DLA STAKING MODAL - DODANO
   const handleShowStakingModal = () => {
     setShowStakingModal(true);
   };
@@ -260,7 +257,6 @@ function App() {
         />
       )}
 
-      {/* DODANO STAKING MODAL */}
       {showStakingModal && isBase && (
         <StakingModal
           isOpen={showStakingModal}
@@ -286,7 +282,6 @@ function App() {
             totalUnreadCount={totalUnreadCount}
             mobileView={mobileView}
             onMobileViewChange={setMobileView}
-            onUserStatsClick={() => setShowUserStats(true)}
             activeDMChat={activeDMChat}
             onShowLeaderboard={() => {
               if (isCelo) {
@@ -303,7 +298,7 @@ function App() {
                 setShowSubscriptionModal(true);
               }
             }}
-            onShowStakingModal={handleShowStakingModal} // DODANO PROP
+            onShowStakingModal={handleShowStakingModal}
           />
           
           <div className="flex-1 min-h-0 bg-gray-900/50 overflow-hidden">
@@ -347,67 +342,25 @@ function App() {
               />
             )}
 
-            {mobileView === 'me' && (
+            {mobileView === 'me' && currentUser && (
               <div className="h-full overflow-y-auto p-4">
-                <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl p-6 max-w-md mx-auto">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-16 h-16 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-2xl">
-                      {currentUser?.avatar}
-                    </div>
-                    <div>
-                      <div className="text-white font-semibold text-lg">{currentUser?.nickname}</div>
-                      <div className="text-gray-400 text-sm">{address?.slice(0, 8)}...{address?.slice(-6)}</div>
-                      <div className="text-cyan-400 text-xs mt-1">
-                        🌐 {networkName}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gray-700/50 rounded-xl p-4 text-center">
-                      <div className="text-cyan-400 font-bold text-xl">{balance || '0'}</div>
-                      <div className="text-gray-400 text-sm">{tokenSymbol} Balance</div>
-                    </div>
-                    <div className="bg-gray-700/50 rounded-xl p-4 text-center">
-                      <div className="text-cyan-400 font-bold text-xl">
-                        {isBase ? '∞' : `${remaining || '0'}/10`}
-                      </div>
-                      <div className="text-gray-400 text-sm">
-                        {isBase ? 'Unlimited Rewards' : 'Rewards Left'}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {isBase && (
-                    <button 
-                      onClick={() => setShowSubscriptionModal(true)}
-                      className="w-full mb-3 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all"
-                    >
-                      <span>🎫</span>
-                      Manage Subscription
-                    </button>
-                  )}
-                  
-                  <div className="space-y-3">
-                    {isCelo && (
-                      <button 
-                        className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
-                      >
-                        💝 Support Project
-                      </button>
-                    )}
-                    <button 
-                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
-                    >
-                      🌐 {networkName} Ecosystem Hub
-                    </button>
-                    <button 
-                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
-                    >
-                      ❓ Quick Guide
-                    </button>
-                  </div>
-                </div>
+                <UserProfileModal 
+                  user={{
+                    walletAddress: currentUser.walletAddress,
+                    nickname: currentUser.nickname || 'Anonymous',
+                    avatar: currentUser.avatar || '👤'
+                  }}
+                  onClose={() => setMobileView('public')}
+                  getOtherUserBalance={getOtherUserBalance}
+                  currentUser={userWithBalance}
+                  onOpenSubscription={() => {
+                    if (isBase) {
+                      setShowSubscriptionModal(true);
+                      setMobileView('public');
+                    }
+                  }}
+                  isMobile={true}
+                />
               </div>
             )}
           </div>
@@ -421,82 +374,6 @@ function App() {
             onStartPrivateChat={handleStartPrivateChat}
             markAsRead={markAsRead}
           />
-
-          {showUserStats && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-              <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl w-full max-w-sm">
-                <div className="flex items-center justify-between p-4 border-b border-gray-700">
-                  <h3 className="text-lg font-bold text-cyan-400">My Profile</h3>
-                  <button 
-                    onClick={() => setShowUserStats(false)}
-                    className="text-gray-400 hover:text-white"
-                  >
-                    ✕
-                  </button>
-                </div>
-                
-                <div className="p-4">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-xl">
-                      {currentUser?.avatar}
-                    </div>
-                    <div>
-                      <div className="text-white font-semibold">{currentUser?.nickname}</div>
-                      <div className="text-gray-400 text-sm">{address?.slice(0, 8)}...{address?.slice(-6)}</div>
-                      <div className="text-cyan-400 text-xs">🌐 {networkName}</div>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-gray-700/50 rounded-xl p-3 text-center">
-                      <div className="text-cyan-400 font-bold">{balance || '0'}</div>
-                      <div className="text-gray-400 text-xs">{tokenSymbol} Balance</div>
-                    </div>
-                    <div className="bg-gray-700/50 rounded-xl p-3 text-center">
-                      <div className="text-cyan-400 font-bold">
-                        {isBase ? '∞' : `${remaining || '0'}/10`}
-                      </div>
-                      <div className="text-gray-400 text-xs">
-                        {isBase ? 'Unlimited' : 'Rewards Left'}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {isBase && userWithBalance?.subscriptionInfo && (
-                    <div className="mb-3 p-3 bg-gray-700/30 rounded-lg">
-                      <div className="text-center">
-                        <div className="text-white font-medium text-sm">
-                          Subscription: {userWithBalance.subscriptionInfo.whitelisted ? 'Whitelisted' : 
-                            userWithBalance.subscriptionInfo.tier === 2 ? 'Premium' : 
-                            userWithBalance.subscriptionInfo.tier === 1 ? 'Basic' : 'Free'}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="space-y-2">
-                    {isCelo && (
-                      <button 
-                        className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
-                      >
-                        💝 Support Project
-                      </button>
-                    )}
-                    <button 
-                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
-                    >
-                      🌐 {networkName} Ecosystem Hub
-                    </button>
-                    <button 
-                      className="w-full flex items-center gap-2 p-3 bg-gray-700/50 rounded-xl hover:bg-gray-700 transition-all"
-                    >
-                      ❓ Quick Guide
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       ) : (
         <div className="flex h-screen relative z-10">
@@ -533,7 +410,7 @@ function App() {
                   setShowSubscriptionModal(true);
                 }
               }}
-              onShowStakingModal={handleShowStakingModal} // DODANO PROP
+              onShowStakingModal={handleShowStakingModal}
             />
             
             <div className="flex-1 flex min-h-0">
