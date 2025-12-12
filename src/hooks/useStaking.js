@@ -60,10 +60,14 @@ export const useStaking = (address) => {
   const [userStakesList, setUserStakesList] = useState([]);
   const [loadingUserStakesList, setLoadingUserStakesList] = useState(false);
   
-  // Nowe stany dla badge
+  // Nowe stany dla 3-poziomowego badge systemu
   const [badgeEligibility, setBadgeEligibility] = useState({ 
-    isEligible: false, 
-    eligibleStake: null 
+    bronze: { eligible: false, total: 0, progress: 0, needed: 20000 },
+    silver: { eligible: false, total: 0, progress: 0, needed: 50000 },
+    gold: { eligible: false, total: 0, progress: 0, needed: 100000 },
+    totalStaked12M: 0,
+    stakesCount: 0,
+    highestTier: null
   });
   const [userBadgeInfo, setUserBadgeInfo] = useState(null);
 
@@ -202,53 +206,125 @@ export const useStaking = (address) => {
     query: { enabled: isBase, staleTime: 60000 }
   });
 
-  // Funkcja do sprawdzania kwalifikacji do badge
+  // Funkcja do sprawdzania kwalifikacji do 3-poziomowego badge systemu
   const checkBadgeEligibility = useCallback(() => {
     if (!userStakesList || !address) {
-      return { isEligible: false, eligibleStake: null };
+      return { 
+        bronze: { eligible: false, total: 0, progress: 0, needed: 20000 },
+        silver: { eligible: false, total: 0, progress: 0, needed: 50000 },
+        gold: { eligible: false, total: 0, progress: 0, needed: 100000 },
+        totalStaked12M: 0,
+        stakesCount: 0,
+        highestTier: null
+      };
     }
     
-    // Szukaj aktywnego stake 12m (tierId = 3) z min. 50k HUB
-    const eligibleStake = userStakesList.find(stake => 
-      stake.tierId === 3 && // 12 miesięcy
-      stake.active &&
-      parseFloat(stake.amount) >= 50000
+    // ZBIERZ WSZYSTKIE aktywne stakes 12m
+    const twelveMonthStakes = userStakesList.filter(stake => 
+      stake.tierId === 3 && stake.active
     );
     
-    const isEligible = !!eligibleStake;
-    return { isEligible, eligibleStake };
+    // OBLICZ SUMĘ wszystkich stakes 12m
+    const totalStaked12M = twelveMonthStakes.reduce(
+      (sum, stake) => sum + parseFloat(stake.amount), 
+      0
+    );
+    
+    const stakesCount = twelveMonthStakes.length;
+    
+    // Sprawdź kwalifikację dla każdego poziomu
+    const bronzeEligible = totalStaked12M >= 20000;
+    const silverEligible = totalStaked12M >= 50000;
+    const goldEligible = totalStaked12M >= 100000;
+    
+    // Oblicz progress do każdego poziomu
+    const bronzeProgress = Math.min(100, (totalStaked12M / 20000) * 100);
+    const silverProgress = totalStaked12M >= 20000 ? Math.min(100, ((totalStaked12M - 20000) / 30000) * 100) : 0;
+    const goldProgress = totalStaked12M >= 50000 ? Math.min(100, ((totalStaked12M - 50000) / 50000) * 100) : 0;
+    
+    // Określ najwyższy osiągnięty tier
+    let highestTier = null;
+    if (goldEligible) highestTier = 'gold';
+    else if (silverEligible) highestTier = 'silver';
+    else if (bronzeEligible) highestTier = 'bronze';
+    
+    return { 
+      bronze: { 
+        eligible: bronzeEligible, 
+        total: totalStaked12M, 
+        progress: bronzeProgress,
+        needed: 20000
+      },
+      silver: { 
+        eligible: silverEligible, 
+        total: totalStaked12M, 
+        progress: silverProgress,
+        needed: 50000
+      },
+      gold: { 
+        eligible: goldEligible, 
+        total: totalStaked12M, 
+        progress: goldProgress,
+        needed: 100000
+      },
+      totalStaked12M,
+      stakesCount,
+      highestTier
+    };
   }, [userStakesList, address]);
 
-  // Funkcja do claimowania badge
-  const claimStakeBadge = useCallback(async () => {
+  // Funkcja do claimowania badge (wielopoziomowo)
+  const claimStakeBadge = useCallback(async (tier) => {
     if (!address) {
       throw new Error('No wallet connected');
     }
     
-    const { isEligible, eligibleStake } = checkBadgeEligibility();
-    if (!isEligible || !eligibleStake) {
-      throw new Error('Not eligible for Stake Badge');
+    const eligibility = checkBadgeEligibility();
+    
+    // Sprawdź czy użytkownik kwalifikuje się do wybranego tieru
+    if (tier === 'bronze' && !eligibility.bronze.eligible) {
+      throw new Error('Not eligible for Bronze Badge');
+    }
+    if (tier === 'silver' && !eligibility.silver.eligible) {
+      throw new Error('Not eligible for Silver Badge');
+    }
+    if (tier === 'gold' && !eligibility.gold.eligible) {
+      throw new Error('Not eligible for Gold Badge');
     }
     
     // Zapisz w localStorage
     const badgeData = {
       walletAddress: address,
       claimedAt: new Date().toISOString(),
-      stakeIndex: eligibleStake.index,
-      stakeAmount: eligibleStake.amount,
-      stakeDuration: '12 months',
-      badgeType: 'stake_holder_50k',
-      stakeStart: eligibleStake.start,
-      stakeFinish: eligibleStake.finish
+      claimedTier: tier,
+      totalStaked12M: eligibility.totalStaked12M,
+      stakesCount: eligibility.stakesCount,
+      badgeTiers: {
+        bronze: eligibility.bronze.eligible,
+        silver: eligibility.silver.eligible,
+        gold: eligibility.gold.eligible
+      }
     };
     
-    // Zapisz do localStorage
+    // Pobierz istniejące badge
     const existingBadges = JSON.parse(localStorage.getItem('hub_stake_badges') || '{}');
-    existingBadges[address.toLowerCase()] = badgeData;
+    const userBadges = existingBadges[address.toLowerCase()] || { tiers: {} };
+    
+    // Zaktualizuj claimnięte tiery
+    userBadges.tiers = userBadges.tiers || {};
+    userBadges.tiers[tier] = {
+      claimedAt: new Date().toISOString(),
+      totalStaked: eligibility.totalStaked12M
+    };
+    userBadges.lastUpdated = new Date().toISOString();
+    userBadges.highestTier = tier;
+    
+    // Zapisz do localStorage
+    existingBadges[address.toLowerCase()] = userBadges;
     localStorage.setItem('hub_stake_badges', JSON.stringify(existingBadges));
     
     // Aktualizuj stan
-    setUserBadgeInfo(badgeData);
+    setUserBadgeInfo(userBadges);
     
     return badgeData;
   }, [address, checkBadgeEligibility]);
@@ -338,7 +414,7 @@ export const useStaking = (address) => {
 
   // Aktualizacja kwalifikacji do badge i sprawdzenie czy już ma badge
   useEffect(() => {
-    if (address) {
+    if (address && userStakesList) {
       const eligibility = checkBadgeEligibility();
       setBadgeEligibility(eligibility);
       
@@ -346,7 +422,14 @@ export const useStaking = (address) => {
       const badgeInfo = getUserBadgeInfo();
       setUserBadgeInfo(badgeInfo);
     } else {
-      setBadgeEligibility({ isEligible: false, eligibleStake: null });
+      setBadgeEligibility({ 
+        bronze: { eligible: false, total: 0, progress: 0, needed: 20000 },
+        silver: { eligible: false, total: 0, progress: 0, needed: 50000 },
+        gold: { eligible: false, total: 0, progress: 0, needed: 100000 },
+        totalStaked12M: 0,
+        stakesCount: 0,
+        highestTier: null
+      });
       setUserBadgeInfo(null);
     }
   }, [address, userStakesList, checkBadgeEligibility, getUserBadgeInfo]);
@@ -357,7 +440,14 @@ export const useStaking = (address) => {
       setLoadingUserStakesList(true);
     } else {
       setUserStakesList([]);
-      setBadgeEligibility({ isEligible: false, eligibleStake: null });
+      setBadgeEligibility({ 
+        bronze: { eligible: false, total: 0, progress: 0, needed: 20000 },
+        silver: { eligible: false, total: 0, progress: 0, needed: 50000 },
+        gold: { eligible: false, total: 0, progress: 0, needed: 100000 },
+        totalStaked12M: 0,
+        stakesCount: 0,
+        highestTier: null
+      });
       setUserBadgeInfo(null);
     }
   }, [address, isBase]);
@@ -535,10 +625,10 @@ export const useStaking = (address) => {
     fundPool,
     refetchAll,
     
-    // Badge related
-    badgeEligibility,        // { isEligible: bool, eligibleStake: object }
-    userBadgeInfo,           // Dane claimniętego badge
-    claimStakeBadge,         // Funkcja do claimowania badge
+    // Badge related (3-tier system)
+    badgeEligibility,        // 3-poziomowy system: bronze, silver, gold
+    userBadgeInfo,           // Dane claimniętych badge'ów
+    claimStakeBadge,         // Funkcja do claimowania badge (przyjmuje tier: 'bronze'|'silver'|'gold')
     getUserBadgeInfo,        // Funkcja pobierająca informacje o badge
     checkBadgeEligibility,   // Funkcja sprawdzająca kwalifikację
     

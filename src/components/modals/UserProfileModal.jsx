@@ -145,7 +145,47 @@ const UserProfileModal = ({
     if (!walletAddress) return null;
     
     const claimedBadges = JSON.parse(localStorage.getItem('hub_stake_badges') || '{}');
-    return claimedBadges[walletAddress.toLowerCase()] || null;
+    const userBadges = claimedBadges[walletAddress.toLowerCase()];
+    
+    if (!userBadges || !userBadges.tiers) return null;
+    
+    // Znajdź najwyższy claimnięty tier
+    let highestTier = null;
+    const tiersOrder = { 'gold': 3, 'silver': 2, 'bronze': 1 };
+    
+    Object.keys(userBadges.tiers).forEach(tier => {
+      if (userBadges.tiers[tier]) {
+        if (!highestTier || (tiersOrder[tier] > tiersOrder[highestTier])) {
+          highestTier = tier;
+        }
+      }
+    });
+    
+    return {
+      ...userBadges,
+      highestTier: highestTier
+    };
+  };
+
+  // Funkcja do renderowania tylko odznaki (najwyższy tier)
+  const renderBadgeOnly = () => {
+    if (!hasStakeBadge || !stakeBadgeInfo?.highestTier) return null;
+    
+    const tier = stakeBadgeInfo.highestTier;
+    const tierConfigs = {
+      'bronze': { medal: '🥉', color: 'text-orange-400', bgColor: 'bg-orange-500/10', borderColor: 'border-orange-500/20' },
+      'silver': { medal: '🥈', color: 'text-gray-300', bgColor: 'bg-gray-500/10', borderColor: 'border-gray-500/20' },
+      'gold': { medal: '🥇', color: 'text-yellow-400', bgColor: 'bg-yellow-500/10', borderColor: 'border-yellow-500/20' }
+    };
+    
+    const config = tierConfigs[tier];
+    if (!config) return null;
+    
+    return (
+      <div className={`mt-2 p-3 ${config.bgColor} border ${config.borderColor} rounded-lg flex items-center justify-center gap-2`}>
+        <span className={`text-2xl ${config.color}`}>{config.medal}</span>
+      </div>
+    );
   };
 
   useEffect(() => {
@@ -162,7 +202,7 @@ const UserProfileModal = ({
         
         // Sprawdź stake badge
         const badgeInfo = checkStakeBadge(user.walletAddress);
-        if (badgeInfo) {
+        if (badgeInfo && badgeInfo.highestTier) {
           setHasStakeBadge(true);
           setStakeBadgeInfo(badgeInfo);
         }
@@ -602,25 +642,8 @@ const UserProfileModal = ({
                 }`}>Total Messages</div>
               </div>
 
-              {/* Stake Badge Section */}
-              {hasStakeBadge && (
-                <div className={`mt-3 p-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-lg ${
-                  isMobile ? 'p-1.5' : 'p-2'
-                }`}>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className={`${isMobile ? 'text-sm' : 'text-base'}`}>🏆</span>
-                    <span className={`text-yellow-400 font-bold ${
-                      isMobile ? 'text-[10px]' : 'text-xs'
-                    }`}>STAKE HOLDER</span>
-                    <span className={`${isMobile ? 'text-[8px]' : 'text-[9px]'} text-yellow-300`}>
-                      50k+ HUB • 12m
-                    </span>
-                  </div>
-                  <div className="text-center text-gray-300 text-xs mt-1">
-                    Elite Status • Claimed {stakeBadgeInfo && new Date(stakeBadgeInfo.claimedAt).toLocaleDateString()}
-                  </div>
-                </div>
-              )}
+              {/* TYLKO ODNAKA - bez dodatkowych informacji */}
+              {renderBadgeOnly()}
 
               {isCelo && (
                 <>
