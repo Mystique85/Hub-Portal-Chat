@@ -19,6 +19,7 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const [approveHash, setApproveHash] = useState(null);
   const [viewStakesForTier, setViewStakesForTier] = useState(null);
   const [copySuccess, setCopySuccess] = useState('');
+  const [badgeClaiming, setBadgeClaiming] = useState(false);
 
   const { balance } = useWeb3(currentUser?.walletAddress);
   const { 
@@ -37,7 +38,11 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     isConfirming: stakingConfirming,
     isSuccess: stakingSuccess,
     refetchAll,
-    isBase
+    isBase,
+    // Nowe funkcje dla badge
+    badgeEligibility,
+    userBadgeInfo,
+    claimStakeBadge
   } = useStaking(currentUser?.walletAddress);
 
   const { writeContract } = useWriteContract();
@@ -111,6 +116,7 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       setViewStakesForTier(null);
       setApproveHash(null);
       setCopySuccess('');
+      setBadgeClaiming(false);
     } else if (isOpen && isBase) {
       refetchAllowance();
     }
@@ -386,16 +392,43 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     }
   }, [fundAmount, balance, allowance, fundPool]);
 
+  // Funkcja do claimowania badge
+  const handleClaimBadge = useCallback(async () => {
+    if (!badgeEligibility.isEligible) {
+      setActionMessage('You are not eligible for the Stake Badge');
+      return;
+    }
+    
+    setBadgeClaiming(true);
+    setActionMessage('🎮 Claiming Stake Badge...');
+    
+    try {
+      await claimStakeBadge();
+      setActionMessage('✅ Stake Badge claimed successfully!');
+      
+      // Odśwież dane
+      refetchAll();
+      
+      const timer = setTimeout(() => {
+        setActionMessage('');
+        setBadgeClaiming(false);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    } catch (error) {
+      setActionMessage(`❌ Failed to claim badge: ${error.message}`);
+      setBadgeClaiming(false);
+    }
+  }, [badgeEligibility, claimStakeBadge, refetchAll]);
+
   const formatNumber = (num) => {
     if (!num || isNaN(num)) return '0';
     const n = parseFloat(num);
     
-    // Dodajemy obsługę miliardów (B)
     if (n >= 1000000000) return (n / 1000000000).toFixed(2) + 'B';
     if (n >= 1000000) return (n / 1000000).toFixed(2) + 'M';
     if (n >= 1000) return (n / 1000).toFixed(2) + 'K';
     
-    // Dla małych liczb z długimi miejscami dziesiętnymi
     if (n.toString().includes('.') && n.toString().split('.')[1].length > 4) {
       return n.toFixed(4);
     }
@@ -403,7 +436,7 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     return n.toString();
   };
 
-  const isAnyTransactionProcessing = actionLoading || stakingPending || stakingConfirming || isApproveConfirming;
+  const isAnyTransactionProcessing = actionLoading || stakingPending || stakingConfirming || isApproveConfirming || badgeClaiming;
 
   const renderTierStakes = (tierId) => {
     const tierStakes = getUserStakesByTier(tierId);
@@ -524,6 +557,13 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
             disabled={isAnyTransactionProcessing}
           >
             Fund Pool
+          </button>
+          <button
+            className={`flex-1 py-2 font-medium ${activeTab === 'badge' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
+            onClick={() => setActiveTab('badge')}
+            disabled={isAnyTransactionProcessing}
+          >
+            🏆 Badge
           </button>
           <button
             className={`flex-1 py-2 font-medium ${activeTab === 'info' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
@@ -856,6 +896,247 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                     `Fund ${fundAmount || 0} HUB to Pool`
                   )}
                 </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'badge' && (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 mb-3">
+                  <span className="text-2xl">🏆</span>
+                </div>
+                <h3 className="text-white font-bold text-xl mb-2">Stake Holder Badge</h3>
+                <p className="text-gray-400 text-sm">
+                  Exclusive badge for 50k+ HUB stakers (12 months)
+                </p>
+              </div>
+              
+              {/* Badge Display */}
+              <div className={`rounded-xl p-4 border-2 ${
+                userBadgeInfo 
+                  ? 'border-yellow-500/50 bg-gradient-to-br from-yellow-500/10 to-orange-500/10' 
+                  : 'border-gray-700 bg-gray-800/50'
+              }`}>
+                <div className="flex items-center gap-4">
+                  <div className={`rounded-xl flex items-center justify-center ${
+                    userBadgeInfo 
+                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500' 
+                      : 'bg-gradient-to-r from-gray-600 to-gray-700'
+                  } ${isMobile ? 'w-16 h-16 text-2xl' : 'w-20 h-20 text-3xl'}`}>
+                    {userBadgeInfo ? '🏆' : '🎯'}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <h4 className={`font-bold ${
+                      userBadgeInfo ? 'text-yellow-400' : 'text-gray-300'
+                    } ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                      {userBadgeInfo ? 'Stake Holder' : 'Stake Holder Badge'}
+                    </h4>
+                    <p className="text-gray-400 text-sm">
+                      {userBadgeInfo 
+                        ? 'Elite Status • 50k+ HUB • 12 Months'
+                        : 'Stake 50k+ HUB for 12 months to unlock'
+                      }
+                    </p>
+                    
+                    {userBadgeInfo && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-0.5 rounded-full">
+                          Claimed
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {new Date(userBadgeInfo.claimedAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {userBadgeInfo && (
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-gray-400">Staked Amount</div>
+                      <div className="text-green-400 font-bold text-lg">
+                        {formatNumber(userBadgeInfo.stakeAmount)} HUB
+                      </div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-lg p-3">
+                      <div className="text-gray-400">Duration</div>
+                      <div className="text-cyan-400 font-bold text-lg">12 Months</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Status Section */}
+              <div className="space-y-4">
+                <div className="bg-gray-800/50 rounded-xl p-4">
+                  <h4 className="text-white font-semibold mb-3">Requirements Status</h4>
+                  
+                  <div className="space-y-3">
+                    {/* Requirement 1: 50k HUB */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${
+                          badgeEligibility.isEligible ? 'bg-green-500' : 'bg-gray-600'
+                        }`}></div>
+                        <span className="text-gray-300">Stake 50,000+ HUB</span>
+                      </div>
+                      <span className={`font-medium ${
+                        badgeEligibility.isEligible ? 'text-green-400' : 'text-gray-400'
+                      }`}>
+                        {badgeEligibility.isEligible ? '✅ Met' : '❌ Not met'}
+                      </span>
+                    </div>
+                    
+                    {/* Requirement 2: 12 Months */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${
+                          badgeEligibility.isEligible ? 'bg-green-500' : 'bg-gray-600'
+                        }`}></div>
+                        <span className="text-gray-300">12 Month Duration</span>
+                      </div>
+                      <span className={`font-medium ${
+                        badgeEligibility.isEligible ? 'text-green-400' : 'text-gray-400'
+                      }`}>
+                        {badgeEligibility.isEligible ? '✅ Met' : '❌ Not met'}
+                      </span>
+                    </div>
+                    
+                    {/* Requirement 3: Active Stake */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded-full ${
+                          badgeEligibility.isEligible ? 'bg-green-500' : 'bg-gray-600'
+                        }`}></div>
+                        <span className="text-gray-300">Active Stake</span>
+                      </div>
+                      <span className={`font-medium ${
+                        badgeEligibility.isEligible ? 'text-green-400' : 'text-gray-400'
+                      }`}>
+                        {badgeEligibility.isEligible ? '✅ Active' : '❌ Inactive'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="mt-4">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-400">Progress</span>
+                      <span className="text-cyan-400">
+                        {badgeEligibility.isEligible ? '100%' : '0%'}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          badgeEligibility.isEligible ? 'bg-gradient-to-r from-green-500 to-cyan-500' : 'bg-gray-600'
+                        }`}
+                        style={{ width: badgeEligibility.isEligible ? '100%' : '0%' }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Claim Button */}
+                {badgeEligibility.isEligible && !userBadgeInfo && (
+                  <div className="text-center">
+                    <button
+                      onClick={handleClaimBadge}
+                      disabled={isAnyTransactionProcessing}
+                      className={`w-full py-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold rounded-xl hover:opacity-90 disabled:opacity-50 ${
+                        isMobile ? 'text-lg' : 'text-xl'
+                      }`}
+                    >
+                      {isAnyTransactionProcessing ? (
+                        <span className="flex items-center justify-center gap-3">
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Claiming Badge...
+                        </span>
+                      ) : (
+                        <span className="flex items-center justify-center gap-3">
+                          <span className="text-2xl">🏆</span>
+                          CLAIM STAKE BADGE
+                          <span className="text-2xl">🏆</span>
+                        </span>
+                      )}
+                    </button>
+                    
+                    <p className="text-gray-400 text-sm mt-2">
+                      This badge will be stored in your profile and visible to other users
+                    </p>
+                  </div>
+                )}
+                
+                {/* Already Claimed Message */}
+                {userBadgeInfo && (
+                  <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-xl p-4 text-center">
+                    <div className="text-2xl mb-2">🎉</div>
+                    <h4 className="text-green-400 font-bold text-lg">Badge Claimed!</h4>
+                    <p className="text-gray-300 text-sm">
+                      You've successfully claimed the Stake Holder badge. 
+                      Your elite status is now visible in the community.
+                    </p>
+                  </div>
+                )}
+                
+                {/* Not Eligible Message */}
+                {!badgeEligibility.isEligible && !userBadgeInfo && (
+                  <div className="bg-gray-800/50 rounded-xl p-4">
+                    <h4 className="text-white font-semibold mb-2">How to Earn This Badge</h4>
+                    <ul className="space-y-2 text-sm text-gray-300">
+                      <li className="flex items-start gap-2">
+                        <span className="text-cyan-400 mt-0.5">1.</span>
+                        <span>Go to <span className="text-cyan-400">"Stake HUB"</span> tab</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-cyan-400 mt-0.5">2.</span>
+                        <span>Select <span className="text-amber-400">"12 Month"</span> tier</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-cyan-400 mt-0.5">3.</span>
+                        <span>Stake <span className="text-green-400">50,000+ HUB</span></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-cyan-400 mt-0.5">4.</span>
+                        <span>Return here to claim your badge</span>
+                      </li>
+                    </ul>
+                    
+                    <button
+                      onClick={() => setActiveTab('stake')}
+                      className="w-full mt-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:opacity-90"
+                    >
+                      🚀 Go Stake Now
+                    </button>
+                  </div>
+                )}
+              </div>
+              
+              {/* Benefits Section */}
+              <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-4">
+                <h4 className="text-white font-semibold mb-3">🎁 Badge Benefits</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <span className="text-gray-300 text-sm">Exclusive profile badge</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <span className="text-gray-300 text-sm">Recognition in community</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <span className="text-gray-300 text-sm">Early access to features</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <span className="text-gray-300 text-sm">Priority support</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}

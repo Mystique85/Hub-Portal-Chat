@@ -13,7 +13,7 @@ const UserProfileModal = ({
   getOtherUserBalance, 
   currentUser,
   onOpenSubscription,
-  isMobile = false // DODAJEMY PROP
+  isMobile = false
 }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [celoBalance, setCeloBalance] = useState('0');
@@ -31,6 +31,10 @@ const UserProfileModal = ({
     percentage: 0,
     tier: 'FREE'
   });
+  
+  // Nowe stany dla badge
+  const [hasStakeBadge, setHasStakeBadge] = useState(false);
+  const [stakeBadgeInfo, setStakeBadgeInfo] = useState(null);
 
   const { isCelo, isBase, tokenSymbol } = useNetwork();
   const season = getCurrentSeason();
@@ -136,6 +140,14 @@ const UserProfileModal = ({
     return number.toString();
   };
 
+  // Funkcja do sprawdzenia badge w localStorage
+  const checkStakeBadge = (walletAddress) => {
+    if (!walletAddress) return null;
+    
+    const claimedBadges = JSON.parse(localStorage.getItem('hub_stake_badges') || '{}');
+    return claimedBadges[walletAddress.toLowerCase()] || null;
+  };
+
   useEffect(() => {
     const loadProfileData = async () => {
       if (!user || !user.walletAddress) return;
@@ -147,6 +159,13 @@ const UserProfileModal = ({
         const userDoc = await getDoc(doc(db, 'users', user.walletAddress.toLowerCase()));
         const firestoreProfile = userDoc.exists() ? userDoc.data() : null;
         setUserProfile(firestoreProfile);
+        
+        // Sprawdź stake badge
+        const badgeInfo = checkStakeBadge(user.walletAddress);
+        if (badgeInfo) {
+          setHasStakeBadge(true);
+          setStakeBadgeInfo(badgeInfo);
+        }
         
         if (isCurrentUserProfile && isBase && currentUser?.subscriptionInfo) {
           const usage = calculateDailyUsage(currentUser.subscriptionInfo, null, false);
@@ -582,6 +601,26 @@ const UserProfileModal = ({
                   isMobile ? 'text-[9px]' : 'text-[10px]'
                 }`}>Total Messages</div>
               </div>
+
+              {/* Stake Badge Section */}
+              {hasStakeBadge && (
+                <div className={`mt-3 p-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-lg ${
+                  isMobile ? 'p-1.5' : 'p-2'
+                }`}>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className={`${isMobile ? 'text-sm' : 'text-base'}`}>🏆</span>
+                    <span className={`text-yellow-400 font-bold ${
+                      isMobile ? 'text-[10px]' : 'text-xs'
+                    }`}>STAKE HOLDER</span>
+                    <span className={`${isMobile ? 'text-[8px]' : 'text-[9px]'} text-yellow-300`}>
+                      50k+ HUB • 12m
+                    </span>
+                  </div>
+                  <div className="text-center text-gray-300 text-xs mt-1">
+                    Elite Status • Claimed {stakeBadgeInfo && new Date(stakeBadgeInfo.claimedAt).toLocaleDateString()}
+                  </div>
+                </div>
+              )}
 
               {isCelo && (
                 <>

@@ -59,6 +59,13 @@ export const useStaking = (address) => {
   const [userStakes, setUserStakes] = useState(null);
   const [userStakesList, setUserStakesList] = useState([]);
   const [loadingUserStakesList, setLoadingUserStakesList] = useState(false);
+  
+  // Nowe stany dla badge
+  const [badgeEligibility, setBadgeEligibility] = useState({ 
+    isEligible: false, 
+    eligibleStake: null 
+  });
+  const [userBadgeInfo, setUserBadgeInfo] = useState(null);
 
   // Queries
   const poolInfoQuery = useMemo(() => ({
@@ -195,6 +202,65 @@ export const useStaking = (address) => {
     query: { enabled: isBase, staleTime: 60000 }
   });
 
+  // Funkcja do sprawdzania kwalifikacji do badge
+  const checkBadgeEligibility = useCallback(() => {
+    if (!userStakesList || !address) {
+      return { isEligible: false, eligibleStake: null };
+    }
+    
+    // Szukaj aktywnego stake 12m (tierId = 3) z min. 50k HUB
+    const eligibleStake = userStakesList.find(stake => 
+      stake.tierId === 3 && // 12 miesięcy
+      stake.active &&
+      parseFloat(stake.amount) >= 50000
+    );
+    
+    const isEligible = !!eligibleStake;
+    return { isEligible, eligibleStake };
+  }, [userStakesList, address]);
+
+  // Funkcja do claimowania badge
+  const claimStakeBadge = useCallback(async () => {
+    if (!address) {
+      throw new Error('No wallet connected');
+    }
+    
+    const { isEligible, eligibleStake } = checkBadgeEligibility();
+    if (!isEligible || !eligibleStake) {
+      throw new Error('Not eligible for Stake Badge');
+    }
+    
+    // Zapisz w localStorage
+    const badgeData = {
+      walletAddress: address,
+      claimedAt: new Date().toISOString(),
+      stakeIndex: eligibleStake.index,
+      stakeAmount: eligibleStake.amount,
+      stakeDuration: '12 months',
+      badgeType: 'stake_holder_50k',
+      stakeStart: eligibleStake.start,
+      stakeFinish: eligibleStake.finish
+    };
+    
+    // Zapisz do localStorage
+    const existingBadges = JSON.parse(localStorage.getItem('hub_stake_badges') || '{}');
+    existingBadges[address.toLowerCase()] = badgeData;
+    localStorage.setItem('hub_stake_badges', JSON.stringify(existingBadges));
+    
+    // Aktualizuj stan
+    setUserBadgeInfo(badgeData);
+    
+    return badgeData;
+  }, [address, checkBadgeEligibility]);
+
+  // Funkcja do sprawdzenia czy użytkownik już ma badge
+  const getUserBadgeInfo = useCallback(() => {
+    if (!address) return null;
+    
+    const claimedBadges = JSON.parse(localStorage.getItem('hub_stake_badges') || '{}');
+    return claimedBadges[address.toLowerCase()] || null;
+  }, [address]);
+
   // Process pool info
   useEffect(() => {
     if (poolInfo && Array.isArray(poolInfo)) {
@@ -250,7 +316,7 @@ export const useStaking = (address) => {
           currentReward: formatEther(currentRewards[i]),
           active: timeLeft > 0,
           timeLeft: timeLeft,
-          lastClaim: Number(starts[i]) // Temporary, we need to fetch this separately
+          lastClaim: Number(starts[i])
         });
       }
 
@@ -270,13 +336,29 @@ export const useStaking = (address) => {
     setLoadingUserStakesList(false);
   }, [tier1StakesData, tier2StakesData, tier3StakesData]);
 
+  // Aktualizacja kwalifikacji do badge i sprawdzenie czy już ma badge
+  useEffect(() => {
+    if (address) {
+      const eligibility = checkBadgeEligibility();
+      setBadgeEligibility(eligibility);
+      
+      // Sprawdź czy użytkownik już claimnął badge
+      const badgeInfo = getUserBadgeInfo();
+      setUserBadgeInfo(badgeInfo);
+    } else {
+      setBadgeEligibility({ isEligible: false, eligibleStake: null });
+      setUserBadgeInfo(null);
+    }
+  }, [address, userStakesList, checkBadgeEligibility, getUserBadgeInfo]);
+
   // Auto-refetch stakes when address or base changes
   useEffect(() => {
     if (address && isBase) {
       setLoadingUserStakesList(true);
-      // Refetch will happen automatically via the queries
     } else {
       setUserStakesList([]);
+      setBadgeEligibility({ isEligible: false, eligibleStake: null });
+      setUserBadgeInfo(null);
     }
   }, [address, isBase]);
 
@@ -404,18 +486,24 @@ export const useStaking = (address) => {
     refetchTier2Stakes();
     refetchTier3Stakes();
     
-    // Log for debugging
-    console.log('Refetching all staking data...');
+    // Odśwież również dane badge
+    if (address) {
+      const badgeInfo = getUserBadgeInfo();
+      setUserBadgeInfo(badgeInfo);
+    }
   }, [
     refetchPoolInfo, 
     refetchUserStakes, 
     refetchStakeCount,
     refetchTier1Stakes,
     refetchTier2Stakes,
-    refetchTier3Stakes
+    refetchTier3Stakes,
+    address,
+    getUserBadgeInfo
   ]);
 
   return {
+    // Original data
     stakingData,
     userStakes,
     userStakesList,
@@ -427,15 +515,18 @@ export const useStaking = (address) => {
     },
     minStake: minStake ? formatEther(minStake) : '1',
     
+    // Loading states
     loading: loadingPoolInfo || loadingUserStakes || loadingUserStakesList,
     isPending,
     isConfirming,
     isSuccess,
     
+    // Errors
     poolInfoError,
     userStakesError,
     writeError,
     
+    // Write functions
     stakeTokens,
     claimReward,
     claimAllRewardsForTier,
@@ -444,6 +535,14 @@ export const useStaking = (address) => {
     fundPool,
     refetchAll,
     
+    // Badge related
+    badgeEligibility,        // { isEligible: bool, eligibleStake: object }
+    userBadgeInfo,           // Dane claimniętego badge
+    claimStakeBadge,         // Funkcja do claimowania badge
+    getUserBadgeInfo,        // Funkcja pobierająca informacje o badge
+    checkBadgeEligibility,   // Funkcja sprawdzająca kwalifikację
+    
+    // Other
     contractAddress: STAKING_CONTRACT_ADDRESS,
     isBase,
     hasStaking: isBase
