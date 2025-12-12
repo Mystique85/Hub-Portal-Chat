@@ -13,7 +13,7 @@ const UserProfileModal = ({
   getOtherUserBalance, 
   currentUser,
   onOpenSubscription,
-  isMobile = false // DODAJEMY PROP
+  isMobile = false
 }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [celoBalance, setCeloBalance] = useState('0');
@@ -31,6 +31,10 @@ const UserProfileModal = ({
     percentage: 0,
     tier: 'FREE'
   });
+  
+  // Nowe stany dla badge
+  const [hasStakeBadge, setHasStakeBadge] = useState(false);
+  const [stakeBadgeInfo, setStakeBadgeInfo] = useState(null);
 
   const { isCelo, isBase, tokenSymbol } = useNetwork();
   const season = getCurrentSeason();
@@ -136,6 +140,54 @@ const UserProfileModal = ({
     return number.toString();
   };
 
+  // Funkcja do sprawdzenia badge w localStorage
+  const checkStakeBadge = (walletAddress) => {
+    if (!walletAddress) return null;
+    
+    const claimedBadges = JSON.parse(localStorage.getItem('hub_stake_badges') || '{}');
+    const userBadges = claimedBadges[walletAddress.toLowerCase()];
+    
+    if (!userBadges || !userBadges.tiers) return null;
+    
+    // Znajdź najwyższy claimnięty tier
+    let highestTier = null;
+    const tiersOrder = { 'gold': 3, 'silver': 2, 'bronze': 1 };
+    
+    Object.keys(userBadges.tiers).forEach(tier => {
+      if (userBadges.tiers[tier]) {
+        if (!highestTier || (tiersOrder[tier] > tiersOrder[highestTier])) {
+          highestTier = tier;
+        }
+      }
+    });
+    
+    return {
+      ...userBadges,
+      highestTier: highestTier
+    };
+  };
+
+  // Funkcja do renderowania tylko odznaki (najwyższy tier)
+  const renderBadgeOnly = () => {
+    if (!hasStakeBadge || !stakeBadgeInfo?.highestTier) return null;
+    
+    const tier = stakeBadgeInfo.highestTier;
+    const tierConfigs = {
+      'bronze': { medal: '🥉', color: 'text-orange-400', bgColor: 'bg-orange-500/10', borderColor: 'border-orange-500/20' },
+      'silver': { medal: '🥈', color: 'text-gray-300', bgColor: 'bg-gray-500/10', borderColor: 'border-gray-500/20' },
+      'gold': { medal: '🥇', color: 'text-yellow-400', bgColor: 'bg-yellow-500/10', borderColor: 'border-yellow-500/20' }
+    };
+    
+    const config = tierConfigs[tier];
+    if (!config) return null;
+    
+    return (
+      <div className={`mt-2 p-3 ${config.bgColor} border ${config.borderColor} rounded-lg flex items-center justify-center gap-2`}>
+        <span className={`text-2xl ${config.color}`}>{config.medal}</span>
+      </div>
+    );
+  };
+
   useEffect(() => {
     const loadProfileData = async () => {
       if (!user || !user.walletAddress) return;
@@ -147,6 +199,13 @@ const UserProfileModal = ({
         const userDoc = await getDoc(doc(db, 'users', user.walletAddress.toLowerCase()));
         const firestoreProfile = userDoc.exists() ? userDoc.data() : null;
         setUserProfile(firestoreProfile);
+        
+        // Sprawdź stake badge
+        const badgeInfo = checkStakeBadge(user.walletAddress);
+        if (badgeInfo && badgeInfo.highestTier) {
+          setHasStakeBadge(true);
+          setStakeBadgeInfo(badgeInfo);
+        }
         
         if (isCurrentUserProfile && isBase && currentUser?.subscriptionInfo) {
           const usage = calculateDailyUsage(currentUser.subscriptionInfo, null, false);
@@ -582,6 +641,9 @@ const UserProfileModal = ({
                   isMobile ? 'text-[9px]' : 'text-[10px]'
                 }`}>Total Messages</div>
               </div>
+
+              {/* TYLKO ODNAKA - bez dodatkowych informacji */}
+              {renderBadgeOnly()}
 
               {isCelo && (
                 <>

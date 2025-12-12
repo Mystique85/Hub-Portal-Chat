@@ -19,6 +19,8 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const [approveHash, setApproveHash] = useState(null);
   const [viewStakesForTier, setViewStakesForTier] = useState(null);
   const [copySuccess, setCopySuccess] = useState('');
+  const [badgeClaiming, setBadgeClaiming] = useState(false);
+  const [claimingTier, setClaimingTier] = useState(null);
 
   const { balance } = useWeb3(currentUser?.walletAddress);
   const { 
@@ -37,7 +39,11 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     isConfirming: stakingConfirming,
     isSuccess: stakingSuccess,
     refetchAll,
-    isBase
+    isBase,
+    // Nowe funkcje dla 3-poziomowego badge systemu
+    badgeEligibility,
+    userBadgeInfo,
+    claimStakeBadge
   } = useStaking(currentUser?.walletAddress);
 
   const { writeContract } = useWriteContract();
@@ -111,6 +117,8 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       setViewStakesForTier(null);
       setApproveHash(null);
       setCopySuccess('');
+      setBadgeClaiming(false);
+      setClaimingTier(null);
     } else if (isOpen && isBase) {
       refetchAllowance();
     }
@@ -386,16 +394,41 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     }
   }, [fundAmount, balance, allowance, fundPool]);
 
+  // Funkcja do claimowania badge (3-poziomowo)
+  const handleClaimBadge = useCallback(async (tier) => {
+    setClaimingTier(tier);
+    setBadgeClaiming(true);
+    setActionMessage(`🎮 Claiming ${tier.charAt(0).toUpperCase() + tier.slice(1)} Badge...`);
+    
+    try {
+      await claimStakeBadge(tier);
+      setActionMessage(`✅ ${tier.charAt(0).toUpperCase() + tier.slice(1)} Badge claimed successfully!`);
+      
+      // Odśwież dane
+      refetchAll();
+      
+      const timer = setTimeout(() => {
+        setActionMessage('');
+        setBadgeClaiming(false);
+        setClaimingTier(null);
+      }, 3000);
+      
+      return () => clearTimeout(timer);
+    } catch (error) {
+      setActionMessage(`❌ Failed to claim ${tier} badge: ${error.message}`);
+      setBadgeClaiming(false);
+      setClaimingTier(null);
+    }
+  }, [claimStakeBadge, refetchAll]);
+
   const formatNumber = (num) => {
     if (!num || isNaN(num)) return '0';
     const n = parseFloat(num);
     
-    // Dodajemy obsługę miliardów (B)
     if (n >= 1000000000) return (n / 1000000000).toFixed(2) + 'B';
     if (n >= 1000000) return (n / 1000000).toFixed(2) + 'M';
     if (n >= 1000) return (n / 1000).toFixed(2) + 'K';
     
-    // Dla małych liczb z długimi miejscami dziesiętnymi
     if (n.toString().includes('.') && n.toString().split('.')[1].length > 4) {
       return n.toFixed(4);
     }
@@ -403,7 +436,7 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     return n.toString();
   };
 
-  const isAnyTransactionProcessing = actionLoading || stakingPending || stakingConfirming || isApproveConfirming;
+  const isAnyTransactionProcessing = actionLoading || stakingPending || stakingConfirming || isApproveConfirming || badgeClaiming;
 
   const renderTierStakes = (tierId) => {
     const tierStakes = getUserStakesByTier(tierId);
@@ -478,6 +511,108 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     );
   };
 
+  // Funkcja do renderowania 3-poziomowego badge systemu
+  const renderBadgeTier = (tier, medal, color, title, description, requirement) => {
+    const isClaimed = userBadgeInfo?.tiers?.[tier];
+    const isEligible = badgeEligibility[tier]?.eligible;
+    const currentProgress = badgeEligibility[tier]?.progress || 0;
+    const needed = badgeEligibility[tier]?.needed || 0;
+    const total = badgeEligibility.totalStaked12M || 0;
+    
+    return (
+      <div key={tier} className={`rounded-xl p-4 border-2 ${
+        isClaimed 
+          ? `border-${color}-500/50 bg-gradient-to-br from-${color}-500/10 to-${color}-600/10` 
+          : 'border-gray-700 bg-gray-800/50'
+      }`}>
+        <div className="flex items-center gap-3 mb-3">
+          <div className={`rounded-xl flex items-center justify-center ${
+            isClaimed 
+              ? `bg-gradient-to-r from-${color}-500 to-${color}-600` 
+              : 'bg-gradient-to-r from-gray-600 to-gray-700'
+          } ${isMobile ? 'w-12 h-12 text-lg' : 'w-14 h-14 text-xl'}`}>
+            {medal}
+          </div>
+          
+          <div className="flex-1">
+            <h4 className={`font-bold ${
+              isClaimed ? `text-${color}-400` : 'text-gray-300'
+            } ${isMobile ? 'text-base' : 'text-lg'}`}>
+              {title}
+            </h4>
+            <p className="text-gray-400 text-sm">{description}</p>
+            
+            {isClaimed && (
+              <div className="mt-1 flex items-center gap-2">
+                <span className="text-xs bg-green-500/20 text-green-300 px-2 py-0.5 rounded-full">
+                  Claimed
+                </span>
+                <span className="text-xs text-gray-400">
+                  {new Date(isClaimed.claimedAt).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        <div className="mb-3">
+          <div className="flex justify-between text-sm mb-1">
+            <span className="text-gray-400">Requirement:</span>
+            <span className={`font-medium ${isEligible ? 'text-green-400' : 'text-gray-400'}`}>
+              {formatNumber(requirement)} HUB
+            </span>
+          </div>
+          
+          <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+            <div 
+              className={`h-full rounded-full transition-all duration-500 ${
+                isEligible 
+                  ? `bg-gradient-to-r from-${color}-500 to-${color}-600` 
+                  : 'bg-gray-600'
+              }`}
+              style={{ width: `${currentProgress}%` }}
+            ></div>
+          </div>
+          
+          <div className="flex justify-between text-xs mt-1">
+            <span className="text-gray-400">
+              {isEligible ? '✅ Eligible' : `${formatNumber(total)} / ${formatNumber(requirement)} HUB`}
+            </span>
+            <span className="text-cyan-400">{currentProgress.toFixed(0)}%</span>
+          </div>
+        </div>
+        
+        {isEligible && !isClaimed && (
+          <button
+            onClick={() => handleClaimBadge(tier)}
+            disabled={isAnyTransactionProcessing && claimingTier !== tier}
+            className={`w-full py-2.5 bg-gradient-to-r from-${color}-500 to-${color}-600 text-white font-semibold rounded-lg hover:opacity-90 disabled:opacity-50 ${
+              isMobile ? 'text-sm' : 'text-base'
+            }`}
+          >
+            {badgeClaiming && claimingTier === tier ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Claiming...
+              </span>
+            ) : (
+              `Claim ${title}`
+            )}
+          </button>
+        )}
+        
+        {isClaimed && (
+          <div className="text-center">
+            <div className="text-xs text-green-400 font-medium">✓ Already claimed</div>
+            <div className="text-xs text-gray-400 mt-0.5">
+              {formatNumber(isClaimed.totalStaked || total)} HUB total
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] ${
       isMobile ? 'p-2' : 'p-4'
@@ -524,6 +659,13 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
             disabled={isAnyTransactionProcessing}
           >
             Fund Pool
+          </button>
+          <button
+            className={`flex-1 py-2 font-medium ${activeTab === 'badge' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
+            onClick={() => setActiveTab('badge')}
+            disabled={isAnyTransactionProcessing}
+          >
+            🏆 Badge Tiers
           </button>
           <button
             className={`flex-1 py-2 font-medium ${activeTab === 'info' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
@@ -856,6 +998,189 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                     `Fund ${fundAmount || 0} HUB to Pool`
                   )}
                 </button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'badge' && (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 mb-3">
+                  <span className="text-2xl">🏆</span>
+                </div>
+                <h3 className="text-white font-bold text-xl mb-2">Stake Badge Tiers</h3>
+                <p className="text-gray-400 text-sm">
+                  3-tier badge system based on total 12-month staking
+                </p>
+                <div className="text-xs text-gray-500 mt-1">
+                  Sum of all active 12-month stakes counts toward badges
+                </div>
+              </div>
+              
+              {/* Current Status */}
+              <div className="bg-gray-800/50 rounded-xl p-4">
+                <h4 className="text-white font-semibold mb-3">Your Staking Status</h4>
+                
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div className="bg-gray-700/50 rounded-lg p-3">
+                    <div className="text-gray-400 text-sm">Total 12M Staked</div>
+                    <div className="text-green-400 font-bold text-lg">
+                      {formatNumber(badgeEligibility.totalStaked12M)} HUB
+                    </div>
+                  </div>
+                  <div className="bg-gray-700/50 rounded-lg p-3">
+                    <div className="text-gray-400 text-sm">Active Stakes</div>
+                    <div className="text-cyan-400 font-bold text-lg">
+                      {badgeEligibility.stakesCount}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-sm text-gray-400">
+                  {badgeEligibility.highestTier ? (
+                    <span className="text-green-400">
+                      ✅ Highest tier achieved: {badgeEligibility.highestTier.toUpperCase()}
+                    </span>
+                  ) : (
+                    <span className="text-amber-400">
+                      ⚡ Start staking to earn badges!
+                    </span>
+                  )}
+                </div>
+              </div>
+              
+              {/* 3 Tier Badges */}
+              <div className="space-y-4">
+                {renderBadgeTier(
+                  'bronze',
+                  '🥉',
+                  'orange',
+                  'Bronze Stake Holder',
+                  '20k+ HUB • 12 months',
+                  20000
+                )}
+                
+                {renderBadgeTier(
+                  'silver',
+                  '🥈',
+                  'gray',
+                  'Silver Stake Holder',
+                  '50k+ HUB • 12 months',
+                  50000
+                )}
+                
+                {renderBadgeTier(
+                  'gold',
+                  '🥇',
+                  'yellow',
+                  'Gold Stake Holder',
+                  '100k+ HUB • 12 months',
+                  100000
+                )}
+              </div>
+              
+              {/* Progress to Next Tier */}
+              <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-4">
+                <h4 className="text-white font-semibold mb-3">🎯 Progress to Next Tier</h4>
+                
+                <div className="space-y-3">
+                  {!badgeEligibility.bronze.eligible && (
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-300">To Bronze (20k HUB):</span>
+                        <span className="text-amber-400">
+                          Need {formatNumber(20000 - badgeEligibility.totalStaked12M)} more HUB
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
+                          style={{ width: `${badgeEligibility.bronze.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {badgeEligibility.bronze.eligible && !badgeEligibility.silver.eligible && (
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-300">To Silver (50k HUB):</span>
+                        <span className="text-gray-400">
+                          Need {formatNumber(50000 - badgeEligibility.totalStaked12M)} more HUB
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full rounded-full bg-gradient-to-r from-gray-400 to-gray-500"
+                          style={{ width: `${badgeEligibility.silver.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {badgeEligibility.silver.eligible && !badgeEligibility.gold.eligible && (
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-300">To Gold (100k HUB):</span>
+                        <span className="text-yellow-400">
+                          Need {formatNumber(100000 - badgeEligibility.totalStaked12M)} more HUB
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full rounded-full bg-gradient-to-r from-yellow-500 to-yellow-600"
+                          style={{ width: `${badgeEligibility.gold.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {badgeEligibility.gold.eligible && (
+                    <div className="text-center py-2">
+                      <div className="text-green-400 font-bold">🎉 You've reached the highest tier!</div>
+                      <div className="text-gray-400 text-sm mt-1">
+                        Gold Stake Holder status achieved
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="mt-4 text-center">
+                  <button
+                    onClick={() => setActiveTab('stake')}
+                    className="inline-flex items-center gap-2 py-2 px-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold rounded-lg hover:opacity-90"
+                  >
+                    🚀 Stake More HUB
+                    <span className="text-xs">→</span>
+                  </button>
+                </div>
+              </div>
+              
+              {/* Benefits Section */}
+              <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-xl p-4">
+                <h4 className="text-white font-semibold mb-3">🎁 Badge Benefits</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span className="text-gray-300 text-sm">Exclusive profile badge</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span className="text-gray-300 text-sm">Recognition in community</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span className="text-gray-300 text-sm">Early access to features</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                    <span className="text-gray-300 text-sm">Priority support</span>
+                  </div>
+                </div>
+                <div className="mt-3 text-xs text-gray-400">
+                  Higher tiers unlock additional exclusive benefits
+                </div>
               </div>
             </div>
           )}

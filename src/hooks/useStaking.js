@@ -59,6 +59,17 @@ export const useStaking = (address) => {
   const [userStakes, setUserStakes] = useState(null);
   const [userStakesList, setUserStakesList] = useState([]);
   const [loadingUserStakesList, setLoadingUserStakesList] = useState(false);
+  
+  // Nowe stany dla 3-poziomowego badge systemu
+  const [badgeEligibility, setBadgeEligibility] = useState({ 
+    bronze: { eligible: false, total: 0, progress: 0, needed: 20000 },
+    silver: { eligible: false, total: 0, progress: 0, needed: 50000 },
+    gold: { eligible: false, total: 0, progress: 0, needed: 100000 },
+    totalStaked12M: 0,
+    stakesCount: 0,
+    highestTier: null
+  });
+  const [userBadgeInfo, setUserBadgeInfo] = useState(null);
 
   // Queries
   const poolInfoQuery = useMemo(() => ({
@@ -195,6 +206,137 @@ export const useStaking = (address) => {
     query: { enabled: isBase, staleTime: 60000 }
   });
 
+  // Funkcja do sprawdzania kwalifikacji do 3-poziomowego badge systemu
+  const checkBadgeEligibility = useCallback(() => {
+    if (!userStakesList || !address) {
+      return { 
+        bronze: { eligible: false, total: 0, progress: 0, needed: 20000 },
+        silver: { eligible: false, total: 0, progress: 0, needed: 50000 },
+        gold: { eligible: false, total: 0, progress: 0, needed: 100000 },
+        totalStaked12M: 0,
+        stakesCount: 0,
+        highestTier: null
+      };
+    }
+    
+    // ZBIERZ WSZYSTKIE aktywne stakes 12m
+    const twelveMonthStakes = userStakesList.filter(stake => 
+      stake.tierId === 3 && stake.active
+    );
+    
+    // OBLICZ SUMĘ wszystkich stakes 12m
+    const totalStaked12M = twelveMonthStakes.reduce(
+      (sum, stake) => sum + parseFloat(stake.amount), 
+      0
+    );
+    
+    const stakesCount = twelveMonthStakes.length;
+    
+    // Sprawdź kwalifikację dla każdego poziomu
+    const bronzeEligible = totalStaked12M >= 20000;
+    const silverEligible = totalStaked12M >= 50000;
+    const goldEligible = totalStaked12M >= 100000;
+    
+    // Oblicz progress do każdego poziomu
+    const bronzeProgress = Math.min(100, (totalStaked12M / 20000) * 100);
+    const silverProgress = totalStaked12M >= 20000 ? Math.min(100, ((totalStaked12M - 20000) / 30000) * 100) : 0;
+    const goldProgress = totalStaked12M >= 50000 ? Math.min(100, ((totalStaked12M - 50000) / 50000) * 100) : 0;
+    
+    // Określ najwyższy osiągnięty tier
+    let highestTier = null;
+    if (goldEligible) highestTier = 'gold';
+    else if (silverEligible) highestTier = 'silver';
+    else if (bronzeEligible) highestTier = 'bronze';
+    
+    return { 
+      bronze: { 
+        eligible: bronzeEligible, 
+        total: totalStaked12M, 
+        progress: bronzeProgress,
+        needed: 20000
+      },
+      silver: { 
+        eligible: silverEligible, 
+        total: totalStaked12M, 
+        progress: silverProgress,
+        needed: 50000
+      },
+      gold: { 
+        eligible: goldEligible, 
+        total: totalStaked12M, 
+        progress: goldProgress,
+        needed: 100000
+      },
+      totalStaked12M,
+      stakesCount,
+      highestTier
+    };
+  }, [userStakesList, address]);
+
+  // Funkcja do claimowania badge (wielopoziomowo)
+  const claimStakeBadge = useCallback(async (tier) => {
+    if (!address) {
+      throw new Error('No wallet connected');
+    }
+    
+    const eligibility = checkBadgeEligibility();
+    
+    // Sprawdź czy użytkownik kwalifikuje się do wybranego tieru
+    if (tier === 'bronze' && !eligibility.bronze.eligible) {
+      throw new Error('Not eligible for Bronze Badge');
+    }
+    if (tier === 'silver' && !eligibility.silver.eligible) {
+      throw new Error('Not eligible for Silver Badge');
+    }
+    if (tier === 'gold' && !eligibility.gold.eligible) {
+      throw new Error('Not eligible for Gold Badge');
+    }
+    
+    // Zapisz w localStorage
+    const badgeData = {
+      walletAddress: address,
+      claimedAt: new Date().toISOString(),
+      claimedTier: tier,
+      totalStaked12M: eligibility.totalStaked12M,
+      stakesCount: eligibility.stakesCount,
+      badgeTiers: {
+        bronze: eligibility.bronze.eligible,
+        silver: eligibility.silver.eligible,
+        gold: eligibility.gold.eligible
+      }
+    };
+    
+    // Pobierz istniejące badge
+    const existingBadges = JSON.parse(localStorage.getItem('hub_stake_badges') || '{}');
+    const userBadges = existingBadges[address.toLowerCase()] || { tiers: {} };
+    
+    // Zaktualizuj claimnięte tiery
+    userBadges.tiers = userBadges.tiers || {};
+    userBadges.tiers[tier] = {
+      claimedAt: new Date().toISOString(),
+      totalStaked: eligibility.totalStaked12M
+    };
+    userBadges.lastUpdated = new Date().toISOString();
+    userBadges.highestTier = tier;
+    
+    // Zapisz do localStorage
+    existingBadges[address.toLowerCase()] = userBadges;
+    localStorage.setItem('hub_stake_badges', JSON.stringify(existingBadges));
+    
+    // Aktualizuj stan
+    setUserBadgeInfo(userBadges);
+    
+    return badgeData;
+  }, [address, checkBadgeEligibility]);
+
+  // Funkcja do sprawdzenia czy użytkownik już ma badge
+  const getUserBadgeInfo = useCallback(() => {
+    if (!address) return null;
+    
+    const claimedBadges = JSON.parse(localStorage.getItem('hub_stake_badges') || '{}');
+    return claimedBadges[address.toLowerCase()] || null;
+  }, [address]);
+
   // Process pool info
   useEffect(() => {
     if (poolInfo && Array.isArray(poolInfo)) {
@@ -250,7 +392,7 @@ export const useStaking = (address) => {
           currentReward: formatEther(currentRewards[i]),
           active: timeLeft > 0,
           timeLeft: timeLeft,
-          lastClaim: Number(starts[i]) // Temporary, we need to fetch this separately
+          lastClaim: Number(starts[i])
         });
       }
 
@@ -270,13 +412,43 @@ export const useStaking = (address) => {
     setLoadingUserStakesList(false);
   }, [tier1StakesData, tier2StakesData, tier3StakesData]);
 
+  // Aktualizacja kwalifikacji do badge i sprawdzenie czy już ma badge
+  useEffect(() => {
+    if (address && userStakesList) {
+      const eligibility = checkBadgeEligibility();
+      setBadgeEligibility(eligibility);
+      
+      // Sprawdź czy użytkownik już claimnął badge
+      const badgeInfo = getUserBadgeInfo();
+      setUserBadgeInfo(badgeInfo);
+    } else {
+      setBadgeEligibility({ 
+        bronze: { eligible: false, total: 0, progress: 0, needed: 20000 },
+        silver: { eligible: false, total: 0, progress: 0, needed: 50000 },
+        gold: { eligible: false, total: 0, progress: 0, needed: 100000 },
+        totalStaked12M: 0,
+        stakesCount: 0,
+        highestTier: null
+      });
+      setUserBadgeInfo(null);
+    }
+  }, [address, userStakesList, checkBadgeEligibility, getUserBadgeInfo]);
+
   // Auto-refetch stakes when address or base changes
   useEffect(() => {
     if (address && isBase) {
       setLoadingUserStakesList(true);
-      // Refetch will happen automatically via the queries
     } else {
       setUserStakesList([]);
+      setBadgeEligibility({ 
+        bronze: { eligible: false, total: 0, progress: 0, needed: 20000 },
+        silver: { eligible: false, total: 0, progress: 0, needed: 50000 },
+        gold: { eligible: false, total: 0, progress: 0, needed: 100000 },
+        totalStaked12M: 0,
+        stakesCount: 0,
+        highestTier: null
+      });
+      setUserBadgeInfo(null);
     }
   }, [address, isBase]);
 
@@ -404,18 +576,24 @@ export const useStaking = (address) => {
     refetchTier2Stakes();
     refetchTier3Stakes();
     
-    // Log for debugging
-    console.log('Refetching all staking data...');
+    // Odśwież również dane badge
+    if (address) {
+      const badgeInfo = getUserBadgeInfo();
+      setUserBadgeInfo(badgeInfo);
+    }
   }, [
     refetchPoolInfo, 
     refetchUserStakes, 
     refetchStakeCount,
     refetchTier1Stakes,
     refetchTier2Stakes,
-    refetchTier3Stakes
+    refetchTier3Stakes,
+    address,
+    getUserBadgeInfo
   ]);
 
   return {
+    // Original data
     stakingData,
     userStakes,
     userStakesList,
@@ -427,15 +605,18 @@ export const useStaking = (address) => {
     },
     minStake: minStake ? formatEther(minStake) : '1',
     
+    // Loading states
     loading: loadingPoolInfo || loadingUserStakes || loadingUserStakesList,
     isPending,
     isConfirming,
     isSuccess,
     
+    // Errors
     poolInfoError,
     userStakesError,
     writeError,
     
+    // Write functions
     stakeTokens,
     claimReward,
     claimAllRewardsForTier,
@@ -444,6 +625,14 @@ export const useStaking = (address) => {
     fundPool,
     refetchAll,
     
+    // Badge related (3-tier system)
+    badgeEligibility,        // 3-poziomowy system: bronze, silver, gold
+    userBadgeInfo,           // Dane claimniętych badge'ów
+    claimStakeBadge,         // Funkcja do claimowania badge (przyjmuje tier: 'bronze'|'silver'|'gold')
+    getUserBadgeInfo,        // Funkcja pobierająca informacje o badge
+    checkBadgeEligibility,   // Funkcja sprawdzająca kwalifikację
+    
+    // Other
     contractAddress: STAKING_CONTRACT_ADDRESS,
     isBase,
     hasStaking: isBase
