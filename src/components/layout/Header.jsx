@@ -21,7 +21,7 @@ const Header = ({
   onShowLeaderboard,
   onShowBaseLeaderboard,
   onShowSubscriptionModal,
-  onShowStakingModal // DODANO PROP
+  onShowStakingModal
 }) => {
   const [showDailyRewards, setShowDailyRewards] = useState(false);
   const [showDailyRewardsBase, setShowDailyRewardsBase] = useState(false);
@@ -182,11 +182,10 @@ const Header = ({
           left: dropdownPosition.left
         }}
       >
-        {/* STAKE HUB - tylko dla Base */}
         {isBase && (
           <button 
             onClick={() => {
-              onShowStakingModal(); // UŻYJ PROPA
+              onShowStakingModal();
               setShowQuickAccessMenu(false);
             }}
             className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
@@ -235,8 +234,8 @@ const Header = ({
           }}
           className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
         >
-          <span>💫</span>
-          <span>{networkName} Ecosystem</span>
+          <span>🔗</span>
+          <span>Official Link</span>
         </button>
         
         <button 
@@ -286,10 +285,9 @@ const Header = ({
               🌐
             </button>
             
-            {/* STAKE HUB BUTTON - tylko dla Base */}
             {isBase && (
               <button 
-                onClick={onShowStakingModal} // UŻYJ PROPA
+                onClick={onShowStakingModal}
                 className="bg-gradient-to-r from-emerald-500 to-green-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
                 title="Stake HUB"
               >
@@ -380,10 +378,9 @@ const Header = ({
             Mint Genesis NFT
           </button>
 
-          {/* STAKE HUB BUTTON - tylko dla Base */}
           {isBase && (
             <button 
-              onClick={onShowStakingModal} // UŻYJ PROPA
+              onClick={onShowStakingModal}
               className="h-[42px] px-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-xl font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-emerald-500/25 hover:scale-105"
             >
               <span>💰</span>
@@ -393,7 +390,6 @@ const Header = ({
         </div>
         
         <div className="flex items-center gap-4">
-          {/* Base Leaderboard - widoczny tylko na Base */}
           {isBase && (
             <button 
               onClick={onShowBaseLeaderboard}
@@ -404,7 +400,6 @@ const Header = ({
             </button>
           )}
 
-          {/* Celo Leaderboard - widoczny tylko na Celo */}
           {isCelo && supportsSeasonSystem && (
             <button 
               onClick={onShowLeaderboard}
@@ -415,7 +410,6 @@ const Header = ({
             </button>
           )}
 
-          {/* Quick Access */}
           <div className="relative">
             <button 
               ref={quickAccessButtonRef}
@@ -430,7 +424,6 @@ const Header = ({
             </button>
           </div>
 
-          {/* PRZEŁĄCZNIK SIECI - Z IKONĄ 🌐 */}
           <button 
             onClick={handleSwitchNetwork}
             className="h-[42px] px-4 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white rounded-xl font-semibold transition-all flex items-center gap-2 text-sm border border-gray-600 hover:border-gray-500 shadow-lg hover:scale-105 group"
