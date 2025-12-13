@@ -79,6 +79,29 @@ HUB staking enables users to lock HUB tokens in time-based tiers and earn protoc
 
 ---
 
+### 🏅 HUB Badge System (Base Network)
+
+HUB Badge System allows users to earn **badges for staking HUB tokens** with real benefits, including **increased allocation in future airdrops**.  
+
+#### Badge Levels & Staking Requirements
+
+| Badge | Minimum Stake | Lock Period | Future Airdrop Multiplier |
+|-------|---------------|------------|---------------------------|
+| 🥉 Bronze | 20,000 HUB | 12 months | x3 |
+| 🥈 Silver | 50,000 HUB | 12 months | x10 |
+| 🥇 Gold   | 100,000 HUB | 12 months | x20 |
+
+#### Features & Benefits
+- Badge visible in user profile  
+- Proof of long-term engagement ✅  
+- Exclusive Discord role *(coming soon)* 👑  
+- Priority access to new features ⭐  
+- Increased allocation in future HUB Portal airdrops  
+
+**Staking Contract:** [`0xd4ca2b40cEAEC7006Fa38c3Bb07ceD449b9bF7DB`](https://basescan.org/address/0xd4ca2b40cEAEC7006Fa38c3Bb07ceD449b9bF7DB)
+
+---
+
 ### 💵 Daily USDC Rewards (Base)
 - Daily USDC claims
 - Dedicated reward contract
