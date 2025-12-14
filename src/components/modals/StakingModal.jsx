@@ -1307,7 +1307,7 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               <div className="flex items-center gap-2">
                 <span>💎 Need HUB?</span>
                 <a 
-                  href="https://app.uniswap.org"
+                  href="https://app.uniswap.org/swap?outputCurrency=0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E&chain=base"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-green-400 hover:text-green-300"
