@@ -84,7 +84,7 @@ const Header = ({
   };
 
   const handleProceedToMint = () => {
-    window.open('https://opensea.io/collection/hub-ecosystem-genesis-nft', '_blank', 'noopener,noreferrer');
+    window.open('https://opensea.io/collection/hub-ecosystem-genesis-nft/overview', '_blank', 'noopener,noreferrer');
     setShowNFTInfo(false);
   };
 
