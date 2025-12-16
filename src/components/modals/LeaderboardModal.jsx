@@ -4,28 +4,32 @@ import { db } from '../../config/firebase';
 import { getCurrentSeason, getDaysRemaining, isSeasonActive } from '../../utils/seasons';
 import { useNetwork } from '../../hooks/useNetwork';
 
-const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
+const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [timeFilter, setTimeFilter] = useState('season');
   const [searchQuery, setSearchQuery] = useState('');
   const [userRank, setUserRank] = useState(null);
 
-  // DODANE: Wykrywanie sieci
   const { isCelo, isBase } = useNetwork();
 
   const season = getCurrentSeason();
   const daysRemaining = getDaysRemaining();
   const seasonActive = isSeasonActive();
 
-  // DODANE: Jeśli nie jesteśmy na Celo, pokaż komunikat
   if (!isCelo && isOpen) {
     return (
-      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 rounded-3xl w-full max-w-md p-6">
+      <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 ${
+        isMobile ? 'p-0' : 'p-4'
+      }`}>
+        <div className={`bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 w-full ${
+          isMobile 
+            ? 'h-full rounded-none p-4 max-w-full' 
+            : 'rounded-3xl p-6 max-w-md'
+        }`}>
           <div className="text-center">
-            <div className="text-4xl mb-4">🔍</div>
-            <h2 className="text-xl font-bold text-amber-400 mb-4">
+            <div className={`${isMobile ? 'text-3xl' : 'text-4xl'} mb-4`}>🔍</div>
+            <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-amber-400 mb-4`}>
               Leaderboard Available Only on Celo
             </h2>
             <p className="text-gray-300 mb-6">
@@ -34,7 +38,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
             </p>
             <button 
               onClick={onClose}
-              className="px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl font-semibold transition-all"
+              className={`${isMobile ? 'px-4 py-2 text-sm' : 'px-6 py-3'} bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl font-semibold transition-all`}
             >
               Close
             </button>
@@ -45,7 +49,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
   }
 
   useEffect(() => {
-    if (!isOpen || !db || !isCelo) return; // TYLKO na Celo
+    if (!isOpen || !db || !isCelo) return;
 
     const loadLeaderboard = async () => {
       const cacheKey = `leaderboard_${timeFilter}`;
@@ -68,7 +72,6 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
         
         setLoading(false);
       } else {
-        // ZAWSZE używamy season1_messages dla rankingu (TYLKO Celo)
         const fieldToOrderBy = timeFilter === 'season' ? 'season1_messages' : 'totalMessages';
         const usersQuery = query(
           collection(db, 'users'), 
@@ -135,8 +138,8 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
 
   const getMessageCount = (user) => {
     switch(timeFilter) {
-      case 'season': return user.season1_messages || 0; // TYLKO wiadomości z Celo
-      case 'all': return user.totalMessages || 0;       // Wszystkie wiadomości
+      case 'season': return user.season1_messages || 0;
+      case 'all': return user.totalMessages || 0;
       default: return user.season1_messages || 0;
     }
   };
@@ -155,15 +158,21 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 rounded-3xl w-full max-w-4xl h-[85vh] overflow-hidden flex flex-col">
+    <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 ${
+      isMobile ? 'p-0' : 'p-4'
+    }`}>
+      <div className={`bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 w-full ${
+        isMobile 
+          ? 'h-full rounded-none overflow-hidden flex flex-col max-w-full' 
+          : 'rounded-3xl max-w-4xl h-[85vh] overflow-hidden flex flex-col'
+      }`}>
         <div className="flex-shrink-0">
-          <div className="flex items-center justify-between p-4 border-b border-gray-700/50">
+          <div className={`flex items-center justify-between ${isMobile ? 'p-3' : 'p-4'} border-b border-gray-700/50`}>
             <div>
-              <h2 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              <h2 className={`${isMobile ? 'text-base' : 'text-xl'} font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent`}>
                 🏆 Leaderboard
               </h2>
-              <p className="text-gray-400 text-xs mt-1">
+              <p className={`text-gray-400 ${isMobile ? 'text-xs mt-0.5' : 'text-xs mt-1'}`}>
                 {getTimeFilterText()} - {seasonActive ? `${daysRemaining.fullText} remaining` : 'Season ended'}
                 <span className="text-amber-400 ml-2">🕐 Updates every 24h</span>
               </p>
@@ -175,7 +184,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
             </div>
             <button 
               onClick={onClose}
-              className="text-gray-400 hover:text-white text-xl p-1 hover:bg-gray-700/50 rounded-xl transition-all"
+              className={`${isMobile ? 'text-lg p-1' : 'text-xl p-1'} text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all`}
             >
               ✕
             </button>
@@ -183,7 +192,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
 
           <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-y border-amber-500/20 p-3">
             <h3 className="text-amber-400 font-bold text-sm mb-2 text-center">🎁 Season 1 Rewards - Top 10</h3>
-            <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-3 gap-2'} text-xs`}>
               <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg p-2 text-center border border-yellow-500/30">
                 <div className="text-yellow-400 font-bold">🥇 #1</div>
                 <div className="text-yellow-300">HUB Sovereign</div>
@@ -205,7 +214,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
             </p>
           </div>
 
-          <div className="flex gap-1 p-3 border-b border-gray-700/30 bg-gray-800/50">
+          <div className={`flex gap-1 ${isMobile ? 'p-2' : 'p-3'} border-b border-gray-700/30 bg-gray-800/50`}>
             {['season', 'all'].map(filter => (
               <button
                 key={filter}
@@ -222,14 +231,16 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
             ))}
           </div>
 
-          <div className="p-3 border-b border-gray-700/30">
+          <div className={`${isMobile ? 'p-2' : 'p-3'} border-b border-gray-700/30`}>
             <div className="relative">
               <input
                 type="text"
                 placeholder="Search users by nickname or address..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                className={`w-full bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent ${
+                  isMobile ? 'text-xs' : ''
+                }`}
               />
               {searchQuery && (
                 <button
@@ -260,7 +271,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
               </div>
             </div>
           ) : (
-            <div className="p-3 space-y-2">
+            <div className={`${isMobile ? 'p-2 space-y-1' : 'p-3 space-y-2'}`}>
               {topUsers.map((user, index) => {
                 const globalIndex = users.findIndex(u => u.id === user.id);
                 const messageCount = getMessageCount(user);
@@ -269,13 +280,13 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
                   <div
                     key={user.id}
                     data-user-id={user.walletAddress}
-                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${
+                    className={`flex items-center gap-2 p-3 rounded-xl border transition-all ${
                       currentUser?.walletAddress === user.walletAddress
                         ? 'bg-cyan-500/20 border-cyan-500/50 shadow-lg shadow-cyan-500/10'
                         : 'bg-gray-700/30 border-gray-600/30 hover:bg-gray-700/50 hover:border-cyan-500/30'
-                    }`}
+                    } ${isMobile ? 'text-sm' : ''}`}
                   >
-                    <div className={`flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg font-bold text-sm ${
+                    <div className={`flex-shrink-0 ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} flex items-center justify-center rounded-lg font-bold text-sm ${
                       globalIndex < 3 
                         ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
                         : 'bg-gray-600 text-gray-300'
@@ -283,17 +294,14 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
                       {getRankBadge(globalIndex)}
                     </div>
 
-                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center text-lg">
+                    <div className={`flex-shrink-0 ${isMobile ? 'w-8 h-8 text-base' : 'w-10 h-10 text-lg'} rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center`}>
                       {user.avatar}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="text-white font-medium text-sm truncate">
+                      <div className="flex items-center gap-1 mb-0.5">
+                        <div className="text-white font-medium truncate">
                           {user.nickname}
-                        </div>
-                        <div className="text-gray-400 text-xs">
-                          {user.walletAddress?.slice(0, 6)}...{user.walletAddress?.slice(-4)}
                         </div>
                         {currentUser?.walletAddress === user.walletAddress && (
                           <span className="bg-cyan-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium">
@@ -301,15 +309,18 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
                           </span>
                         )}
                       </div>
+                      <div className="text-gray-400 text-xs truncate">
+                        {user.walletAddress?.slice(0, 6)}...{user.walletAddress?.slice(-4)}
+                      </div>
                       {celoReward && (
-                        <div className="text-green-400 text-[10px] font-bold mt-1">
+                        <div className="text-green-400 text-[10px] font-bold mt-0.5">
                           🪙 {celoReward}
                         </div>
                       )}
                     </div>
 
                     <div className="flex-shrink-0 text-right">
-                      <div className={`font-bold text-lg ${
+                      <div className={`font-bold ${isMobile ? 'text-base' : 'text-lg'} ${
                         messageCount > 0 ? 'text-cyan-400' : 'text-gray-500'
                       }`}>
                         {messageCount}
@@ -325,13 +336,15 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
           )}
         </div>
 
-        <div className="flex-shrink-0 p-3 border-t border-gray-700/50 bg-gray-800/30">
-          <div className="flex justify-between items-center">
+        <div className={`flex-shrink-0 border-t border-gray-700/50 bg-gray-800/30 ${
+          isMobile ? 'p-2' : 'p-3'
+        }`}>
+          <div className={`flex ${isMobile ? 'flex-col gap-2' : 'justify-between items-center'}`}>
             <div className="text-gray-400 text-xs">
               Showing {topUsers.length} of {filteredUsers.length} users
             </div>
             
-            <div className="flex gap-1">
+            <div className={`flex gap-1 ${isMobile ? 'mt-1' : ''}`}>
               {currentUserInFiltered >= 10 && (
                 <button
                   onClick={() => {
@@ -340,7 +353,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
                       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                   }}
-                  className="px-3 py-1.5 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg text-xs font-medium transition-all"
+                  className={`${isMobile ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-xs'} bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-all`}
                 >
                   Find My Position
                 </button>
@@ -349,7 +362,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser }) => {
           </div>
           
           {filteredUsers.length > 0 && (
-            <div className="grid grid-cols-3 gap-3 text-center mt-3 pt-3 border-t border-gray-700/30">
+            <div className={`grid ${isMobile ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-3'} text-center mt-3 pt-3 border-t border-gray-700/30`}>
               <div>
                 <div className="text-cyan-400 font-bold text-sm">
                   {filteredUsers.length}
