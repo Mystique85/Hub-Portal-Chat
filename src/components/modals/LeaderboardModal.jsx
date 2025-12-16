@@ -10,6 +10,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
   const [timeFilter, setTimeFilter] = useState('season');
   const [searchQuery, setSearchQuery] = useState('');
   const [userRank, setUserRank] = useState(null);
+  const [showRewards, setShowRewards] = useState(false); // Nowy stan dla akordeonu nagród
 
   const { isCelo, isBase } = useNetwork();
 
@@ -33,7 +34,7 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
               Leaderboard Available Only on Celo
             </h2>
             <p className="text-gray-300 mb-6">
-              The ranking and season system is currently available only on the Celo network. 
+              The ranking and system is currently available only on the Celo network.
               Switch to Celo network to participate in seasons and compete for rewards!
             </p>
             <button 
@@ -149,7 +150,8 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
     user.walletAddress?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const topUsers = filteredUsers.slice(0, 10);
+  // Na mobile pokaż więcej użytkowników (15 zamiast 10)
+  const topUsers = filteredUsers.slice(0, isMobile ? 15 : 10);
 
   const currentUserInFiltered = filteredUsers.findIndex(user => 
     user.walletAddress === currentUser?.walletAddress
@@ -166,94 +168,144 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
           ? 'h-full rounded-none overflow-hidden flex flex-col max-w-full' 
           : 'rounded-3xl max-w-4xl h-[85vh] overflow-hidden flex flex-col'
       }`}>
+        {/* HEADER - Zoptymalizowany dla mobile */}
         <div className="flex-shrink-0">
           <div className={`flex items-center justify-between ${isMobile ? 'p-3' : 'p-4'} border-b border-gray-700/50`}>
-            <div>
+            <div className="flex-1 min-w-0">
               <h2 className={`${isMobile ? 'text-base' : 'text-xl'} font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent`}>
                 🏆 Leaderboard
               </h2>
               <p className={`text-gray-400 ${isMobile ? 'text-xs mt-0.5' : 'text-xs mt-1'}`}>
-                {getTimeFilterText()} - {seasonActive ? `${daysRemaining.fullText} remaining` : 'Season ended'}
-                <span className="text-amber-400 ml-2">🕐 Updates every 24h</span>
+                {getTimeFilterText()} • {seasonActive ? `${daysRemaining.days}d ${daysRemaining.hours}h left` : 'Ended'}
+                <span className="text-amber-400 ml-2">🕐 Daily update</span>
               </p>
               {userRank && (
-                <p className="text-cyan-400 text-xs mt-1">
-                  Your position: <strong>#{userRank}</strong> of {users.length}
+                <p className="text-cyan-400 text-xs mt-0.5">
+                  Your rank: <strong>#{userRank}</strong> of {users.length}
                 </p>
               )}
             </div>
             <button 
               onClick={onClose}
-              className={`${isMobile ? 'text-lg p-1' : 'text-xl p-1'} text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all`}
+              className={`${isMobile ? 'text-lg p-1 ml-2' : 'text-xl p-1'} text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all flex-shrink-0`}
             >
               ✕
             </button>
           </div>
 
-          <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-y border-amber-500/20 p-3">
-            <h3 className="text-amber-400 font-bold text-sm mb-2 text-center">🎁 Season 1 Rewards - Top 10</h3>
-            <div className={`grid ${isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-3 gap-2'} text-xs`}>
-              <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg p-2 text-center border border-yellow-500/30">
-                <div className="text-yellow-400 font-bold">🥇 #1</div>
-                <div className="text-yellow-300">HUB Sovereign</div>
-                <div className="text-yellow-200 font-bold mt-1">100 CELO</div>
-              </div>
-              <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg p-2 text-center border border-purple-500/30">
-                <div className="text-purple-400 font-bold">🥈 #2-3</div>
-                <div className="text-purple-300">HUB Ambassador</div>
-                <div className="text-purple-200 font-bold mt-1">80-60 CELO</div>
-              </div>
-              <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-lg p-2 text-center border border-cyan-500/30">
-                <div className="text-cyan-400 font-bold">🥉 #4-10</div>
-                <div className="text-cyan-300">HUB Contributor</div>
-                <div className="text-cyan-200 font-bold mt-1">20 CELO</div>
-              </div>
-            </div>
-            <p className="text-amber-300 text-xs mt-2 text-center">
-              Top 10 users receive exclusive badges + CELO tokens at season end!
-            </p>
-          </div>
-
-          <div className={`flex gap-1 ${isMobile ? 'p-2' : 'p-3'} border-b border-gray-700/30 bg-gray-800/50`}>
-            {['season', 'all'].map(filter => (
-              <button
-                key={filter}
-                onClick={() => setTimeFilter(filter)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  timeFilter === filter
-                    ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/25'
-                    : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700 hover:text-white'
-                }`}
-              >
-                {filter === 'all' && 'All Time'}
-                {filter === 'season' && 'Current Season'}
-              </button>
-            ))}
-          </div>
-
-          <div className={`${isMobile ? 'p-2' : 'p-3'} border-b border-gray-700/30`}>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search users by nickname or address..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={`w-full bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent ${
-                  isMobile ? 'text-xs' : ''
-                }`}
-              />
-              {searchQuery && (
+          {/* SEKCJA NAGRÓD - Akordeon na mobile */}
+          <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-y border-amber-500/20">
+            {isMobile ? (
+              // WERSJA MOBILE - Akordeon
+              <div className="p-2">
                 <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white text-xs"
+                  onClick={() => setShowRewards(!showRewards)}
+                  className="w-full flex items-center justify-between p-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 transition-all"
                 >
-                  ✕
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-400 text-sm font-bold">🎁 Top 10 Rewards</span>
+                    <span className="text-amber-300 text-xs">Tap to {showRewards ? 'hide' : 'show'}</span>
+                  </div>
+                  <span className="text-amber-400">
+                    {showRewards ? '▲' : '▼'}
+                  </span>
                 </button>
-              )}
+                
+                {showRewards && (
+                  <div className="mt-2 space-y-2 animate-fadeIn">
+                    <div className="grid grid-cols-3 gap-2 text-xs">
+                      <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg p-2 text-center border border-yellow-500/30">
+                        <div className="text-yellow-400 font-bold">🥇 #1</div>
+                        <div className="text-yellow-300 text-[10px]">Sovereign</div>
+                        <div className="text-yellow-200 font-bold text-xs mt-0.5">100 CELO</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg p-2 text-center border border-purple-500/30">
+                        <div className="text-purple-400 font-bold">🥈 #2-3</div>
+                        <div className="text-purple-300 text-[10px]">Ambassador</div>
+                        <div className="text-purple-200 font-bold text-xs mt-0.5">80-60 CELO</div>
+                      </div>
+                      <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-lg p-2 text-center border border-cyan-500/30">
+                        <div className="text-cyan-400 font-bold">🥉 #4-10</div>
+                        <div className="text-cyan-300 text-[10px]">Contributor</div>
+                        <div className="text-cyan-200 font-bold text-xs mt-0.5">20 CELO</div>
+                      </div>
+                    </div>
+                    <p className="text-amber-300 text-xs text-center">
+                      Top 10 get badges + CELO at season end!
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              // WERSJA DESKTOP - Pełna sekcja
+              <div className="p-3">
+                <h3 className="text-amber-400 font-bold text-sm mb-2 text-center">🎁 Season 1 Rewards - Top 10</h3>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 rounded-lg p-2 text-center border border-yellow-500/30">
+                    <div className="text-yellow-400 font-bold">🥇 #1</div>
+                    <div className="text-yellow-300">HUB Sovereign</div>
+                    <div className="text-yellow-200 font-bold mt-1">100 CELO</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg p-2 text-center border border-purple-500/30">
+                    <div className="text-purple-400 font-bold">🥈 #2-3</div>
+                    <div className="text-purple-300">HUB Ambassador</div>
+                    <div className="text-purple-200 font-bold mt-1">80-60 CELO</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-lg p-2 text-center border border-cyan-500/30">
+                    <div className="text-cyan-400 font-bold">🥉 #4-10</div>
+                    <div className="text-cyan-300">HUB Contributor</div>
+                    <div className="text-cyan-200 font-bold mt-1">20 CELO</div>
+                  </div>
+                </div>
+                <p className="text-amber-300 text-xs mt-2 text-center">
+                  Top 10 users receive exclusive badges + CELO tokens at season end!
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* FILTRY I WYSZUKIWARKA - Zoptymalizowane */}
+          <div className={`${isMobile ? 'p-2' : 'p-3'} border-b border-gray-700/30 bg-gray-800/50`}>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex gap-1">
+                {['season', 'all'].map(filter => (
+                  <button
+                    key={filter}
+                    onClick={() => setTimeFilter(filter)}
+                    className={`flex-1 px-2 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      timeFilter === filter
+                        ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/25'
+                        : 'bg-gray-700/50 text-gray-300 hover:bg-gray-700 hover:text-white'
+                    }`}
+                  >
+                    {filter === 'all' && 'All Time'}
+                    {filter === 'season' && 'Current'}
+                  </button>
+                ))}
+              </div>
+              
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-gray-700/50 border border-gray-600/50 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:border-transparent"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white text-xs"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
+        {/* LISTA RANKINGOWA - Główna zawartość */}
         <div className="flex-1 overflow-y-auto min-h-0">
           {loading ? (
             <div className="flex items-center justify-center h-full">
@@ -271,62 +323,68 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
               </div>
             </div>
           ) : (
-            <div className={`${isMobile ? 'p-2 space-y-1' : 'p-3 space-y-2'}`}>
+            <div className={`${isMobile ? 'p-1 space-y-1' : 'p-2 space-y-1'}`}>
               {topUsers.map((user, index) => {
                 const globalIndex = users.findIndex(u => u.id === user.id);
                 const messageCount = getMessageCount(user);
                 const celoReward = getCeloReward(globalIndex + 1);
+                const isCurrentUser = currentUser?.walletAddress === user.walletAddress;
+                
                 return (
                   <div
                     key={user.id}
                     data-user-id={user.walletAddress}
-                    className={`flex items-center gap-2 p-3 rounded-xl border transition-all ${
-                      currentUser?.walletAddress === user.walletAddress
-                        ? 'bg-cyan-500/20 border-cyan-500/50 shadow-lg shadow-cyan-500/10'
-                        : 'bg-gray-700/30 border-gray-600/30 hover:bg-gray-700/50 hover:border-cyan-500/30'
-                    } ${isMobile ? 'text-sm' : ''}`}
+                    className={`flex items-center gap-2 p-2 rounded-lg border transition-all ${
+                      isCurrentUser
+                        ? 'bg-cyan-500/20 border-cyan-500/40 shadow-sm'
+                        : 'bg-gray-700/30 border-gray-600/30 hover:bg-gray-700/40'
+                    } ${isMobile ? 'text-xs' : 'text-sm'}`}
                   >
-                    <div className={`flex-shrink-0 ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} flex items-center justify-center rounded-lg font-bold text-sm ${
+                    {/* RANK BADGE - Mniejszy na mobile */}
+                    <div className={`flex-shrink-0 ${isMobile ? 'w-5 h-5 text-[10px]' : 'w-6 h-6 text-xs'} flex items-center justify-center rounded font-bold ${
                       globalIndex < 3 
                         ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
                         : 'bg-gray-600 text-gray-300'
                     }`}>
-                      {getRankBadge(globalIndex)}
+                      {globalIndex < 3 ? getRankBadge(globalIndex) : globalIndex + 1}
                     </div>
 
-                    <div className={`flex-shrink-0 ${isMobile ? 'w-8 h-8 text-base' : 'w-10 h-10 text-lg'} rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center`}>
+                    {/* AVATAR - Mniejszy na mobile */}
+                    <div className={`flex-shrink-0 ${isMobile ? 'w-6 h-6 text-xs' : 'w-7 h-7 text-sm'} rounded bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center`}>
                       {user.avatar}
                     </div>
 
+                    {/* USER INFO - Zoptymalizowane */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1 mb-0.5">
+                      <div className="flex items-center gap-1">
                         <div className="text-white font-medium truncate">
                           {user.nickname}
                         </div>
-                        {currentUser?.walletAddress === user.walletAddress && (
-                          <span className="bg-cyan-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-medium">
+                        {isCurrentUser && (
+                          <span className="bg-cyan-500 text-white text-[8px] px-1 py-0.5 rounded font-medium">
                             You
                           </span>
                         )}
+                        {celoReward && (
+                          <span className="text-green-400 text-[8px] font-bold ml-1">
+                            🪙
+                          </span>
+                        )}
                       </div>
-                      <div className="text-gray-400 text-xs truncate">
-                        {user.walletAddress?.slice(0, 6)}...{user.walletAddress?.slice(-4)}
+                      <div className="text-gray-400 text-[10px] truncate">
+                        {user.walletAddress?.slice(0, 4)}...{user.walletAddress?.slice(-4)}
                       </div>
-                      {celoReward && (
-                        <div className="text-green-400 text-[10px] font-bold mt-0.5">
-                          🪙 {celoReward}
-                        </div>
-                      )}
                     </div>
 
-                    <div className="flex-shrink-0 text-right">
-                      <div className={`font-bold ${isMobile ? 'text-base' : 'text-lg'} ${
+                    {/* MESSAGE COUNT - Zoptymalizowane */}
+                    <div className="flex-shrink-0 text-right min-w-[50px]">
+                      <div className={`font-bold ${isMobile ? 'text-sm' : 'text-base'} ${
                         messageCount > 0 ? 'text-cyan-400' : 'text-gray-500'
                       }`}>
                         {messageCount}
                       </div>
-                      <div className="text-gray-400 text-[10px]">
-                        message{messageCount !== 1 ? 's' : ''}
+                      <div className="text-gray-400 text-[9px]">
+                        msg{messageCount !== 1 ? 's' : ''}
                       </div>
                     </div>
                   </div>
@@ -336,50 +394,49 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
           )}
         </div>
 
+        {/* FOOTER - Zoptymalizowany */}
         <div className={`flex-shrink-0 border-t border-gray-700/50 bg-gray-800/30 ${
           isMobile ? 'p-2' : 'p-3'
         }`}>
-          <div className={`flex ${isMobile ? 'flex-col gap-2' : 'justify-between items-center'}`}>
+          <div className={`${isMobile ? 'space-y-1' : 'flex justify-between items-center'}`}>
             <div className="text-gray-400 text-xs">
               Showing {topUsers.length} of {filteredUsers.length} users
             </div>
             
-            <div className={`flex gap-1 ${isMobile ? 'mt-1' : ''}`}>
-              {currentUserInFiltered >= 10 && (
-                <button
-                  onClick={() => {
-                    const element = document.querySelector(`[data-user-id="${currentUser?.walletAddress}"]`);
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  }}
-                  className={`${isMobile ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-xs'} bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-all`}
-                >
-                  Find My Position
-                </button>
-              )}
-            </div>
+            {currentUserInFiltered >= (isMobile ? 15 : 10) && (
+              <button
+                onClick={() => {
+                  const element = document.querySelector(`[data-user-id="${currentUser?.walletAddress}"]`);
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                }}
+                className={`${isMobile ? 'w-full text-xs py-1.5' : 'px-3 py-1.5 text-xs'} bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-all`}
+              >
+                Find My Position (#{userRank})
+              </button>
+            )}
           </div>
           
           {filteredUsers.length > 0 && (
-            <div className={`grid ${isMobile ? 'grid-cols-3 gap-2' : 'grid-cols-3 gap-3'} text-center mt-3 pt-3 border-t border-gray-700/30`}>
+            <div className={`grid grid-cols-3 ${isMobile ? 'gap-1 mt-2 pt-2' : 'gap-3 mt-3 pt-3'} border-t border-gray-700/30 text-center`}>
               <div>
                 <div className="text-cyan-400 font-bold text-sm">
                   {filteredUsers.length}
                 </div>
-                <div className="text-gray-400 text-[10px]">Total Users</div>
+                <div className="text-gray-400 text-[9px]">Users</div>
               </div>
               <div>
                 <div className="text-green-400 font-bold text-sm">
-                  {filteredUsers.reduce((sum, user) => sum + getMessageCount(user), 0)}
+                  {filteredUsers.reduce((sum, user) => sum + getMessageCount(user), 0).toLocaleString()}
                 </div>
-                <div className="text-gray-400 text-[10px]">Total Messages</div>
+                <div className="text-gray-400 text-[9px]">Messages</div>
               </div>
               <div>
                 <div className="text-purple-400 font-bold text-sm">
                   {getMessageCount(filteredUsers[0]) || 0}
                 </div>
-                <div className="text-gray-400 text-[10px]">Top Score</div>
+                <div className="text-gray-400 text-[9px]">Top Score</div>
               </div>
             </div>
           )}
