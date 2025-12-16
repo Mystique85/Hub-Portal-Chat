@@ -237,6 +237,7 @@ function App() {
           isOpen={showLeaderboard}
           onClose={() => setShowLeaderboard(false)}
           currentUser={userWithBalance}
+          isMobile={isMobile}
         />
       )}
 
