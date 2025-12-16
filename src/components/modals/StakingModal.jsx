@@ -615,17 +615,19 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
 
   return (
     <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] ${
-      isMobile ? 'p-2' : 'p-4'
+      isMobile ? 'p-0' : 'p-4'
     }`}>
-      <div className={`bg-gray-800/95 backdrop-blur-xl border border-gray-700/50 w-full ${
-        isMobile 
-          ? 'rounded-xl p-3 max-w-md' 
-          : 'rounded-3xl p-6 max-w-4xl'
-      }`}>
-        <div className="flex items-center justify-between mb-4">
+      <div className={`
+        bg-gray-800/95 backdrop-blur-xl border border-gray-700/50 w-full
+        ${isMobile 
+          ? 'h-full rounded-none p-3 overflow-y-auto max-w-full' 
+          : 'rounded-3xl p-6 max-w-4xl max-h-[90vh]'
+        }
+      `}>
+        <div className={`flex items-center justify-between mb-4 ${isMobile ? '' : ''}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
-              <span className="text-lg">💰</span>
+            <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center`}>
+              <span className={`${isMobile ? 'text-base' : 'text-lg'}`}>💰</span>
             </div>
             <div>
               <h2 className={`font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent ${
@@ -645,40 +647,42 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
           </button>
         </div>
 
-        <div className="flex mb-6 border-b border-gray-700">
+        <div className={`flex mb-6 border-b border-gray-700 ${isMobile ? 'overflow-x-auto text-sm' : ''}`}>
           <button
-            className={`flex-1 py-2 font-medium ${activeTab === 'stake' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
+            className={`${isMobile ? 'flex-none px-3 py-2' : 'flex-1 py-2'} font-medium ${activeTab === 'stake' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
             onClick={() => setActiveTab('stake')}
             disabled={isAnyTransactionProcessing}
           >
-            Stake HUB
+            {isMobile ? 'Stake' : 'Stake HUB'}
           </button>
           <button
-            className={`flex-1 py-2 font-medium ${activeTab === 'fund' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
+            className={`${isMobile ? 'flex-none px-3 py-2' : 'flex-1 py-2'} font-medium ${activeTab === 'fund' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
             onClick={() => setActiveTab('fund')}
             disabled={isAnyTransactionProcessing}
           >
-            Fund Pool
+            {isMobile ? 'Fund' : 'Fund Pool'}
           </button>
           <button
-            className={`flex-1 py-2 font-medium ${activeTab === 'badge' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
+            className={`${isMobile ? 'flex-none px-3 py-2' : 'flex-1 py-2'} font-medium ${activeTab === 'badge' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
             onClick={() => setActiveTab('badge')}
             disabled={isAnyTransactionProcessing}
           >
-            🏆 Badge Tiers
+            {isMobile ? '🏆 Badge' : '🏆 Badge Tiers'}
           </button>
           <button
-            className={`flex-1 py-2 font-medium ${activeTab === 'info' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
+            className={`${isMobile ? 'flex-none px-3 py-2' : 'flex-1 py-2'} font-medium ${activeTab === 'info' ? 'text-cyan-400 border-b-2 border-cyan-400' : 'text-gray-400'}`}
             onClick={() => setActiveTab('info')}
             disabled={isAnyTransactionProcessing}
           >
-            Pool Info
+            {isMobile ? 'Info' : 'Pool Info'}
           </button>
         </div>
 
-        <div className="max-h-[60vh] overflow-y-auto pr-2">
+        <div className={`
+          ${isMobile ? 'max-h-[calc(100vh-200px)] overflow-y-auto pb-4' : 'max-h-[60vh] overflow-y-auto pr-2'}
+        `}>
           {activeTab === 'stake' && (
-            <div className="space-y-6">
+            <div className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
               <div>
                 <div className="flex justify-between items-center mb-3">
                   <h3 className="text-white font-semibold">Select Staking Tier</h3>
@@ -693,7 +697,7 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
                 
                 {viewStakesForTier === null ? (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 md:grid-cols-3 gap-3'}`}>
                     {tiers.map(tier => {
                       const userStake = getUserStakeForTier(tier.id);
                       const tierStakes = getUserStakesByTier(tier.id);
@@ -914,7 +918,7 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
           )}
 
           {activeTab === 'fund' && (
-            <div className="space-y-6">
+            <div className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
               <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-xl p-4">
                 <h3 className="text-cyan-400 font-bold mb-2">💡 Fund the Reward Pool</h3>
                 <p className="text-gray-300 text-sm">
@@ -1003,7 +1007,7 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
           )}
 
           {activeTab === 'badge' && (
-            <div className="space-y-6">
+            <div className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
               {/* Header */}
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 mb-3">
@@ -1022,7 +1026,7 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               <div className="bg-gray-800/50 rounded-xl p-4">
                 <h4 className="text-white font-semibold mb-3">Your Staking Status</h4>
                 
-                <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className={`grid ${isMobile ? 'grid-cols-2 gap-2' : 'grid-cols-2 gap-3'} mb-3`}>
                   <div className="bg-gray-700/50 rounded-lg p-3">
                     <div className="text-gray-400 text-sm">Total 12M Staked</div>
                     <div className="text-green-400 font-bold text-lg">
@@ -1186,8 +1190,8 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
           )}
 
           {activeTab === 'info' && stakingData && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
+              <div className={`grid ${isMobile ? 'grid-cols-2 gap-3' : 'grid-cols-1 md:grid-cols-3 gap-4'}`}>
                 <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-xl p-4">
                   <div className="text-cyan-400 font-bold text-2xl mb-1">
                     {formatNumber(stakingData.totalStaked)}
@@ -1202,12 +1206,14 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   <div className="text-gray-400 text-sm">Available Rewards (HUB)</div>
                 </div>
                 
-                <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-4">
-                  <div className="text-purple-400 font-bold text-2xl mb-1">
-                    {formatNumber(stakingData.stakersCount)}
+                {!isMobile && (
+                  <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-4">
+                    <div className="text-purple-400 font-bold text-2xl mb-1">
+                      {formatNumber(stakingData.stakersCount)}
+                    </div>
+                    <div className="text-gray-400 text-sm">Active Stakers</div>
                   </div>
-                  <div className="text-gray-400 text-sm">Active Stakers</div>
-                </div>
+                )}
               </div>
               
               <div className="bg-gray-700/30 rounded-xl p-4">
@@ -1218,7 +1224,7 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                     <span className="text-gray-400">Contract Address:</span>
                     <div className="flex items-center gap-2">
                       <span className="text-cyan-300 text-sm">
-                        {STAKING_CONTRACT_ADDRESS}
+                        {isMobile ? `${STAKING_CONTRACT_ADDRESS.slice(0, 8)}...${STAKING_CONTRACT_ADDRESS.slice(-6)}` : STAKING_CONTRACT_ADDRESS}
                       </span>
                       <button
                         onClick={() => copyToClipboard(STAKING_CONTRACT_ADDRESS, 'Staking Contract')}
@@ -1301,8 +1307,8 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
           </div>
         )}
 
-        <div className="mt-6 pt-4 border-t border-gray-700">
-          <div className="flex flex-col md:flex-row justify-between text-sm text-gray-400 gap-3">
+        <div className={`mt-6 pt-4 border-t border-gray-700 ${isMobile ? 'mt-4 pt-3' : ''}`}>
+          <div className={`flex flex-col md:flex-row justify-between text-sm text-gray-400 gap-3 ${isMobile ? 'text-xs' : ''}`}>
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <span>💎 Need HUB?</span>
@@ -1315,16 +1321,18 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   Get on Uniswap
                 </a>
               </div>
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-cyan-300">HUB Token:</span>
-                <span className="font-mono">{HUB_TOKEN_ADDRESS}</span>
-                <button
-                  onClick={() => copyToClipboard(HUB_TOKEN_ADDRESS, 'HUB Token Address')}
-                  className="text-xs px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded"
-                >
-                  📋
-                </button>
-              </div>
+              {!isMobile && (
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-cyan-300">HUB Token:</span>
+                  <span className="font-mono">{HUB_TOKEN_ADDRESS}</span>
+                  <button
+                    onClick={() => copyToClipboard(HUB_TOKEN_ADDRESS, 'HUB Token Address')}
+                    className="text-xs px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded"
+                  >
+                    📋
+                  </button>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <span>🔗</span>
