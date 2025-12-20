@@ -352,9 +352,9 @@ const Header = ({
   }
 
   return (
-    <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-8 flex-shrink-0">
+    <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-6 flex-shrink-0">
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-3">
             <img 
               src="/hublogo.svg" 
@@ -373,27 +373,19 @@ const Header = ({
 
           <button
             onClick={handleMintNFT}
-            className="h-[42px] px-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl font-semibold transition-all flex items-center justify-center animate-pulse shadow-lg shadow-purple-500/25 hover:scale-105"
+            className="h-[36px] px-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all flex items-center justify-center animate-pulse shadow-lg shadow-purple-500/25 hover:scale-105 text-sm"
           >
             Mint Genesis NFT
           </button>
 
-          {isBase && (
-            <button 
-              onClick={onShowStakingModal}
-              className="h-[42px] px-4 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-xl font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-emerald-500/25 hover:scale-105"
-            >
-              <span>💰</span>
-              <span>Stake HUB</span>
-            </button>
-          )}
+          {/* USUNIĘTO PRZYCISK "Stake HUB" Z HEADERA */}
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {isBase && (
             <button 
               onClick={onShowBaseLeaderboard}
-              className="h-[42px] px-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-blue-500/25 hover:scale-105"
+              className="h-[36px] px-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-blue-500/25 hover:scale-105"
             >
               <span>🏆</span>
               <span>Base Leaderboard</span>
@@ -403,7 +395,7 @@ const Header = ({
           {isCelo && supportsSeasonSystem && (
             <button 
               onClick={onShowLeaderboard}
-              className="h-[42px] px-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-amber-500/25 hover:scale-105"
+              className="h-[36px] px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-amber-500/25 hover:scale-105"
             >
               <span>🏆</span>
               <span>Celo Leaderboard</span>
@@ -414,7 +406,7 @@ const Header = ({
             <button 
               ref={quickAccessButtonRef}
               onClick={() => setShowQuickAccessMenu(!showQuickAccessMenu)}
-              className="h-[42px] px-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-cyan-500/25"
+              className="h-[36px] px-3 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-cyan-500/25"
             >
               <span>📊</span>
               <span>Quick Access</span>
@@ -426,7 +418,7 @@ const Header = ({
 
           <button 
             onClick={handleSwitchNetwork}
-            className="h-[42px] px-4 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white rounded-xl font-semibold transition-all flex items-center gap-2 text-sm border border-gray-600 hover:border-gray-500 shadow-lg hover:scale-105 group"
+            className="h-[36px] px-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm border border-gray-600 hover:border-gray-500 shadow-lg hover:scale-105 group"
             title={`Switch to ${isCelo ? 'Base' : 'Celo'} network`}
           >
             <span className="text-lg">🌐</span>

@@ -16,11 +16,14 @@ const Sidebar = ({
   isMobile = false,
   onMobileViewChange,
   markAsRead,
-  onShowUserProfile // PROP do otwarcia modala profilu
+  onShowUserProfile,
+  activeChat = 'public',
+  onChatChange
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAdminDropdown, setShowAdminDropdown] = useState(false);
   const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
+  const [showChannelsDropdown, setShowChannelsDropdown] = useState(false);
 
   const { isCelo, isBase, tokenSymbol } = useNetwork();
 
@@ -48,7 +51,6 @@ const Sidebar = ({
     setShowNotificationsDropdown(false);
   };
 
-  // Funkcja pomocnicza do wyświetlania badge subskrypcji
   const getSubscriptionBadge = () => {
     if (!currentUser?.subscriptionInfo) return null;
     
@@ -89,7 +91,6 @@ const Sidebar = ({
   if (isMobile) {
     return (
       <div className="h-full flex flex-col bg-gray-900/50">
-        {/* TYLKO DODANIE INFORMACJI O LICZBIE UŻYTKOWNIKÓW */}
         <div className="p-2 border-b border-gray-700/50 flex-shrink-0 text-center">
           <div className="flex items-center justify-center gap-1 text-gray-400 text-xs">
             <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
@@ -97,7 +98,63 @@ const Sidebar = ({
           </div>
         </div>
 
-        {/* ZAKŁADKI ONLINE/ALL USERS NA MOBILE - ZMNIEJSZONE */}
+        <div className="p-2 border-b border-gray-700/50 flex-shrink-0">
+          <h3 className="text-gray-400 text-xs font-semibold mb-1 px-0.5">
+            Channels
+          </h3>
+          <div className="space-y-1">
+            <button 
+              onClick={() => onChatChange('public')}
+              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all ${
+                activeChat === 'public' 
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-700/30 border border-transparent hover:border-cyan-500/20'
+              }`}
+            >
+              <div className={`w-6 h-6 rounded-md flex items-center justify-center ${
+                activeChat === 'public' 
+                  ? 'bg-cyan-500/30 text-cyan-300' 
+                  : 'bg-gray-700/50 text-gray-400'
+              }`}>
+                <span className="text-sm">💬</span>
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-medium">Public Chat</div>
+                <div className="text-[10px] text-gray-500">All networks • Everyone</div>
+              </div>
+              {activeChat === 'public' && (
+                <div className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></div>
+              )}
+            </button>
+            
+            {isBase && (
+              <button 
+                onClick={() => onChatChange('base-airdrop')}
+                className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all ${
+                  activeChat === 'base-airdrop' 
+                    ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' 
+                    : 'text-gray-400 hover:text-white hover:bg-gray-700/30 border border-transparent hover:border-blue-500/20'
+                }`}
+              >
+                <div className={`w-6 h-6 rounded-md flex items-center justify-center ${
+                  activeChat === 'base-airdrop' 
+                    ? 'bg-blue-500/30 text-blue-300' 
+                    : 'bg-gray-700/50 text-gray-400'
+                }`}>
+                  <span className="text-sm">🎁</span>
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="font-medium">Airdrops & New Projects</div>
+                  <div className="text-[10px] text-gray-500">Base network only</div>
+                </div>
+                {activeChat === 'base-airdrop' && (
+                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></div>
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+
         <div className="p-2 border-b border-gray-700/50 flex-shrink-0">
           <div className="flex bg-gray-700/50 rounded-md p-0.5 border border-gray-600/50 mb-1">
             <button 
@@ -122,7 +179,6 @@ const Sidebar = ({
             </button>
           </div>
 
-          {/* TYTUŁ Z LICZBĄ UŻYTKOWNIKÓW - DODANE */}
           <h4 className="text-gray-400 text-xs font-semibold px-0.5">
             {activeTab === 'online' 
               ? `🟢 Online Now (${filteredUsers.length})` 
@@ -131,7 +187,6 @@ const Sidebar = ({
           </h4>
         </div>
 
-        {/* INPUT WYSZUKIWANIA NA MOBILE - ZMNIEJSZONY */}
         <div className="p-2 border-b border-gray-700/50 flex-shrink-0">
           <input
             type="text"
@@ -142,7 +197,6 @@ const Sidebar = ({
           />
         </div>
 
-        {/* ADMIN DROPDOWN NA MOBILE - ZMNIEJSZONY */}
         {admins.length > 0 && (
           <div className="p-2 border-b border-gray-700/50 flex-shrink-0 relative">
             <button
@@ -201,7 +255,6 @@ const Sidebar = ({
           </div>
         )}
 
-        {/* LISTA UŻYTKOWNIKÓW NA MOBILE */}
         <div className="flex-1 overflow-y-auto">
           <UserList
             users={filteredUsers}
@@ -221,30 +274,8 @@ const Sidebar = ({
     );
   }
 
-  // DESKTOP VERSION - NIE ZMIENIONE (dokładnie tak jak było)
   return (
     <div className="w-80 bg-gray-800/50 backdrop-blur-xl border-r border-gray-700/50 flex flex-col h-full overflow-hidden">
-      {/* NOWY NAGŁÓWEK (TAKI SAM JAK W DRUGIM PLIKU) */}
-      <div className="p-6 border-b border-gray-700/50 flex-shrink-0">
-        <div className="flex items-center justify-center gap-3 mb-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center">
-            <img 
-              src="/hublogo.svg" 
-              alt="HUB Portal" 
-              className="w-5 h-5"
-            />
-          </div>
-          <h3 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            HUB Chat
-          </h3>
-        </div>
-        <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
-          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-          {onlineUsers.length} online
-        </div>
-      </div>
-
-      {/* KLIKALNA KARTA PROFILU UŻYTKOWNIKA */}
       <div className="p-4 border-b border-gray-700/50 flex-shrink-0">
         {currentUser && (
           <div 
@@ -287,7 +318,90 @@ const Sidebar = ({
         )}
       </div>
 
-      {/* INBOX DROPDOWN */}
+      <div className="p-4 border-b border-gray-700/50 flex-shrink-0 relative">
+        <button
+          onClick={() => setShowChannelsDropdown(!showChannelsDropdown)}
+          className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-white transition-all ${
+            showChannelsDropdown
+              ? 'bg-cyan-500/20 border border-cyan-500/30'
+              : 'bg-gray-700/20 border border-gray-600/50 hover:bg-gray-700/30'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <span>💬</span>
+            <span className="font-medium">Channels</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-gray-400 text-xs">
+              {activeChat === 'public' ? 'Public Chat' : 'Airdrops & New Projects'}
+            </span>
+            <span className={`transform transition-transform ${showChannelsDropdown ? 'rotate-180' : ''}`}>
+              ▼
+            </span>
+          </div>
+        </button>
+
+        {showChannelsDropdown && (
+          <div className="absolute top-full left-4 right-4 mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-lg z-30 max-h-64 overflow-y-auto">
+            <button
+              onClick={() => {
+                onChatChange('public');
+                setShowChannelsDropdown(false);
+              }}
+              className={`w-full flex items-center gap-3 p-3 text-left transition-all border-b border-gray-700/50 hover:bg-gray-700/50 ${
+                activeChat === 'public'
+                  ? 'bg-cyan-500/20 text-cyan-300'
+                  : 'text-gray-300'
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                activeChat === 'public'
+                  ? 'bg-cyan-500/30 text-cyan-300'
+                  : 'bg-gray-700/50 text-gray-400'
+              }`}>
+                <span className="text-xl">💬</span>
+              </div>
+              <div className="flex-1">
+                <div className="font-medium">Public Chat</div>
+                <div className="text-xs text-gray-400">All networks • Everyone</div>
+              </div>
+              {activeChat === 'public' && (
+                <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+              )}
+            </button>
+
+            {isBase && (
+              <button
+                onClick={() => {
+                  onChatChange('base-airdrop');
+                  setShowChannelsDropdown(false);
+                }}
+                className={`w-full flex items-center gap-3 p-3 text-left transition-all hover:bg-gray-700/50 ${
+                  activeChat === 'base-airdrop'
+                    ? 'bg-blue-500/20 text-blue-300'
+                    : 'text-gray-300'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                  activeChat === 'base-airdrop'
+                    ? 'bg-blue-500/30 text-blue-300'
+                    : 'bg-gray-700/50 text-gray-400'
+                }`}>
+                  <span className="text-xl">🎁</span>
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium">Airdrops & New Projects</div>
+                  <div className="text-xs text-gray-400">Base network only</div>
+                </div>
+                {activeChat === 'base-airdrop' && (
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                )}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="p-4 border-b border-gray-700/50 flex-shrink-0 relative">
         <button
           onClick={() => setShowNotificationsDropdown(!showNotificationsDropdown)}
@@ -405,7 +519,6 @@ const Sidebar = ({
         </div>
       )}
 
-      {/* ZAKŁADKI ONLINE/ALL USERS */}
       <div className="p-4 border-b border-gray-700/50 flex-shrink-0">
         <div className="flex bg-gray-700/50 rounded-xl p-1 border border-gray-600/50">
           <button 
@@ -461,8 +574,11 @@ const Sidebar = ({
       </div>
 
       <div className="p-4 border-t border-gray-700/50 flex-shrink-0">
-        <div className="text-center text-gray-400 text-xs">
-          Connected as {currentUser?.nickname}
+        <div className="text-center text-gray-400 text-xs flex items-center justify-center gap-2">
+          <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+          <span>{onlineUsers.length} online</span>
+          <span className="text-gray-500">•</span>
+          <span>{activeChat === 'public' ? '💬 Public Chat' : '🎁 Airdrops & New Projects'}</span>
         </div>
       </div>
     </div>
