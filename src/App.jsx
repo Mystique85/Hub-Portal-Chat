@@ -9,6 +9,7 @@ import MobileFooter from './components/layout/MobileFooter';
 import LoginHelpTooltip from './components/layout/LoginHelpTooltip';
 
 import PublicChat from './components/chat/PublicChat';
+import BaseAirdropChat from './components/chat/BaseAirdropChat';
 import PrivateChat from './components/chat/PrivateChat';
 
 import NicknameModal from './components/modals/NicknameModal';
@@ -39,6 +40,8 @@ function App() {
   const [showBaseLeaderboard, setShowBaseLeaderboard] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
+  
+  const [activeChat, setActiveChat] = useState('public');
   
   const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
@@ -101,6 +104,12 @@ function App() {
       setPrivateMessage('');
     }
   }, [showDMModal]);
+
+  useEffect(() => {
+    if (isCelo && activeChat === 'base-airdrop') {
+      setActiveChat('public');
+    }
+  }, [isCelo, activeChat]);
 
   const usersWithUnreadMessages = allUsers
     .filter(user => unreadCounts[user.walletAddress] > 0)
@@ -305,15 +314,31 @@ function App() {
           
           <div className="flex-1 min-h-0 bg-gray-900/50 overflow-hidden">
             {mobileView === 'public' && (
-              <PublicChat 
-                currentUser={userWithBalance}
-                onUpdateLastSeen={updateUserLastSeen}
-                onDeleteMessage={deleteMessage}
-                onStartPrivateChat={handleStartPrivateChat}
-                onViewProfile={handleViewProfile}
-                updateUserMessageCount={updateUserMessageCount}
-                isMobile={true}
-              />
+              <>
+                {activeChat === 'public' && (
+                  <PublicChat 
+                    currentUser={userWithBalance}
+                    onUpdateLastSeen={updateUserLastSeen}
+                    onDeleteMessage={deleteMessage}
+                    onStartPrivateChat={handleStartPrivateChat}
+                    onViewProfile={handleViewProfile}
+                    updateUserMessageCount={updateUserMessageCount}
+                    isMobile={true}
+                  />
+                )}
+                
+                {activeChat === 'base-airdrop' && isBase && (
+                  <BaseAirdropChat 
+                    currentUser={userWithBalance}
+                    onUpdateLastSeen={updateUserLastSeen}
+                    onDeleteMessage={deleteMessage}
+                    onStartPrivateChat={handleStartPrivateChat}
+                    onViewProfile={handleViewProfile}
+                    updateUserMessageCount={updateUserMessageCount}
+                    isMobile={true}
+                  />
+                )}
+              </>
             )}
             
             {mobileView === 'users' && (
@@ -375,6 +400,9 @@ function App() {
             usersWithUnreadMessages={usersWithUnreadMessages}
             onStartPrivateChat={handleStartPrivateChat}
             markAsRead={markAsRead}
+            // DODANE: Przekazujemy aktywnego chatu do MobileFooter
+            activeChat={activeChat}
+            onChatChange={setActiveChat}
           />
         </div>
       ) : (
@@ -391,6 +419,9 @@ function App() {
             activeDMChat={activeDMChat}
             markAsRead={markAsRead}
             onShowUserProfile={handleShowMyProfile}
+            // DODANE: Przekazujemy aktywnego chatu do Sidebar
+            activeChat={activeChat}
+            onChatChange={setActiveChat}
           />
 
           <div className="flex-1 flex flex-col bg-gray-900/50 min-w-0 relative">
@@ -417,14 +448,27 @@ function App() {
             
             <div className="flex-1 flex min-h-0">
               <div className={`${activeDMChat ? 'flex-1' : 'w-full'} min-w-0`}>
-                <PublicChat 
-                  currentUser={userWithBalance}
-                  onUpdateLastSeen={updateUserLastSeen}
-                  onDeleteMessage={deleteMessage}
-                  onStartPrivateChat={startPrivateChat}
-                  onViewProfile={handleViewProfile}
-                  updateUserMessageCount={updateUserMessageCount}
-                />
+                {activeChat === 'public' && (
+                  <PublicChat 
+                    currentUser={userWithBalance}
+                    onUpdateLastSeen={updateUserLastSeen}
+                    onDeleteMessage={deleteMessage}
+                    onStartPrivateChat={startPrivateChat}
+                    onViewProfile={handleViewProfile}
+                    updateUserMessageCount={updateUserMessageCount}
+                  />
+                )}
+                
+                {activeChat === 'base-airdrop' && isBase && (
+                  <BaseAirdropChat 
+                    currentUser={userWithBalance}
+                    onUpdateLastSeen={updateUserLastSeen}
+                    onDeleteMessage={deleteMessage}
+                    onStartPrivateChat={startPrivateChat}
+                    onViewProfile={handleViewProfile}
+                    updateUserMessageCount={updateUserMessageCount}
+                  />
+                )}
               </div>
 
               {activeDMChat && (
