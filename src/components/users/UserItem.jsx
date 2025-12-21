@@ -3,14 +3,10 @@ import { ADMIN_ADDRESSES } from '../../utils/constants';
 const UserItem = ({ 
   user, 
   currentUser, 
-  unreadCounts, 
   onlineUsers, 
-  onStartPrivateChat,
-  isActive,
   showOnlineStatus = true,
   isMobile = false
 }) => {
-  const unreadCount = unreadCounts[user.walletAddress] || 0;
   const isOnline = onlineUsers.some(onlineUser => 
     onlineUser.walletAddress === user.walletAddress
   );
@@ -19,16 +15,11 @@ const UserItem = ({
 
   return (
     <div 
-      className={`relative flex items-center gap-3 cursor-pointer transition-all border group flex-shrink-0 ${
+      className={`relative flex items-center gap-3 transition-all border group flex-shrink-0 ${
         isMobile 
           ? 'p-2 rounded-lg' 
           : 'p-3 rounded-xl'
-      } ${
-        isActive
-          ? 'bg-cyan-500/20 border-cyan-500/50' 
-          : 'border-gray-600/50 hover:bg-gray-700/50 hover:border-cyan-500/30'
-      }`}
-      onClick={() => onStartPrivateChat(user)}
+      } border-gray-600/50`}
     >
       {/* User Avatar */}
       <div className="relative">
@@ -36,7 +27,7 @@ const UserItem = ({
           isMobile
             ? 'w-8 h-8 text-sm'
             : 'w-10 h-10 text-base'
-        } ${unreadCount > 0 ? 'animate-pulse' : ''}`}>
+        }`}>
           {user.avatar}
         </div>
         {showOnlineStatus && isOnline && (

@@ -1,6 +1,6 @@
 import MessageItem from './MessageItem';
 
-const MessageList = ({ messages, currentUser, onDeleteMessage, isMobile = false, onReply, onPrivateMessage, onScrollToMessage, onViewProfile }) => {
+const MessageList = ({ messages, currentUser, onDeleteMessage, isMobile = false, onReply, onScrollToMessage, onViewProfile }) => {
   if (messages.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -28,7 +28,6 @@ const MessageList = ({ messages, currentUser, onDeleteMessage, isMobile = false,
             currentUser={currentUser}
             onDeleteMessage={onDeleteMessage}
             onReply={onReply}
-            onPrivateMessage={onPrivateMessage}
             onScrollToMessage={onScrollToMessage}
             onViewProfile={onViewProfile}
             isMobile={isMobile}

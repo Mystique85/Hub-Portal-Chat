@@ -10,11 +10,8 @@ import LoginHelpTooltip from './components/layout/LoginHelpTooltip';
 
 import PublicChat from './components/chat/PublicChat';
 import BaseAirdropChat from './components/chat/BaseAirdropChat';
-import PrivateChat from './components/chat/PrivateChat';
 
 import NicknameModal from './components/modals/NicknameModal';
-import PrivateChatModal from './components/modals/PrivateChatModal';
-import ToastNotification from './components/modals/ToastNotification';
 import UserProfileModal from './components/modals/UserProfileModal';
 import LeaderboardModal from './components/modals/LeaderboardModal';
 import BaseLeaderboardModal from './components/modals/BaseLeaderboardModal';
@@ -23,7 +20,6 @@ import StakingModal from './components/modals/StakingModal';
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
-import { useChat } from './hooks/useChat';
 import { useWeb3 } from './hooks/useWeb3';
 import { useSeasons } from './hooks/useSeasons';
 import { useNetwork } from './hooks/useNetwork';
@@ -65,25 +61,8 @@ function App() {
 
   const { 
     onlineUsers, 
-    allUsers, 
-    unreadCounts,
-    totalUnreadCount,
-    markAsRead
-  } = useUsers(address, currentUser);
-
-  const {
-    activeDMChat,
-    setActiveDMChat,
-    showDMModal,
-    setShowDMModal,
-    selectedUser,
-    setSelectedUser,
-    startPrivateChat,
-    confirmPrivateChat,
-    closeDMChat,
-    isStartingDM,
-    isConfirming
-  } = useChat(address, currentUser, allUsers);
+    allUsers
+  } = useUsers(address);
 
   const { 
     balance, 
@@ -94,29 +73,14 @@ function App() {
 
   const { checkAndDistributeRewards } = useSeasons();
 
-  const [privateMessage, setPrivateMessage] = useState('');
   const [nicknameInput, setNicknameInput] = useState('');
   const [selectedAvatar, setSelectedAvatar] = useState('🐶');
-  const [toastNotification, setToastNotification] = useState(null);
-
-  useEffect(() => {
-    if (showDMModal) {
-      setPrivateMessage('');
-    }
-  }, [showDMModal]);
 
   useEffect(() => {
     if (isCelo && activeChat === 'base-airdrop') {
       setActiveChat('public');
     }
   }, [isCelo, activeChat]);
-
-  const usersWithUnreadMessages = allUsers
-    .filter(user => unreadCounts[user.walletAddress] > 0)
-    .map(user => ({
-      ...user,
-      unreadCount: unreadCounts[user.walletAddress]
-    }));
 
   const userWithBalance = currentUser ? {
     ...currentUser,
@@ -137,12 +101,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (activeDMChat && isMobile) {
-      setMobileView('private');
-    }
-  }, [activeDMChat, isMobile]);
-
-  useEffect(() => {
     if (isCelo) {
       checkAndDistributeRewards();
     }
@@ -154,24 +112,6 @@ function App() {
 
   const handleCloseStakingModal = () => {
     setShowStakingModal(false);
-  };
-
-  const openChatFromToast = async (userId) => {
-    const user = allUsers.find(u => u.walletAddress === userId);
-    if (user) {
-      await handleStartPrivateChat(user);
-      setToastNotification(null);
-    }
-  };
-
-  const handleStartPrivateChat = async (user) => {
-    await startPrivateChat(user);
-    if (isMobile) setMobileView('private');
-  };
-
-  const handleCloseDMChat = () => {
-    closeDMChat();
-    if (isMobile) setMobileView('public');
   };
 
   const handleViewProfile = (user) => {
@@ -277,23 +217,13 @@ function App() {
         />
       )}
 
-      {toastNotification && (
-        <ToastNotification 
-          notification={toastNotification}
-          onOpenChat={openChatFromToast}
-          onClose={() => setToastNotification(null)}
-        />
-      )}
-
       {isMobile ? (
         <div className="flex flex-col h-screen relative z-10 overflow-hidden">
           <Header
             isMobile={true}
             currentUser={userWithBalance}
-            totalUnreadCount={totalUnreadCount}
             mobileView={mobileView}
             onMobileViewChange={setMobileView}
-            activeDMChat={activeDMChat}
             onShowLeaderboard={() => {
               if (isCelo) {
                 setShowLeaderboard(true);
@@ -320,7 +250,6 @@ function App() {
                     currentUser={userWithBalance}
                     onUpdateLastSeen={updateUserLastSeen}
                     onDeleteMessage={deleteMessage}
-                    onStartPrivateChat={handleStartPrivateChat}
                     onViewProfile={handleViewProfile}
                     updateUserMessageCount={updateUserMessageCount}
                     isMobile={true}
@@ -332,7 +261,6 @@ function App() {
                     currentUser={userWithBalance}
                     onUpdateLastSeen={updateUserLastSeen}
                     onDeleteMessage={deleteMessage}
-                    onStartPrivateChat={handleStartPrivateChat}
                     onViewProfile={handleViewProfile}
                     updateUserMessageCount={updateUserMessageCount}
                     isMobile={true}
@@ -349,23 +277,7 @@ function App() {
                 allUsers={allUsers}
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
-                totalUnreadCount={totalUnreadCount}
-                unreadCounts={unreadCounts}
-                onStartPrivateChat={handleStartPrivateChat}
-                activeDMChat={activeDMChat}
-                onMobileViewChange={setMobileView}
-                markAsRead={markAsRead}
                 onShowUserProfile={handleShowMyProfile}
-              />
-            )}
-            
-            {mobileView === 'private' && activeDMChat && (
-              <PrivateChat
-                activeDMChat={activeDMChat}
-                currentUser={userWithBalance}
-                onClose={handleCloseDMChat}
-                onMarkAsRead={markAsRead}
-                isMobile={true}
               />
             )}
 
@@ -395,12 +307,6 @@ function App() {
           <MobileFooter
             mobileView={mobileView}
             onMobileViewChange={setMobileView}
-            totalUnreadCount={totalUnreadCount}
-            activeDMChat={activeDMChat}
-            usersWithUnreadMessages={usersWithUnreadMessages}
-            onStartPrivateChat={handleStartPrivateChat}
-            markAsRead={markAsRead}
-            // DODANE: Przekazujemy aktywnego chatu do MobileFooter
             activeChat={activeChat}
             onChatChange={setActiveChat}
           />
@@ -413,13 +319,7 @@ function App() {
             allUsers={allUsers}
             activeTab={activeTab}
             setActiveTab={setActiveTab}
-            totalUnreadCount={totalUnreadCount}
-            unreadCounts={unreadCounts}
-            onStartPrivateChat={startPrivateChat}
-            activeDMChat={activeDMChat}
-            markAsRead={markAsRead}
             onShowUserProfile={handleShowMyProfile}
-            // DODANE: Przekazujemy aktywnego chatu do Sidebar
             activeChat={activeChat}
             onChatChange={setActiveChat}
           />
@@ -427,7 +327,6 @@ function App() {
           <div className="flex-1 flex flex-col bg-gray-900/50 min-w-0 relative">
             <Header 
               currentUser={userWithBalance}
-              totalUnreadCount={totalUnreadCount}
               onShowLeaderboard={() => {
                 if (isCelo) {
                   setShowLeaderboard(true);
@@ -447,13 +346,12 @@ function App() {
             />
             
             <div className="flex-1 flex min-h-0">
-              <div className={`${activeDMChat ? 'flex-1' : 'w-full'} min-w-0`}>
+              <div className="w-full min-w-0">
                 {activeChat === 'public' && (
                   <PublicChat 
                     currentUser={userWithBalance}
                     onUpdateLastSeen={updateUserLastSeen}
                     onDeleteMessage={deleteMessage}
-                    onStartPrivateChat={startPrivateChat}
                     onViewProfile={handleViewProfile}
                     updateUserMessageCount={updateUserMessageCount}
                   />
@@ -464,21 +362,11 @@ function App() {
                     currentUser={userWithBalance}
                     onUpdateLastSeen={updateUserLastSeen}
                     onDeleteMessage={deleteMessage}
-                    onStartPrivateChat={startPrivateChat}
                     onViewProfile={handleViewProfile}
                     updateUserMessageCount={updateUserMessageCount}
                   />
                 )}
               </div>
-
-              {activeDMChat && (
-                <PrivateChat
-                  activeDMChat={activeDMChat}
-                  currentUser={userWithBalance}
-                  onClose={closeDMChat}
-                  onMarkAsRead={markAsRead}
-                />
-              )}
             </div>
           </div>
         </div>
@@ -494,24 +382,6 @@ function App() {
           onRegister={() => registerUser(nicknameInput, selectedAvatar)}
           onClose={() => setShowNicknameModal(false)}
           availableAvatars={AVAILABLE_AVATARS}
-        />
-      )}
-
-      {showDMModal && selectedUser && (
-        <PrivateChatModal
-          selectedUser={selectedUser}
-          privateMessage={privateMessage}
-          setPrivateMessage={setPrivateMessage}
-          onConfirm={() => confirmPrivateChat(privateMessage)}
-          onClose={() => {
-            setShowDMModal(false);
-            setSelectedUser(null);
-            setPrivateMessage('');
-            if (isMobile) setMobileView('users');
-          }}
-          isStartingDM={isStartingDM}
-          isConfirming={isConfirming}
-          isMobile={isMobile}
         />
       )}
 

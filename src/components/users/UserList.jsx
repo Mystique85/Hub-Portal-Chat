@@ -1,15 +1,11 @@
-// src/components/users/UserList.jsx
 import UserItem from './UserItem';
 
 const UserList = ({ 
   users, 
   currentUser, 
-  unreadCounts, 
   onlineUsers, 
-  onStartPrivateChat,
-  activeDMChat,
   isOnlineList = false, // Nowy prop do rozróżnienia list
-  isMobile = false // DODAJEMY PROP DLA MOBILE
+  isMobile = false
 }) => {
   // NIE FILTRUJ użytkowników - pokazuj WSZYSTKICH
   // Dla obu zakładek pokazujemy wszystkich użytkowników
@@ -52,12 +48,9 @@ const UserList = ({
           key={user.walletAddress}
           user={user}
           currentUser={currentUser}
-          unreadCounts={unreadCounts}
           onlineUsers={onlineUsers}
-          onStartPrivateChat={onStartPrivateChat}
-          isActive={activeDMChat?.user?.walletAddress === user.walletAddress}
           showOnlineStatus={isOnlineList}
-          isMobile={isMobile} // PRZEKAZUJEMY DO UserItem
+          isMobile={isMobile}
         />
       ))}
     </div>
