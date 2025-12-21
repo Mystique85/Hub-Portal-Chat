@@ -20,7 +20,6 @@ export const useFirebase = (address) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [showNicknameModal, setShowNicknameModal] = useState(false);
   
-  // DODANE: Wykrywanie sieci
   const { isCelo, isBase, currentNetwork } = useNetwork();
 
   useEffect(() => {
@@ -43,7 +42,6 @@ export const useFirebase = (address) => {
         setShowNicknameModal(true);
       }
     } catch (error) {
-      console.error('Error checking user registration:', error);
       setShowNicknameModal(true);
     }
   };
@@ -55,9 +53,7 @@ export const useFirebase = (address) => {
       await updateDoc(userRef, {
         lastSeen: serverTimestamp()
       });
-    } catch (error) {
-      console.error('Error updating last seen:', error);
-    }
+    } catch (error) {}
   };
 
   const updateUserMessageCount = async (walletAddress) => {
@@ -71,32 +67,23 @@ export const useFirebase = (address) => {
         const currentCount = userDoc.data().totalMessages || 0;
         const season1Count = userDoc.data().season1_messages || 0;
         
-        // DODANE: Aktualizuj odpowiednie pola w zależności od sieci
         const updates = {
           totalMessages: currentCount + 1,
           lastSeen: serverTimestamp(),
           lastMessageAt: serverTimestamp()
         };
         
-        // DODANE: TYLKO na Celo aktualizuj licznik sezonu
         if (isSeasonActive() && isCelo) {
           updates.season1_messages = season1Count + 1;
-          console.log(`✅ Zaktualizowano season1_messages dla ${walletAddress} na Celo`);
         }
         
-        // DODANE: Aktualizuj licznik dla aktualnej sieci (dla statystyk)
         updates[`${currentNetwork}_messages`] = (userDoc.data()[`${currentNetwork}_messages`] || 0) + 1;
         
         await updateDoc(userRef, updates);
-        
-        console.log(`✅ Zaktualizowano licznik wiadomości dla ${walletAddress} na sieci ${currentNetwork}`);
       }
-    } catch (error) {
-      console.error('Error updating user message count:', error);
-    }
+    } catch (error) {}
   };
 
-  // DODANE: Funkcja do migracji danych - PRZYWRACA season1_messages
   const migrateUserMessageCounts = async () => {
     if (!db) return;
     
@@ -108,7 +95,6 @@ export const useFirebase = (address) => {
       }));
       
       for (const user of users) {
-        // Policz wszystkie wiadomości użytkownika (dla kompatybilności)
         const allMessagesQuery = query(
           collection(db, 'messages'), 
           where('walletAddress', '==', user.walletAddress?.toLowerCase())
@@ -116,18 +102,11 @@ export const useFirebase = (address) => {
         const allMessagesSnapshot = await getDocs(allMessagesQuery);
         const totalMessageCount = allMessagesSnapshot.size;
         
-        // PRZYWRÓĆ season1_messages z totalMessages
         await updateDoc(doc(db, 'users', user.id), {
           season1_messages: user.totalMessages || totalMessageCount || 0
         });
-        
-        console.log(`✅ Zaktualizowano użytkownika ${user.nickname}: season1_messages = ${user.totalMessages || totalMessageCount}`);
       }
-      
-      console.log('✅ Migracja season1_messages zakończona');
-    } catch (error) {
-      console.error('Error migrating message counts:', error);
-    }
+    } catch (error) {}
   };
 
   const registerUser = async (nickname, avatar) => {
@@ -149,7 +128,7 @@ export const useFirebase = (address) => {
         totalMessages: 0,
         celo_messages: 0,
         base_messages: 0,
-        season1_messages: 0, // ZACHOWUJEMY dla kompatybilności z rankingiem Celo
+        season1_messages: 0,
         badges: []
       };
 
@@ -160,7 +139,6 @@ export const useFirebase = (address) => {
       setShowNicknameModal(false);
       
     } catch (error) {
-      console.error('Registration failed:', error);
       alert('Failed to register user');
     }
   };
@@ -173,10 +151,8 @@ export const useFirebase = (address) => {
 
     try {
       await deleteDoc(doc(db, 'messages', messageId));
-      console.log('✅ Message deleted successfully');
       return true;
     } catch (error) {
-      console.error('❌ Error deleting message:', error);
       alert('Failed to delete message: ' + error.message);
       return false;
     }

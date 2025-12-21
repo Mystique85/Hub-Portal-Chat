@@ -7,7 +7,10 @@ import {
   onSnapshot, 
   updateDoc, 
   doc,
-  serverTimestamp 
+  serverTimestamp,
+  limit,
+  where,
+  Timestamp
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
@@ -16,10 +19,39 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
   const [privateMessages, setPrivateMessages] = useState([]);
   const [privateMessageInput, setPrivateMessageInput] = useState('');
   const [isSendingPrivate, setIsSendingPrivate] = useState(false);
-  const [hasLoadedMessages, setHasLoadedMessages] = useState(false); // DODANE: flaga czy wiadomości zostały załadowane
+  const [hasLoadedMessages, setHasLoadedMessages] = useState(false);
+  const [isUserActive, setIsUserActive] = useState(true);
   
   const privateMessagesEndRef = useRef(null);
+  const lastActivityRef = useRef(Date.now());
+  const unsubscribeRef = useRef(null);
+  const scrollTimeoutRef = useRef(null);
 
+  // Śledź aktywność użytkownika w tym chacie
+  useEffect(() => {
+    const handleActivity = () => {
+      lastActivityRef.current = Date.now();
+      setIsUserActive(true);
+    };
+
+    window.addEventListener('mousemove', handleActivity);
+    window.addEventListener('keydown', handleActivity);
+    window.addEventListener('click', handleActivity);
+
+    const activityCheck = setInterval(() => {
+      const timeSinceLastActivity = Date.now() - lastActivityRef.current;
+      setIsUserActive(timeSinceLastActivity < 60000); // 60s bez aktywności = nieaktywny
+    }, 30000);
+
+    return () => {
+      window.removeEventListener('mousemove', handleActivity);
+      window.removeEventListener('keydown', handleActivity);
+      window.removeEventListener('click', handleActivity);
+      clearInterval(activityCheck);
+    };
+  }, []);
+
+  // Ładowanie wiadomości z inteligentnym podejściem
   useEffect(() => {
     if (!activeDMChat || !db) return;
 
@@ -30,26 +62,82 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
       onMarkAsRead(otherParticipant);
     }
 
+    // Ustal limit wiadomości na podstawie aktywności
+    const messageLimit = isUserActive ? 100 : 50;
+    
+    // Tylko wiadomości z ostatnich 7 dni (dla optymalizacji)
+    const sevenDaysAgo = Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
+
     const privateMessagesQuery = query(
       collection(db, 'private_chats', activeDMChat.id, 'messages'),
-      orderBy('timestamp', 'asc')
+      where('timestamp', '>=', sevenDaysAgo),
+      orderBy('timestamp', 'asc'),
+      limit(messageLimit)
     );
     
-    const unsubscribePrivateMessages = onSnapshot(privateMessagesQuery, (snapshot) => {
-      const privateMessagesData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setPrivateMessages(privateMessagesData);
-      setHasLoadedMessages(true); // Ustaw flagę, że wiadomości zostały załadowane
-    });
+    // Zawsze czyść poprzedni listener
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+    }
 
-    return () => unsubscribePrivateMessages();
-  }, [activeDMChat]);
+    if (isUserActive) {
+      // UŻYTKOWNIK AKTYWNY: real-time
+      unsubscribeRef.current = onSnapshot(privateMessagesQuery, (snapshot) => {
+        const privateMessagesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setPrivateMessages(privateMessagesData);
+        setHasLoadedMessages(true);
+        
+        // Auto-scroll tylko gdy użytkownik jest na dole
+        if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+        scrollTimeoutRef.current = setTimeout(() => {
+          privateMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      });
+    } else {
+      // UŻYTKOWNIK NIEAKTYWNY: ładowanie co 30s
+      const loadMessages = async () => {
+        const snapshot = await onSnapshot(privateMessagesQuery);
+        const privateMessagesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setPrivateMessages(privateMessagesData);
+        setHasLoadedMessages(true);
+      };
+      
+      loadMessages();
+      const intervalId = setInterval(loadMessages, 30000);
+      
+      unsubscribeRef.current = () => clearInterval(intervalId);
+    }
 
+    return () => {
+      if (unsubscribeRef.current) unsubscribeRef.current();
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
+  }, [activeDMChat, isUserActive]);
+
+  // Auto-scroll przy nowych wiadomościach (zoptymalizowany)
   useEffect(() => {
-    privateMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [privateMessages]);
+    if (!privateMessages.length || !isUserActive) return;
+
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    
+    // Tylko scrolluj jeśli użytkownik jest blisko dołu
+    const container = privateMessagesEndRef.current?.parentElement;
+    if (container) {
+      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+      
+      if (isNearBottom) {
+        scrollTimeoutRef.current = setTimeout(() => {
+          privateMessagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
+      }
+    }
+  }, [privateMessages, isUserActive]);
 
   const sendPrivateMessage = async () => {
     if (!activeDMChat || !privateMessageInput.trim() || !db || isSendingPrivate) return;
@@ -92,7 +180,6 @@ const PrivateChat = ({ activeDMChat, currentUser, onClose, onMarkAsRead }) => {
 
   const isOtherAdmin = ADMIN_ADDRESSES.includes(otherParticipant?.toLowerCase());
 
-  // Sprawdź czy pokazać pusty stan chatu
   const showEmptyState = hasLoadedMessages && privateMessages.length === 0;
 
   return (
