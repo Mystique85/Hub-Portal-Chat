@@ -6,8 +6,7 @@ import {
   query, 
   orderBy, 
   onSnapshot, 
-  serverTimestamp,
-  where 
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import MessageList from './MessageList';
@@ -19,7 +18,6 @@ const PublicChat = ({
   onUpdateLastSeen, 
   onDeleteMessage, 
   isMobile = false, 
-  onStartPrivateChat, 
   onViewProfile, 
   updateUserMessageCount 
 }) => {
@@ -125,17 +123,6 @@ const PublicChat = ({
         messageInputRef.current.scrollIntoView({ behavior: 'smooth' });
       }
     }, 100);
-  };
-
-  const handlePrivateMessage = (message) => {
-    if (onStartPrivateChat) {
-      const user = {
-        walletAddress: message.walletAddress,
-        nickname: message.nickname,
-        avatar: message.avatar
-      };
-      onStartPrivateChat(user);
-    }
   };
 
   const handleScrollToMessage = (messageId) => {
@@ -244,7 +231,6 @@ const PublicChat = ({
             currentUser={currentUser}
             onDeleteMessage={handleDeleteMessage}
             onReply={handleReply}
-            onPrivateMessage={handlePrivateMessage}
             onViewProfile={onViewProfile}
             onScrollToMessage={handleScrollToMessage}
             isMobile={isMobile}

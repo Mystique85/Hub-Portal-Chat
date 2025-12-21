@@ -1,18 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import ReactionBar from './ReactionBar';
 import { ADMIN_ADDRESSES } from '../../utils/constants';
-import { useReactions } from '../../hooks/useReactions';
-import ReactionPicker from './ReactionPicker';
 
-const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onReply, onPrivateMessage, onScrollToMessage, onViewProfile }) => {
+const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onReply, onScrollToMessage, onViewProfile }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSimpleMenu, setShowSimpleMenu] = useState(false);
-  const [showReactionPicker, setShowReactionPicker] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0, direction: 'up' });
   const [isHovered, setIsHovered] = useState(false);
-  const { toggleReaction } = useReactions(msg.id, currentUser);
 
   // Deklaracje zmiennych na początku
   const isAdmin = ADMIN_ADDRESSES.includes(msg.walletAddress?.toLowerCase());
@@ -98,7 +93,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
     // Sprawdzamy gdzie jest więcej miejsca - na górze czy na dole
     const spaceAbove = rect.top;
     const spaceBelow = viewportHeight - rect.bottom;
-    const menuHeight = isMobile ? 160 : 200;
+    const menuHeight = isMobile ? 120 : 150; // Zmniejszone bo tylko 2 opcje
     
     let direction = 'down';
     let yPosition = rect.bottom + window.scrollY + 5;
@@ -118,16 +113,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
       direction: direction
     });
     setShowSimpleMenu(true);
-  };
-
-  const handleReact = () => {
-    setShowSimpleMenu(false);
-    setShowReactionPicker(true);
-  };
-
-  const handleReactionSelect = async (emoji) => {
-    await toggleReaction(emoji);
-    setShowReactionPicker(false);
   };
 
   const handleDelete = async () => {
@@ -295,14 +280,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
       }`}>
         {renderedContent}
       </div>
-      
-      <div className="flex gap-2 items-center justify-between">
-        <ReactionBar 
-          messageId={msg.id}
-          currentUser={currentUser}
-          isMobile={isMobile}
-        />
-      </div>
 
       {/* PORTAL - zoptymalizowane efekty hover */}
       {showSimpleMenu && createPortal(
@@ -338,34 +315,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
             </button>
             
             <button 
-              onClick={() => { setShowSimpleMenu(false); onPrivateMessage(msg); }}
-              className={`w-full text-left rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-cyan-50 hover:text-cyan-700 group/button ${
-                isMobile ? 'px-3 py-2' : 'px-4 py-3'
-              }`}
-            >
-              <span className={`text-cyan-500 transition-transform duration-150 group-hover/button:scale-110 ${
-                isMobile ? 'text-base' : 'text-lg'
-              }`}>💬</span>
-              <span className={`font-medium ${
-                isMobile ? 'text-xs' : ''
-              }`}>Private Message</span>
-            </button>
-            
-            <button 
-              onClick={handleReact}
-              className={`w-full text-left rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-yellow-50 hover:text-yellow-700 group/button ${
-                isMobile ? 'px-3 py-2' : 'px-4 py-3'
-              }`}
-            >
-              <span className={`text-yellow-500 transition-transform duration-150 group-hover/button:scale-110 ${
-                isMobile ? 'text-base' : 'text-lg'
-              }`}>👍</span>
-              <span className={`font-medium ${
-                isMobile ? 'text-xs' : ''
-              }`}>Add Reaction</span>
-            </button>
-            
-            <button 
               onClick={() => { 
                 setShowSimpleMenu(false); 
                 if (onViewProfile) {
@@ -386,14 +335,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
           </div>
         </>,
         document.body
-      )}
-
-      {showReactionPicker && (
-        <ReactionPicker 
-          onReactionSelect={handleReactionSelect}
-          onClose={() => setShowReactionPicker(false)}
-          isMobile={isMobile}
-        />
       )}
     </div>
   );

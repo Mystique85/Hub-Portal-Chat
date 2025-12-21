@@ -9,20 +9,14 @@ const Sidebar = ({
   allUsers,
   activeTab,
   setActiveTab,
-  totalUnreadCount,
-  unreadCounts,
-  onStartPrivateChat,
-  activeDMChat,
-  isMobile = false,
-  onMobileViewChange,
   markAsRead,
   onShowUserProfile,
   activeChat = 'public',
-  onChatChange
+  onChatChange,
+  isMobile = false
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAdminDropdown, setShowAdminDropdown] = useState(false);
-  const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
   const [showChannelsDropdown, setShowChannelsDropdown] = useState(false);
 
   const { isCelo, isBase, tokenSymbol } = useNetwork();
@@ -30,8 +24,6 @@ const Sidebar = ({
   const filteredUsers = (activeTab === 'online' ? onlineUsers : allUsers).filter(user =>
     user.nickname?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const usersWithUnread = allUsers.filter(user => unreadCounts[user.walletAddress] > 0);
 
   const admins = allUsers.filter(user => 
     ADMIN_ADDRESSES.includes(user.walletAddress?.toLowerCase())
@@ -41,15 +33,6 @@ const Sidebar = ({
       onlineUser.walletAddress === admin.walletAddress
     )
   }));
-
-  const handleNotificationClick = async (user) => {
-    if (markAsRead) {
-      await markAsRead(user.walletAddress);
-    }
-    
-    onStartPrivateChat(user);
-    setShowNotificationsDropdown(false);
-  };
 
   const getSubscriptionBadge = () => {
     if (!currentUser?.subscriptionInfo) return null;
@@ -217,12 +200,7 @@ const Sidebar = ({
                 {admins.map(admin => (
                   <div
                     key={admin.walletAddress}
-                    onClick={() => {
-                      onStartPrivateChat(admin);
-                      setShowAdminDropdown(false);
-                      onMobileViewChange('private');
-                    }}
-                    className="flex items-center gap-1.5 p-1.5 hover:bg-gray-700/50 cursor-pointer transition-all border-b border-gray-700/50 last:border-b-0"
+                    className="flex items-center gap-1.5 p-1.5 border-b border-gray-700/50 last:border-b-0"
                   >
                     <div className="w-5 h-5 rounded bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-[10px]">
                       {admin.avatar}
@@ -259,13 +237,7 @@ const Sidebar = ({
           <UserList
             users={filteredUsers}
             currentUser={currentUser}
-            unreadCounts={unreadCounts}
             onlineUsers={onlineUsers}
-            onStartPrivateChat={(user) => {
-              onStartPrivateChat(user);
-              onMobileViewChange('private');
-            }}
-            activeDMChat={activeDMChat}
             isOnlineList={activeTab === 'online'}
             isMobile={true}
           />
@@ -402,66 +374,6 @@ const Sidebar = ({
         )}
       </div>
 
-      <div className="p-4 border-b border-gray-700/50 flex-shrink-0 relative">
-        <button
-          onClick={() => setShowNotificationsDropdown(!showNotificationsDropdown)}
-          className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-white transition-all ${
-            totalUnreadCount > 0 
-              ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/50 hover:bg-purple-500/30' 
-              : 'bg-gray-700/20 border border-gray-600/50 hover:bg-gray-700/30'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            <span>📩</span>
-            <span>Inbox</span>
-            {totalUnreadCount > 0 && (
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            {totalUnreadCount > 0 && (
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-pulse min-w-6 text-center">
-                {totalUnreadCount}
-              </span>
-            )}
-            <span className={`text-gray-400 transform transition-transform ${showNotificationsDropdown ? 'rotate-180' : ''}`}>
-              ▼
-            </span>
-          </div>
-        </button>
-
-        {showNotificationsDropdown && (
-          <div className="absolute top-full left-4 right-4 mt-1 bg-gray-800 border border-gray-600 rounded-xl shadow-lg z-20 max-h-48 overflow-y-auto">
-            {usersWithUnread.length > 0 ? (
-              usersWithUnread.map(user => (
-                <div
-                  key={user.walletAddress}
-                  onClick={() => handleNotificationClick(user)}
-                  className="flex items-center gap-2 p-2 hover:bg-gray-700/50 cursor-pointer transition-all border-b border-gray-700/50 last:border-b-0"
-                >
-                  <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-xs">
-                    {user.avatar}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-white text-sm font-medium truncate">
-                      {user.nickname}
-                    </div>
-                    <div className="text-gray-400 text-xs flex items-center gap-1">
-                      <div className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse"></div>
-                      {unreadCounts[user.walletAddress]} unread
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="p-4 text-center text-gray-400 text-sm">
-                No unread messages
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
       {admins.length > 0 && (
         <div className="p-4 border-b border-gray-700/50 flex-shrink-0 relative">
           <button
@@ -482,11 +394,7 @@ const Sidebar = ({
               {admins.map(admin => (
                 <div
                   key={admin.walletAddress}
-                  onClick={() => {
-                    onStartPrivateChat(admin);
-                    setShowAdminDropdown(false);
-                  }}
-                  className="flex items-center gap-2 p-2 hover:bg-gray-700/50 cursor-pointer transition-all border-b border-gray-700/50 last:border-b-0"
+                  className="flex items-center gap-2 p-2 border-b border-gray-700/50 last:border-b-0"
                 >
                   <div className="w-6 h-6 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-xs">
                     {admin.avatar}
@@ -565,10 +473,7 @@ const Sidebar = ({
         <UserList
           users={filteredUsers}
           currentUser={currentUser}
-          unreadCounts={unreadCounts}
           onlineUsers={onlineUsers}
-          onStartPrivateChat={onStartPrivateChat}
-          activeDMChat={activeDMChat}
           isOnlineList={activeTab === 'online'}
         />
       </div>

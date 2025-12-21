@@ -12,12 +12,9 @@ import { base, celo } from '@reown/appkit/networks';
 
 const Header = ({ 
   currentUser, 
-  totalUnreadCount, 
   isMobile = false,
   mobileView = 'public',
   onMobileViewChange,
-  onUserStatsClick,
-  activeDMChat,
   onShowLeaderboard,
   onShowBaseLeaderboard,
   onShowSubscriptionModal,
@@ -268,7 +265,7 @@ const Header = ({
               <h1 className="text-sm font-bold text-white truncate">
                 {mobileView === 'public' && 'HUB Chat'}
                 {mobileView === 'users' && 'Users'}
-                {mobileView === 'private' && (activeDMChat?.user?.nickname?.slice(0, 12) || 'Chat')}
+                {mobileView === 'private' && 'Chat'}
               </h1>
               <div className="text-cyan-400 text-[10px]">
                 {networkName} • {tokenSymbol}
@@ -377,8 +374,6 @@ const Header = ({
           >
             Mint Genesis NFT
           </button>
-
-          {/* USUNIĘTO PRZYCISK "Stake HUB" Z HEADERA */}
         </div>
         
         <div className="flex items-center gap-2">
