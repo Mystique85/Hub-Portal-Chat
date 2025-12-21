@@ -28,10 +28,10 @@
 ## ✨ Features
 
 ### 💬 Intelligent Messaging System
-- **Public Chat** - Community conversations with instant delivery
-- **Private Messages** - Secure 1-on-1 conversations  
+- **Public Chat** - Community conversations with instant delivery and reply system
 - **Real-time Synchronization** - Messages appear instantly across all devices
 - **Multi-Chain Rewards** - Earn tokens on both Celo and Base networks
+- **Admin Tools** - Message moderation and embedded content for administrators
 
 ---
 
