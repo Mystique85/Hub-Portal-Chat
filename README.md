@@ -21,7 +21,7 @@
 | **Base** | Daily USDC Rewards | USDC Claim System | [`0x94fD9248505695f7BA3CbF8598E784B6C44F5924`](https://basescan.org/address/0x94fD9248505695f7BA3CbF8598E784B6C44F5924) |
 | **Base** | HUB Staking | Multi-Tier Staking 3/6/12M | [`0xd4ca2b40cEAEC7006Fa38c3Bb07ceD449b9bF7DB`](https://basescan.org/address/0xd4ca2b40cEAEC7006Fa38c3Bb07ceD449b9bF7DB) |
 | **Celo** | HC Token | HelloCelo ERC20 | [`0x12b6e1f30cb714e8129F6101a7825a910a9982F2`](https://celoscan.io/token/0x12b6e1f30cb714e8129F6101a7825a910a9982F2) |
-| **Celo** | Daily CELO Rewards | CELO Claim System | [`0xfc389eF5bE3Ab44738AeCCE261987F48E3960771`](https://celoscan.io/address/0xfc389eF5bE3Ab44738AeCCE261987F48E3960771) |
+| **Celo** | Daily CELO Rewards | Hub Portal Chat Rewards | [`0xD2b8E623aD7A5ae8cd04F11e2C059dA2e549b268`](https://celoscan.io/address/0xD2b8E623aD7A5ae8cd04F11e2C059dA2e549b268) |
 
 ---
 
@@ -118,10 +118,11 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 - Direct on-chain minting
 - **Contract:** `0x12b6e1f30cb714e8129F6101a7825a910a9982F2`
 
-### Daily CELO Rewards
-- Claimable every 24 hours
-- Requires 100+ HC balance
-- **Contract:** `0xfc389eF5bE3Ab44738AeCCE261987F48E3960771`
+### Daily CELO Rewards 
+- **1 CELO** claimable every 24 hours 
+- Requires **200+ HC balance**
+- Streak system with rewards for consistent daily claims
+- **Contract:** `0xD2b8E623aD7A5ae8cd04F11e2C059dA2e549b268`
 
 ---
 
@@ -143,6 +144,7 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 ### 💫 HC Token (Celo Network)
 - Supply: 1,000,000 HC
 - Utility: Chat mining and CELO reward access
+- **Increased requirement**: 200 HC needed for CELO rewards (up from 100)
 
 ---
 
@@ -156,7 +158,7 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 
 ### Celo Network Contracts
 - HC Token
-- CELO Daily Rewards
+- CELO Daily Rewards V2 (Hub Portal Chat Rewards)
 
 ---
 

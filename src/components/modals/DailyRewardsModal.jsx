@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 
 const contractABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"totalClaims","type":"uint256"},{"indexed":false,"internalType":"string","name":"message","type":"string"}],"name":"Claimed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"newMessage","type":"string"}],"name":"MessageUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"longestStreak","type":"uint256"}],"name":"StreakUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"}],"name":"UserBlocked","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"}],"name":"UserUnblocked","type":"event"},{"inputs":[],"name":"CLAIM_COOLDOWN","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"DAILY_CELO_REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"HC_TOKEN_ADDRESS","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MIN_HC_REQUIRED","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"STREAK_TIMEFRAME","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"appLink","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"blacklist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"blacklistMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"blockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"canClaim","outputs":[{"internalType":"bool","name":"","type":"bool"},{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"cooldownMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"emergencyWithdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getContractBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getHCBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getHubChatInfo","outputs":[{"internalType":"string","name":"message","type":"string"},{"internalType":"string","name":"link","type":"string"},{"internalType":"uint256","name":"rewardAmount","type":"uint256"},{"internalType":"uint256","name":"cooldownHours","type":"uint256"},{"internalType":"uint256","name":"minHCRequired","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getStreakInfo","outputs":[{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalClaims","type":"uint256"},{"internalType":"uint256","name":"lastClaimTime","type":"uint256"},{"internalType":"bool","name":"isActive","type":"bool"},{"internalType":"bool","name":"userHasEnoughHC","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserStats","outputs":[{"internalType":"bool","name":"canClaimNow","type":"bool"},{"internalType":"uint256","name":"lastClaim","type":"uint256"},{"internalType":"uint256","name":"nextAvailableClaim","type":"uint256"},{"internalType":"uint256","name":"timeRemaining","type":"uint256"},{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalClaims","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"string","name":"message","type":"string"},{"internalType":"bool","name":"userHasEnoughHC","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"hasEnoughHC","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"insufficientHCMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"_newLink","type":"string"}],"name":"setAppLink","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_newMessage","type":"string"}],"name":"setBlacklistMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_newMessage","type":"string"}],"name":"setCooldownMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_newMessage","type":"string"}],"name":"setInsufficientHCMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_newMessage","type":"string"}],"name":"setWelcomeMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"unblockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userStats","outputs":[{"internalType":"uint256","name":"lastClaimTime","type":"uint256"},{"internalType":"uint256","name":"streakCount","type":"uint256"},{"internalType":"uint256","name":"totalClaims","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"lastStreakUpdate","type":"uint256"},{"internalType":"bool","name":"isBlocked","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"welcomeMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}];
 
-const CONTRACT_ADDRESS = "0xfc389eF5bE3Ab44738AeCCE261987F48E3960771";
+const CONTRACT_ADDRESS = "0xD2b8E623aD7A5ae8cd04F11e2C059dA2e549b268";
 
 const DailyRewardsModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const { address } = useAccount();
@@ -73,7 +73,7 @@ const DailyRewardsModal = ({ isOpen, onClose, currentUser, isMobile = false }) =
     }
 
     if (!userStats?.hasEnoughHC) {
-      alert('🔒 You need at least 100 HC tokens to claim CELO rewards');
+      alert('🔒 You need at least 200 HC tokens to claim CELO rewards');
       return;
     }
 
@@ -154,7 +154,7 @@ const DailyRewardsModal = ({ isOpen, onClose, currentUser, isMobile = false }) =
             <div className="text-6xl mb-4">🎉</div>
             <h2 className="text-2xl font-bold text-cyan-400 mb-2">Reward Claimed!</h2>
             <p className="text-gray-400 mb-4">
-              You received 0.1 CELO!
+              You received 1 CELO!
             </p>
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
               <p className="text-green-300 font-semibold">
@@ -213,7 +213,7 @@ const DailyRewardsModal = ({ isOpen, onClose, currentUser, isMobile = false }) =
                 {userStats && (
                   <div className="mt-4 pt-4 border-t border-gray-600/50 text-center">
                     <div className={`text-lg font-bold ${userStats.hasEnoughHC ? 'text-green-400' : 'text-red-400'}`}>
-                      {userStats.hasEnoughHC ? '✅ 100+ HC Tokens' : '🔒 Need 100+ HC Tokens'}
+                      {userStats.hasEnoughHC ? '✅ 200+ HC Tokens' : '🔒 Need 200+ HC Tokens'}
                     </div>
                     <div className="text-xs text-gray-400">HC Token Requirement</div>
                   </div>
@@ -223,7 +223,7 @@ const DailyRewardsModal = ({ isOpen, onClose, currentUser, isMobile = false }) =
 
             <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl p-4">
               <div className="text-center mb-3">
-                <div className="text-2xl font-bold text-green-400">0.1 CELO</div>
+                <div className="text-2xl font-bold text-green-400">1 CELO</div>
                 <div className="text-sm text-green-300">Daily Reward</div>
               </div>
               
@@ -242,7 +242,7 @@ const DailyRewardsModal = ({ isOpen, onClose, currentUser, isMobile = false }) =
                   <span>⚠️</span>
                   <div>
                     <p className="font-semibold">HC Token Requirement</p>
-                    <p className="text-sm">You need at least 100 HC tokens to claim CELO rewards</p>
+                    <p className="text-sm">You need at least 200 HC tokens to claim CELO rewards</p>
                   </div>
                 </div>
               </div>
@@ -263,9 +263,9 @@ const DailyRewardsModal = ({ isOpen, onClose, currentUser, isMobile = false }) =
                   Processing...
                 </span>
               ) : userStats?.canClaimNow && userStats?.hasEnoughHC ? (
-                '🎁 Claim 0.1 CELO'
+                '🎁 Claim 1 CELO'
               ) : !userStats?.hasEnoughHC ? (
-                '🔒 Need 100+ HC Tokens'
+                '🔒 Need 200+ HC Tokens'
               ) : (
                 '⏰ Come Back Later'
               )}
@@ -278,7 +278,7 @@ const DailyRewardsModal = ({ isOpen, onClose, currentUser, isMobile = false }) =
             )}
 
             <div className="text-xs text-gray-400 text-center">
-              Hold at least 100 HC tokens to claim your daily 0.1 CELO reward!
+              Hold at least 200 HC tokens to claim your daily 1 CELO reward!
             </div>
           </div>
         </div>
