@@ -28,12 +28,10 @@ export const useSeasons = () => {
           rewardsDistributed: false,
           createdAt: new Date()
         });
-        console.log('✅ Season initialized in Firestore');
       }
 
       setCurrentSeason(season);
     } catch (error) {
-      console.error('Error initializing season:', error);
     } finally {
       setLoading(false);
     }
@@ -43,15 +41,24 @@ export const useSeasons = () => {
     try {
       const season = getCurrentSeason();
       
-      // POPRAWIONE: Używamy season1_messages dla kompatybilności z istniejącymi danymi
-      const usersQuery = query(
-        collection(db, 'users'),
-        orderBy('season1_messages', 'desc'), // Używamy starego pola dla kompatybilności
-        limit(10)
-      );
+      const usersSnapshot = await getDocs(collection(db, 'users'));
       
-      const usersSnapshot = await getDocs(usersQuery);
-      const topUsers = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const allUsers = usersSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return { 
+          id: doc.id, 
+          ...data,
+          season1_messages: Number(data.season1_messages) || 0,
+          totalMessages: Number(data.totalMessages) || 0,
+          badges: data.badges || []
+        };
+      });
+      
+      const sortedUsers = [...allUsers].sort((a, b) => {
+        return b.season1_messages - a.season1_messages;
+      });
+      
+      const topUsers = sortedUsers.slice(0, 10);
       
       const batch = writeBatch(db);
       
@@ -67,7 +74,8 @@ export const useSeasons = () => {
             batch.update(userRef, {
               badges: [...userBadges, badge.badge],
               [`${SEASON_CONFIG.currentSeason}_rank`]: rank,
-              [`${SEASON_CONFIG.currentSeason}_reward`]: badge.badge
+              [`${SEASON_CONFIG.currentSeason}_reward`]: badge.badge,
+              season1_messages: Number(user.season1_messages) || 0
             });
           }
         }
@@ -76,14 +84,29 @@ export const useSeasons = () => {
       const seasonRef = doc(db, 'seasons', SEASON_CONFIG.currentSeason);
       batch.update(seasonRef, {
         rewardsDistributed: true,
-        distributedAt: new Date()
+        distributedAt: new Date(),
+        topUsersCount: topUsers.length,
+        seasonEndDate: new Date()
       });
 
       await batch.commit();
-      console.log('✅ Season rewards distributed to top 10 users');
+      
+      return {
+        success: true,
+        topUsers: topUsers.map((user, index) => ({
+          rank: index + 1,
+          nickname: user.nickname,
+          walletAddress: user.walletAddress,
+          messages: user.season1_messages,
+          badge: getSeasonBadge(index + 1)?.badge || null
+        }))
+      };
       
     } catch (error) {
-      console.error('Error distributing season rewards:', error);
+      return {
+        success: false,
+        error: error.message
+      };
     }
   };
 
@@ -97,12 +120,30 @@ export const useSeasons = () => {
         const seasonRef = doc(db, 'seasons', SEASON_CONFIG.currentSeason);
         const seasonDoc = await getDoc(seasonRef);
         
-        if (seasonDoc.exists() && !seasonDoc.data().rewardsDistributed) {
-          await distributeSeasonRewards();
+        if (seasonDoc.exists()) {
+          const seasonData = seasonDoc.data();
+          
+          if (!seasonData.rewardsDistributed) {
+            const result = await distributeSeasonRewards();
+            return result;
+          } else {
+            return {
+              success: true,
+              alreadyDistributed: true
+            };
+          }
         }
+      } else {
+        return {
+          success: true,
+          seasonActive: true
+        };
       }
     } catch (error) {
-      console.error('Error checking season rewards:', error);
+      return {
+        success: false,
+        error: error.message
+      };
     }
   };
 
@@ -116,17 +157,93 @@ export const useSeasons = () => {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         return {
-          seasonMessages: userData.season1_messages || 0,
+          seasonMessages: Number(userData.season1_messages) || 0,
           seasonRank: userData.season1_rank || null,
           seasonReward: userData.season1_reward || null,
-          badges: userData.badges || []
+          badges: userData.badges || [],
+          totalMessages: Number(userData.totalMessages) || 0
         };
       }
       
       return null;
     } catch (error) {
-      console.error('Error getting user season stats:', error);
       return null;
+    }
+  };
+
+  const validateUserData = async () => {
+    try {
+      const usersSnapshot = await getDocs(collection(db, 'users'));
+      const issues = [];
+      
+      usersSnapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const id = doc.id;
+        
+        if (data.season1_messages === undefined || 
+            data.season1_messages === null ||
+            typeof data.season1_messages !== 'number') {
+          issues.push({
+            userId: id,
+            field: 'season1_messages',
+            value: data.season1_messages,
+            nickname: data.nickname
+          });
+        }
+        
+        if (data.totalMessages === undefined || 
+            data.totalMessages === null ||
+            typeof data.totalMessages !== 'number') {
+          issues.push({
+            userId: id,
+            field: 'totalMessages',
+            value: data.totalMessages,
+            nickname: data.nickname
+          });
+        }
+      });
+      
+      return {
+        totalUsers: usersSnapshot.docs.length,
+        issues: issues,
+        hasIssues: issues.length > 0
+      };
+      
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const fixUserData = async (userId) => {
+    try {
+      const userRef = doc(db, 'users', userId);
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        const updates = {};
+        
+        if (data.season1_messages === undefined || 
+            data.season1_messages === null ||
+            typeof data.season1_messages !== 'number') {
+          updates.season1_messages = data.totalMessages || 0;
+        }
+        
+        if (data.totalMessages === undefined || 
+            data.totalMessages === null ||
+            typeof data.totalMessages !== 'number') {
+          updates.totalMessages = 0;
+        }
+        
+        if (Object.keys(updates).length > 0) {
+          await updateDoc(userRef, updates);
+          return true;
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      return false;
     }
   };
 
@@ -135,6 +252,8 @@ export const useSeasons = () => {
     loading,
     distributeSeasonRewards,
     checkAndDistributeRewards,
-    getUserSeasonStats
+    getUserSeasonStats,
+    validateUserData,
+    fixUserData
   };
 };
