@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { collection, query, orderBy, getDocs } from 'firebase/firestore';
+import { useState, useEffect, useCallback } from 'react';
+import { collection, getDocs, writeBatch } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { getCurrentSeason, getDaysRemaining, isSeasonActive } from '../../utils/seasons';
 import { useNetwork } from '../../hooks/useNetwork';
@@ -10,13 +10,160 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
   const [timeFilter, setTimeFilter] = useState('season');
   const [searchQuery, setSearchQuery] = useState('');
   const [userRank, setUserRank] = useState(null);
-  const [showRewards, setShowRewards] = useState(false); // Nowy stan dla akordeonu nagród
+  const [showRewards, setShowRewards] = useState(false);
+  const [needsFix, setNeedsFix] = useState(false);
+  const [fixingProgress, setFixingProgress] = useState('');
 
   const { isCelo, isBase } = useNetwork();
 
   const season = getCurrentSeason();
   const daysRemaining = getDaysRemaining();
   const seasonActive = isSeasonActive();
+
+  const fixUserData = useCallback(async () => {
+    if (!db || !isCelo) return false;
+    
+    try {
+      setFixingProgress('Checking data...');
+      
+      const usersRef = collection(db, 'users');
+      const snapshot = await getDocs(usersRef);
+      
+      const batch = writeBatch(db);
+      let fixedCount = 0;
+      let checkedCount = 0;
+      const totalUsers = snapshot.docs.length;
+      
+      snapshot.docs.forEach((userDoc, index) => {
+        checkedCount++;
+        const data = userDoc.data();
+        const updates = {};
+        
+        if (index % 10 === 0) {
+          setFixingProgress(`Checking ${checkedCount}/${totalUsers} users...`);
+        }
+        
+        if (data.season1_messages === undefined || 
+            data.season1_messages === null ||
+            typeof data.season1_messages !== 'number') {
+          updates.season1_messages = data.totalMessages || 0;
+          fixedCount++;
+        }
+        
+        if (data.totalMessages === undefined || 
+            data.totalMessages === null ||
+            typeof data.totalMessages !== 'number') {
+          updates.totalMessages = data.totalMessages || 0;
+          fixedCount++;
+        }
+        
+        if (Object.keys(updates).length > 0) {
+          batch.update(userDoc.ref, updates);
+        }
+      });
+      
+      if (fixedCount > 0) {
+        setFixingProgress(`Fixing ${fixedCount} user records...`);
+        await batch.commit();
+        setFixingProgress(`Fixed ${fixedCount} users`);
+        return true;
+      }
+      
+      setFixingProgress('All data is correct');
+      return false;
+      
+    } catch (error) {
+      setFixingProgress('Error fixing data');
+      return false;
+    }
+  }, [isCelo]);
+
+  const checkIfFixNeeded = useCallback(async () => {
+    if (!db) return false;
+    
+    try {
+      const usersRef = collection(db, 'users');
+      const snapshot = await getDocs(usersRef);
+      
+      let needsFix = false;
+      
+      for (const doc of snapshot.docs) {
+        const data = doc.data();
+        
+        if (data.season1_messages === undefined || 
+            data.season1_messages === null ||
+            data.totalMessages === undefined ||
+            data.totalMessages === null ||
+            typeof data.season1_messages !== 'number' ||
+            typeof data.totalMessages !== 'number') {
+          needsFix = true;
+          break;
+        }
+      }
+      
+      return needsFix;
+      
+    } catch (error) {
+      return false;
+    }
+  }, []);
+
+  const loadLeaderboard = useCallback(async () => {
+    if (!db || !isCelo) return;
+    
+    setLoading(true);
+    
+    try {
+      const needsFixCheck = await checkIfFixNeeded();
+      if (needsFixCheck) {
+        setNeedsFix(true);
+        await fixUserData();
+        setNeedsFix(false);
+      }
+      
+      const usersSnapshot = await getDocs(collection(db, 'users'));
+      
+      const usersData = usersSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          nickname: data.nickname || 'Unknown',
+          walletAddress: data.walletAddress,
+          avatar: data.avatar || '👤',
+          season1_messages: Number(data.season1_messages) || 0,
+          totalMessages: Number(data.totalMessages) || 0,
+          badges: data.badges || []
+        };
+      });
+      
+      const sortedUsers = [...usersData].sort((a, b) => {
+        const aValue = timeFilter === 'season' ? a.season1_messages : a.totalMessages;
+        const bValue = timeFilter === 'season' ? b.season1_messages : b.totalMessages;
+        return bValue - aValue;
+      });
+      
+      setUsers(sortedUsers);
+      
+      if (currentUser) {
+        const rank = sortedUsers.findIndex(user => 
+          user.walletAddress === currentUser.walletAddress
+        );
+        setUserRank(rank >= 0 ? rank + 1 : null);
+      }
+      
+    } catch (error) {
+      setUsers([]);
+    } finally {
+      setLoading(false);
+      setFixingProgress('');
+    }
+  }, [currentUser, timeFilter, isCelo, fixUserData, checkIfFixNeeded]);
+
+  useEffect(() => {
+    if (!isOpen || !db || !isCelo) return;
+    
+    loadLeaderboard();
+  }, [isOpen, timeFilter, isCelo, loadLeaderboard]);
 
   if (!isCelo && isOpen) {
     return (
@@ -48,61 +195,6 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
       </div>
     );
   }
-
-  useEffect(() => {
-    if (!isOpen || !db || !isCelo) return;
-
-    const loadLeaderboard = async () => {
-      const cacheKey = `leaderboard_${timeFilter}`;
-      const cached = localStorage.getItem(cacheKey);
-      const cacheTime = localStorage.getItem(`${cacheKey}_time`);
-      
-      const isCacheValid = cached && cacheTime && 
-        (Date.now() - parseInt(cacheTime)) < 24 * 60 * 60 * 1000;
-
-      if (isCacheValid) {
-        const usersData = JSON.parse(cached);
-        setUsers(usersData);
-        
-        if (currentUser) {
-          const rank = usersData.findIndex(user => 
-            user.walletAddress === currentUser.walletAddress
-          );
-          setUserRank(rank >= 0 ? rank + 1 : null);
-        }
-        
-        setLoading(false);
-      } else {
-        const fieldToOrderBy = timeFilter === 'season' ? 'season1_messages' : 'totalMessages';
-        const usersQuery = query(
-          collection(db, 'users'), 
-          orderBy(fieldToOrderBy, 'desc')
-        );
-
-        const snapshot = await getDocs(usersQuery);
-        const usersData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        
-        localStorage.setItem(cacheKey, JSON.stringify(usersData));
-        localStorage.setItem(`${cacheKey}_time`, Date.now().toString());
-        
-        setUsers(usersData);
-        
-        if (currentUser) {
-          const rank = usersData.findIndex(user => 
-            user.walletAddress === currentUser.walletAddress
-          );
-          setUserRank(rank >= 0 ? rank + 1 : null);
-        }
-        
-        setLoading(false);
-      }
-    };
-
-    loadLeaderboard();
-  }, [isOpen, currentUser, timeFilter, isCelo]);
 
   const getRankBadge = (index) => {
     switch(index) {
@@ -150,7 +242,6 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
     user.walletAddress?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Na mobile pokaż więcej użytkowników (15 zamiast 10)
   const topUsers = filteredUsers.slice(0, isMobile ? 15 : 10);
 
   const currentUserInFiltered = filteredUsers.findIndex(user => 
@@ -168,7 +259,6 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
           ? 'h-full rounded-none overflow-hidden flex flex-col max-w-full' 
           : 'rounded-3xl max-w-4xl h-[85vh] overflow-hidden flex flex-col'
       }`}>
-        {/* HEADER - Zoptymalizowany dla mobile */}
         <div className="flex-shrink-0">
           <div className={`flex items-center justify-between ${isMobile ? 'p-3' : 'p-4'} border-b border-gray-700/50`}>
             <div className="flex-1 min-w-0">
@@ -177,7 +267,10 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
               </h2>
               <p className={`text-gray-400 ${isMobile ? 'text-xs mt-0.5' : 'text-xs mt-1'}`}>
                 {getTimeFilterText()} • {seasonActive ? `${daysRemaining.days}d ${daysRemaining.hours}h left` : 'Ended'}
-                <span className="text-amber-400 ml-2">🕐 Daily update</span>
+                <span className="text-amber-400 ml-2">🕐 Live</span>
+                {needsFix && (
+                  <span className="text-orange-400 ml-2 text-xs">🔄 {fixingProgress}</span>
+                )}
               </p>
               {userRank && (
                 <p className="text-cyan-400 text-xs mt-0.5">
@@ -193,10 +286,8 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
             </button>
           </div>
 
-          {/* SEKCJA NAGRÓD - Akordeon na mobile */}
           <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-y border-amber-500/20">
             {isMobile ? (
-              // WERSJA MOBILE - Akordeon
               <div className="p-2">
                 <button
                   onClick={() => setShowRewards(!showRewards)}
@@ -237,7 +328,6 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
                 )}
               </div>
             ) : (
-              // WERSJA DESKTOP - Pełna sekcja
               <div className="p-3">
                 <h3 className="text-amber-400 font-bold text-sm mb-2 text-center">🎁 Season 1 Rewards - Top 10</h3>
                 <div className="grid grid-cols-3 gap-2 text-xs">
@@ -264,7 +354,6 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
             )}
           </div>
 
-          {/* FILTRY I WYSZUKIWARKA - Zoptymalizowane */}
           <div className={`${isMobile ? 'p-2' : 'p-3'} border-b border-gray-700/30 bg-gray-800/50`}>
             <div className="flex flex-col sm:flex-row gap-2">
               <div className="flex gap-1">
@@ -305,13 +394,14 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
           </div>
         </div>
 
-        {/* LISTA RANKINGOWA - Główna zawartość */}
         <div className="flex-1 overflow-y-auto min-h-0">
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto mb-2"></div>
-                <div className="text-gray-400 text-sm">Loading leaderboard...</div>
+                <div className="text-gray-400 text-sm">
+                  {needsFix ? fixingProgress : 'Loading leaderboard...'}
+                </div>
               </div>
             </div>
           ) : filteredUsers.length === 0 ? (
@@ -340,7 +430,6 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
                         : 'bg-gray-700/30 border-gray-600/30 hover:bg-gray-700/40'
                     } ${isMobile ? 'text-xs' : 'text-sm'}`}
                   >
-                    {/* RANK BADGE - Mniejszy na mobile */}
                     <div className={`flex-shrink-0 ${isMobile ? 'w-5 h-5 text-[10px]' : 'w-6 h-6 text-xs'} flex items-center justify-center rounded font-bold ${
                       globalIndex < 3 
                         ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
@@ -349,12 +438,10 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
                       {globalIndex < 3 ? getRankBadge(globalIndex) : globalIndex + 1}
                     </div>
 
-                    {/* AVATAR - Mniejszy na mobile */}
                     <div className={`flex-shrink-0 ${isMobile ? 'w-6 h-6 text-xs' : 'w-7 h-7 text-sm'} rounded bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center`}>
                       {user.avatar}
                     </div>
 
-                    {/* USER INFO - Zoptymalizowane */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1">
                         <div className="text-white font-medium truncate">
@@ -376,7 +463,6 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
                       </div>
                     </div>
 
-                    {/* MESSAGE COUNT - Zoptymalizowane */}
                     <div className="flex-shrink-0 text-right min-w-[50px]">
                       <div className={`font-bold ${isMobile ? 'text-sm' : 'text-base'} ${
                         messageCount > 0 ? 'text-cyan-400' : 'text-gray-500'
@@ -394,7 +480,6 @@ const LeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) =>
           )}
         </div>
 
-        {/* FOOTER - Zoptymalizowany */}
         <div className={`flex-shrink-0 border-t border-gray-700/50 bg-gray-800/30 ${
           isMobile ? 'p-2' : 'p-3'
         }`}>
