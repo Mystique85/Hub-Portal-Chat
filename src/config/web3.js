@@ -1,6 +1,6 @@
 import { createAppKit } from '@reown/appkit/react'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import { celo, base } from '@reown/appkit/networks'
+import { celo, base, linea } from '@reown/appkit/networks'
 import { http } from 'wagmi'
 
 // Konfiguracja AppKit
@@ -17,10 +17,11 @@ const metadata = {
 // Konfiguracja Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({
   projectId,
-  networks: [celo, base],
+  networks: [celo, base, linea],
   transports: {
     [celo.id]: http(),
-    [base.id]: http()
+    [base.id]: http(),
+    [linea.id]: http()
   },
   ssr: false
 })
@@ -28,7 +29,7 @@ const wagmiAdapter = new WagmiAdapter({
 // Konfiguracja AppKit
 export const appKit = createAppKit({
   adapters: [wagmiAdapter],
-  networks: [celo, base],
+  networks: [celo, base, linea],
   projectId,
   metadata,
   enableMobileWalletLink: true,

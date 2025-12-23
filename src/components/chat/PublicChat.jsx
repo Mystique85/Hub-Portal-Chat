@@ -35,7 +35,7 @@ const PublicChat = ({
     hash: transactionHash,
   });
 
-  const { currentNetwork, isCelo, isBase, tokenSymbol } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, tokenSymbol } = useNetwork();
 
   useEffect(() => {
     if (!db) return;
@@ -111,6 +111,7 @@ const PublicChat = ({
       
       onUpdateLastSeen(messageData.walletAddress);
     } catch (error) {
+      console.error('Error adding message to Firestore:', error);
     }
   };
 
@@ -159,17 +160,20 @@ const PublicChat = ({
       
       setPendingTransaction(messageData);
       
-      writeContract({
+      const contractConfig = {
         address: CONTRACT_ADDRESSES[currentNetwork],
         abi: CONTRACT_ABIS[currentNetwork],
         functionName: 'sendMessage',
         args: [newMessage],
-      });
+      };
+      
+      writeContract(contractConfig);
       
       setNewMessage('');
       setReplyingTo(null);
       
     } catch (error) {
+      console.error('Failed to send message:', error);
       alert('Failed to send message: ' + (error.message || 'Check console for details'));
       setPendingTransaction(null);
     } finally {
@@ -192,27 +196,52 @@ const PublicChat = ({
   };
 
   const getPlaceholderText = () => {
-    if (replyingTo) return `Reply To @${replyingTo.nickname}...`;
-    
-    const baseText = isMobile ? "Type message..." : "Type your message in public chat... (Enter to send)";
-    
-    if (isBase) {
-      return `${baseText} Earn ${tokenSymbol} tokens!`;
+    if (replyingTo) {
+      return `Reply to @${replyingTo.nickname}...`;
     }
     
-    return baseText;
+    if (isMobile) {
+      if (isCelo) return "Type message and earn HC...";
+      if (isBase) return "Type message and earn HUB...";
+      if (isLinea) return "Type message and earn LPX...";
+      return "Type message...";
+    }
+    
+    // Desktop placeholders
+    if (isCelo) {
+      return "Type your message in public chat and earn HC tokens (10 msg daily) - Enter to send";
+    }
+    if (isBase) {
+      return "Type your message in public chat and earn HUB tokens (Free tier: 10 msg, Basic: 50, Premium: Unlimited) - Enter to send";
+    }
+    if (isLinea) {
+      return "Type your message in public chat and earn LPX tokens (max 100 msg daily) - Enter to send";
+    }
+    
+    return "Type your message in public chat... (Enter to send)";
+  };
+
+  const getNetworkColor = () => {
+    if (isCelo) return "from-yellow-500/10 to-yellow-500/5 border-yellow-500/30 text-yellow-400";
+    if (isBase) return "from-blue-500/10 to-blue-500/5 border-blue-500/30 text-blue-400";
+    if (isLinea) return "from-cyan-500/10 to-cyan-500/5 border-cyan-500/30 text-cyan-400";
+    return "from-cyan-500/10 to-blue-500/10 border-cyan-500/30 text-cyan-400";
+  };
+
+  const getButtonGradient = () => {
+    if (isCelo) return "from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600";
+    if (isBase) return "from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600";
+    if (isLinea) return "from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600";
+    return "from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600";
   };
 
   return (
     <section className={`flex flex-col h-full min-h-0 ${isMobile ? 'p-2' : 'p-6'}`}>
-      <div className={`mb-2 text-center ${isMobile ? 'p-1' : 'p-2'} bg-gradient-to-r from-cyan-500/10 to-blue-500/10 rounded-lg border border-cyan-500/30`}>
+      <div className={`mb-2 text-center ${isMobile ? 'p-1' : 'p-2'} bg-gradient-to-r ${getNetworkColor()} rounded-lg border`}>
         <div className="flex items-baseline justify-center gap-1">
           <h2 className="text-base font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Public Chat
+            Public Chat - All Networks
           </h2>
-          <span className="text-gray-300 text-xs">
-            - General discussions
-          </span>
         </div>
       </div>
 
@@ -277,7 +306,7 @@ const PublicChat = ({
         <button 
           onClick={sendMessage}
           disabled={!newMessage.trim() || isSending}
-          className={`bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-semibold hover:from-cyan-600 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0 ${
+          className={`bg-gradient-to-r ${getButtonGradient()} text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0 ${
             isMobile 
               ? 'px-3 py-2 rounded-lg text-xs min-h-[36px]' 
               : 'px-6 py-3 rounded-xl'

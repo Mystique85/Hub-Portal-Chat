@@ -1,43 +1,39 @@
 import { useAccount } from 'wagmi';
-import { NETWORK_CONFIG } from '../utils/constants';
+import { NETWORK_CONFIG, NETWORK_DETAILS } from '../utils/constants';
 
 export const useNetwork = () => {
   const { chain } = useAccount();
   
   const getCurrentNetwork = () => {
-    if (!chain) return 'celo'; // fallback
+    if (!chain || !chain.id) return 'celo'; // Zmiana z null na 'celo'
     
     if (chain.id === NETWORK_CONFIG.celo.chainId) return 'celo';
     if (chain.id === NETWORK_CONFIG.base.chainId) return 'base';
+    if (chain.id === NETWORK_CONFIG.linea.chainId) return 'linea';
     
-    return 'celo'; // default fallback
+    return 'celo'; // Zmiana z null na 'celo'
   };
 
   const currentNetwork = getCurrentNetwork();
   const networkConfig = NETWORK_CONFIG[currentNetwork];
+  const networkDetails = NETWORK_DETAILS[currentNetwork];
 
   return {
-    // Podstawowe informacje o sieci
     currentNetwork,
     networkConfig,
+    networkDetails,
     isCelo: currentNetwork === 'celo',
     isBase: currentNetwork === 'base',
-    
-    // Informacje o tokenie
+    isLinea: currentNetwork === 'linea',
     tokenSymbol: networkConfig.symbol,
     networkName: networkConfig.name,
-    
-    // Flagi funkcjonalności - ZAKTUALIZOWANE
-    supportsDailyRewards: currentNetwork === 'celo',
+    networkIcon: networkDetails.icon,
+    supportsDailyRewards: currentNetwork === 'celo' || currentNetwork === 'linea' || currentNetwork === 'base', // DODANO BASE
     supportsSeasonSystem: currentNetwork === 'celo',
-    supportsSubscriptions: currentNetwork === 'base', // Tylko Base ma subskrypcje
+    supportsSubscriptions: currentNetwork === 'base',
     supportsTokenTransfers: true,
-    supportsHUBRewards: true, // Obie sieci nagradzają tokenami
-    
-    // Informacje o explorerze
+    supportsHUBRewards: true,
     explorerUrl: networkConfig.explorer,
-    
-    // DODANE: Informacje o subskrypcjach dla Base
     subscriptionConfig: currentNetwork === 'base' ? {
       hasSubscriptions: true,
       tiers: [
@@ -47,6 +43,10 @@ export const useNetwork = () => {
       ],
       currency: 'USDC',
       duration: '30 days'
-    } : null
+    } : null,
+    isNetworkAvailable: (network) => {
+      const availableNetworks = ['celo', 'base', 'linea'];
+      return availableNetworks.includes(network);
+    }
   };
 };

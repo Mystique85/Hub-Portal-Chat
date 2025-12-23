@@ -13,7 +13,7 @@ export const useWeb3 = (address) => {
   const [remaining, setRemaining] = useState('0');
   const [subscriptionInfo, setSubscriptionInfo] = useState(null);
   const [userStats, setUserStats] = useState(null);
-  const { currentNetwork, isCelo, isBase, networkConfig } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, networkConfig } = useNetwork();
   const { chain } = useAccount();
 
   const ERC20_ABI = [
@@ -22,26 +22,6 @@ export const useWeb3 = (address) => {
       "inputs": [{"name": "_owner", "type": "address"}],
       "name": "balanceOf",
       "outputs": [{"name": "balance", "type": "uint256"}],
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {"name": "_owner", "type": "address"},
-        {"name": "_spender", "type": "address"}
-      ],
-      "name": "allowance",
-      "outputs": [{"name": "", "type": "uint256"}],
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {"name": "_spender", "type": "address"},
-        {"name": "_value", "type": "uint256"}
-      ],
-      "name": "approve",
-      "outputs": [{"name": "", "type": "bool"}],
       "type": "function"
     }
   ];
@@ -66,6 +46,16 @@ export const useWeb3 = (address) => {
     }
   });
 
+  const { data: lineaRemainingData } = useReadContract({
+    address: CONTRACT_ADDRESSES.linea,
+    abi: CONTRACT_ABIS.linea,
+    functionName: 'remainingRewards',
+    args: [address],
+    query: {
+      enabled: !!address && isLinea,
+    }
+  });
+
   const { data: userSubscriptionInfoData } = useReadContract({
     address: CONTRACT_ADDRESSES.base,
     abi: CONTRACT_ABIS.base,
@@ -83,6 +73,16 @@ export const useWeb3 = (address) => {
     args: [address],
     query: {
       enabled: !!address && isBase,
+    }
+  });
+
+  const { data: lineaBasicStatsData } = useReadContract({
+    address: CONTRACT_ADDRESSES.linea,
+    abi: CONTRACT_ABIS.linea,
+    functionName: 'getUserBasicStats',
+    args: [address],
+    query: {
+      enabled: !!address && isLinea,
     }
   });
 
@@ -117,8 +117,12 @@ export const useWeb3 = (address) => {
           setRemaining(remainingMsgs.toString());
         }
       }
+    } else if (isLinea && lineaRemainingData) {
+      setRemaining(lineaRemainingData.toString());
+    } else if (isLinea) {
+      setRemaining('0');
     }
-  }, [remainingData, userSubscriptionInfoData, isCelo, isBase]);
+  }, [remainingData, lineaRemainingData, userSubscriptionInfoData, isCelo, isBase, isLinea]);
 
   useEffect(() => {
     if (isBase && address) {
@@ -182,14 +186,40 @@ export const useWeb3 = (address) => {
       }
 
       setSubscriptionInfo(completeSubscriptionInfo);
+    } else if (isLinea && address && lineaBasicStatsData) {
+      if (Array.isArray(lineaBasicStatsData) && lineaBasicStatsData.length >= 6) {
+        const [totalMessages, totalEarned, lastMessageTime, isBlocked, messagesToday, lastResetDay] = lineaBasicStatsData;
+        
+        setUserStats({
+          totalMessages: Number(totalMessages),
+          totalEarned: Number(totalEarned) / 1e18,
+          lastMessageTime: Number(lastMessageTime),
+          isBlocked,
+          messagesToday: Number(messagesToday),
+          lastResetDay: Number(lastResetDay)
+        });
+
+        const lineaSubscriptionInfo = {
+          tier: 0,
+          expiry: 0,
+          whitelisted: false,
+          isActive: true,
+          remainingMessages: Number(lineaRemainingData) || 0,
+          messagesToday: Number(messagesToday),
+          lastResetDay: Number(lastResetDay)
+        };
+        
+        setSubscriptionInfo(lineaSubscriptionInfo);
+      }
     }
-  }, [userSubscriptionInfoData, userBasicStatsData, simpleSubscriptionData, isBase, address]);
+  }, [userSubscriptionInfoData, userBasicStatsData, lineaBasicStatsData, simpleSubscriptionData, lineaRemainingData, isBase, isLinea, address]);
 
   const fetchBalanceForNetwork = async (userAddress, network) => {
     try {
       const providerUrls = {
         celo: import.meta.env.VITE_CELO_MAINNET_RPC_URL || 'https://forno.celo.org',
-        base: import.meta.env.VITE_BASE_MAINNET_RPC_URL || 'https://mainnet.base.org'
+        base: import.meta.env.VITE_BASE_MAINNET_RPC_URL || 'https://mainnet.base.org',
+        linea: import.meta.env.VITE_LINEA_MAINNET_RPC_URL || 'https://rpc.linea.build'
       };
       
       const providerUrl = providerUrls[network];
@@ -200,7 +230,8 @@ export const useWeb3 = (address) => {
 
       const contractAddresses = {
         celo: HUB_TOKEN_ADDRESS.celo,
-        base: HUB_TOKEN_ADDRESS.base
+        base: HUB_TOKEN_ADDRESS.base,
+        linea: HUB_TOKEN_ADDRESS.linea
       };
       
       const contractAddress = contractAddresses[network];
@@ -245,103 +276,33 @@ export const useWeb3 = (address) => {
 
   const getOtherUserBalance = async (userAddress, targetNetwork = null) => {
     if (!userAddress) {
-      return { celo: '0', base: '0' };
+      return { celo: '0', base: '0', linea: '0' };
     }
     
-    const results = { celo: '0', base: '0' };
+    const results = { celo: '0', base: '0', linea: '0' };
     
     try {
-      if (targetNetwork === 'celo' || targetNetwork === 'base') {
+      if (targetNetwork === 'celo' || targetNetwork === 'base' || targetNetwork === 'linea') {
         const balance = await fetchBalanceForNetwork(userAddress, targetNetwork);
         results[targetNetwork] = balance;
         return results;
       }
       
-      const [celoBalance, baseBalance] = await Promise.all([
+      const [celoBalance, baseBalance, lineaBalance] = await Promise.all([
         fetchBalanceForNetwork(userAddress, 'celo'),
-        fetchBalanceForNetwork(userAddress, 'base')
+        fetchBalanceForNetwork(userAddress, 'base'),
+        fetchBalanceForNetwork(userAddress, 'linea')
       ]);
       
       results.celo = celoBalance;
       results.base = baseBalance;
+      results.linea = lineaBalance;
       
     } catch (error) {
       console.error('Error getting other user balance:', error);
     }
     
     return results;
-  };
-
-  const checkCanSendMessage = async () => {
-    if (!address || !isBase) return { canSend: false, reason: 'Not on Base network' };
-    
-    try {
-      const { data: canSendData } = await useReadContract({
-        address: CONTRACT_ADDRESSES.base,
-        abi: CONTRACT_ABIS.base,
-        functionName: 'canSendMessage',
-        args: [address],
-      });
-      
-      if (canSendData) {
-        const [canSend, reason] = canSendData;
-        return { canSend, reason };
-      }
-      
-      return { canSend: false, reason: 'Unknown error' };
-    } catch (error) {
-      console.error('Error checking can send message:', error);
-      return { canSend: false, reason: 'Contract error' };
-    }
-  };
-
-  const checkUSDCAllowance = async () => {
-    if (!address || !isBase) return '0';
-    
-    try {
-      const { data: allowanceData } = await useReadContract({
-        address: USDC_TOKEN_ADDRESS.base,
-        abi: ERC20_ABI,
-        functionName: 'allowance',
-        args: [address, CONTRACT_ADDRESSES.base],
-      });
-      
-      if (allowanceData) {
-        return Number(allowanceData) / 1e6;
-      }
-      
-      return '0';
-    } catch (error) {
-      console.error('Error checking USDC allowance:', error);
-      return '0';
-    }
-  };
-
-  const getSubscriptionPrices = async () => {
-    if (!isBase) return { basic: 0, premium: 0 };
-    
-    try {
-      const [basicPriceResult, premiumPriceResult] = await Promise.all([
-        useReadContract({
-          address: CONTRACT_ADDRESSES.base,
-          abi: CONTRACT_ABIS.base,
-          functionName: 'basicPriceUSDC',
-        }),
-        useReadContract({
-          address: CONTRACT_ADDRESSES.base,
-          abi: CONTRACT_ABIS.base,
-          functionName: 'premiumPriceUSDC',
-        })
-      ]);
-      
-      const basicPrice = basicPriceResult.data ? Number(basicPriceResult.data) / 1e6 : 10;
-      const premiumPrice = premiumPriceResult.data ? Number(premiumPriceResult.data) / 1e6 : 50;
-      
-      return { basic: basicPrice, premium: premiumPrice };
-    } catch (error) {
-      console.error('Error getting subscription prices:', error);
-      return { basic: 10, premium: 50 };
-    }
   };
 
   return {
@@ -354,15 +315,13 @@ export const useWeb3 = (address) => {
     networkName: networkConfig.name,
     isCelo,
     isBase,
-    supportsDailyRewards: isCelo,
+    isLinea,
+    supportsDailyRewards: isCelo || isLinea,
     supportsSeasonSystem: isCelo,
     supportsSubscriptions: isBase,
     supportsTokenTransfers: true,
     getOtherUserBalance,
     fetchBalanceForNetwork,
-    checkCanSendMessage,
-    checkUSDCAllowance,
-    getSubscriptionPrices,
     explorerUrl: networkConfig.explorer
   };
 };

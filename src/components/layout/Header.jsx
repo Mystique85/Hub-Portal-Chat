@@ -1,14 +1,14 @@
 import HelpTooltip from './HelpTooltip';
 import Donation from './Donation';
 import CeloHub from './CeloHub';
-import { ADMIN_ADDRESSES } from '../../utils/constants';
+import { ADMIN_ADDRESSES, NETWORK_DETAILS } from '../../utils/constants';
 import { useState, useRef, useEffect } from 'react';
 import DailyRewardsModal from '../modals/DailyRewardsModal';
 import DailyRewardsModalBase from '../modals/DailyRewardsModalBase';
 import ReactDOM from 'react-dom';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useSwitchChain } from 'wagmi';
-import { base, celo } from '@reown/appkit/networks';
+import { base, celo, linea } from '@reown/appkit/networks';
 
 const Header = ({ 
   currentUser, 
@@ -22,14 +22,31 @@ const Header = ({
 }) => {
   const [showDailyRewards, setShowDailyRewards] = useState(false);
   const [showDailyRewardsBase, setShowDailyRewardsBase] = useState(false);
+  const [showDailyRewardsLinea, setShowDailyRewardsLinea] = useState(false);
   const [showQuickAccessMenu, setShowQuickAccessMenu] = useState(false);
   const [showNFTInfo, setShowNFTInfo] = useState(false);
+  const [showNetworkDropdown, setShowNetworkDropdown] = useState(false);
+  
   const quickAccessButtonRef = useRef(null);
+  const networkButtonRef = useRef(null);
   const dropdownRef = useRef(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const networkDropdownRef = useRef(null);
+  
+  const [quickAccessPosition, setQuickAccessPosition] = useState({ top: 0, left: 0 });
+  const [networkDropdownPosition, setNetworkDropdownPosition] = useState({ top: 0, left: 0 });
+  
   const isAdmin = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
 
-  const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
+  const { 
+    isCelo, 
+    isBase, 
+    isLinea, 
+    tokenSymbol, 
+    networkName, 
+    networkIcon,
+    networkDetails,
+    supportsDailyRewards 
+  } = useNetwork();
   
   const { switchChain } = useSwitchChain();
 
@@ -37,44 +54,68 @@ const Header = ({
   const [showCeloHub, setShowCeloHub] = useState(false);
   const [showDonation, setShowDonation] = useState(false);
 
-  const handleSwitchNetwork = async () => {
-    try {
-      if (isCelo) {
-        await switchChain({ chainId: base.id });
-      } else if (isBase) {
-        await switchChain({ chainId: celo.id });
-      }
-    } catch (error) {
-      console.error('Error switching network:', error);
-    }
-  };
-
+  // Obsługa dropdown Quick Access
   useEffect(() => {
     if (showQuickAccessMenu && quickAccessButtonRef.current) {
       const rect = quickAccessButtonRef.current.getBoundingClientRect();
-      setDropdownPosition({
+      setQuickAccessPosition({
         top: rect.bottom + window.scrollY + 8,
         left: rect.right + window.scrollX - 192
       });
     }
   }, [showQuickAccessMenu]);
 
+  // Obsługa dropdown Network Selector
+  useEffect(() => {
+    if (showNetworkDropdown && networkButtonRef.current) {
+      const rect = networkButtonRef.current.getBoundingClientRect();
+      setNetworkDropdownPosition({
+        top: rect.bottom + window.scrollY + 8,
+        left: rect.left + window.scrollX
+      });
+    }
+  }, [showNetworkDropdown]);
+
+  // Zamknij dropdowny po kliknięciu na zewnątrz
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Quick Access dropdown
       if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
           quickAccessButtonRef.current && !quickAccessButtonRef.current.contains(event.target)) {
         setShowQuickAccessMenu(false);
       }
+      
+      // Network dropdown
+      if (networkDropdownRef.current && !networkDropdownRef.current.contains(event.target) &&
+          networkButtonRef.current && !networkButtonRef.current.contains(event.target)) {
+        setShowNetworkDropdown(false);
+      }
     };
 
-    if (showQuickAccessMenu) {
+    if (showQuickAccessMenu || showNetworkDropdown) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showQuickAccessMenu]);
+  }, [showQuickAccessMenu, showNetworkDropdown]);
+
+  const handleSwitchNetwork = async (targetNetwork) => {
+    try {
+      setShowNetworkDropdown(false); // Zamknij dropdown po wyborze
+      
+      if (targetNetwork === 'celo') {
+        await switchChain({ chainId: celo.id });
+      } else if (targetNetwork === 'base') {
+        await switchChain({ chainId: base.id });
+      } else if (targetNetwork === 'linea') {
+        await switchChain({ chainId: linea.id });
+      }
+    } catch (error) {
+      console.error('Error switching network:', error);
+    }
+  };
 
   const handleMintNFT = () => {
     setShowNFTInfo(true);
@@ -175,8 +216,8 @@ const Header = ({
         ref={dropdownRef}
         className="fixed bg-gray-800/95 backdrop-blur-xl border border-gray-600/50 rounded-xl shadow-2xl z-[99999] py-2 w-48"
         style={{
-          top: dropdownPosition.top,
-          left: dropdownPosition.left
+          top: quickAccessPosition.top,
+          left: quickAccessPosition.left
         }}
       >
         {isBase && (
@@ -192,13 +233,15 @@ const Header = ({
           </button>
         )}
 
-        {(supportsDailyRewards || isBase) && (
+        {supportsDailyRewards && (
           <button 
             onClick={() => {
               if (isCelo) {
                 setShowDailyRewards(true);
               } else if (isBase) {
                 setShowDailyRewardsBase(true);
+              } else if (isLinea) {
+                setShowDailyRewardsLinea(true);
               }
               setShowQuickAccessMenu(false);
             }}
@@ -209,7 +252,7 @@ const Header = ({
           </button>
         )}
 
-        {(supportsDailyRewards || isBase) && (
+        {supportsDailyRewards && (
           <div className="border-t border-gray-600/50 my-1"></div>
         )}
 
@@ -251,15 +294,173 @@ const Header = ({
     return ReactDOM.createPortal(dropdownContent, document.body);
   };
 
+  const NetworkDropdown = () => {
+    if (!showNetworkDropdown) return null;
+
+    const networks = [
+      {
+        id: 'celo',
+        name: 'Celo',
+        icon: '/Celo.logo.jpg',
+        symbol: 'HC',
+        color: 'text-yellow-400',
+        border: 'border-yellow-500/30',
+        bg: 'bg-yellow-500/10',
+        isCurrent: isCelo,
+        description: 'HC Token Mining'
+      },
+      {
+        id: 'base',
+        name: 'Base',
+        icon: '/Base.logo.jpg',
+        symbol: 'HUB',
+        color: 'text-blue-400',
+        border: 'border-blue-500/30',
+        bg: 'bg-blue-500/10',
+        isCurrent: isBase,
+        description: 'HUB Token Ecosystem'
+      },
+      {
+        id: 'linea',
+        name: 'Linea',
+        icon: '/Linea.logo.png',
+        symbol: 'LPX',
+        color: 'text-cyan-400',
+        border: 'border-cyan-500/30',
+        bg: 'bg-cyan-500/10',
+        isCurrent: isLinea,
+        description: 'LPX Token Rewards'
+      }
+    ];
+
+    const dropdownContent = (
+      <div 
+        ref={networkDropdownRef}
+        className="fixed bg-gray-800/95 backdrop-blur-xl border border-gray-600/50 rounded-xl shadow-2xl z-[99999] py-2 w-64"
+        style={{
+          top: networkDropdownPosition.top,
+          left: networkDropdownPosition.left
+        }}
+      >
+        <div className="px-4 py-3 border-b border-gray-600/50">
+          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            Select Network
+          </div>
+          <div className="text-sm text-gray-500">Switch between blockchain networks</div>
+        </div>
+        
+        {networks.map((network) => (
+          <button 
+            key={network.id}
+            onClick={() => handleSwitchNetwork(network.id)}
+            className={`w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center justify-between group ${
+              network.isCurrent ? 'bg-gray-700/30' : ''
+            }`}
+          >
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${network.bg} ${network.border} border overflow-hidden flex-shrink-0`}>
+                <img 
+                  src={network.icon} 
+                  alt={network.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = `<span class="text-lg">${network.isCurrent ? '✅' : '🌐'}</span>`;
+                  }}
+                />
+              </div>
+              <div className="text-left flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-white truncate">{network.name}</span>
+                  {network.isCurrent && (
+                    <div className="px-1.5 py-0.5 bg-green-500/20 border border-green-500/30 rounded text-[10px] text-green-400 flex-shrink-0">
+                      Active
+                    </div>
+                  )}
+                </div>
+                <div className={`text-xs ${network.color} font-medium truncate`}>
+                  {network.description}
+                </div>
+                <div className="text-[11px] text-gray-500 truncate">
+                  Earn {network.symbol} tokens
+                </div>
+              </div>
+            </div>
+            
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2">
+              <span className="text-gray-400 text-lg">→</span>
+            </div>
+          </button>
+        ))}
+        
+        <div className="px-4 py-3 border-t border-gray-600/50 mt-1">
+          <div className="text-xs text-gray-500 flex items-start gap-2">
+            <span className="text-cyan-400 text-sm mt-0.5">💡</span>
+            <span>Each network has different rewards, limits and features</span>
+          </div>
+        </div>
+      </div>
+    );
+
+    return ReactDOM.createPortal(dropdownContent, document.body);
+  };
+
+  const renderNetworkLogo = () => {
+    if (isCelo) {
+      return (
+        <img 
+          src="/Celo.logo.jpg" 
+          alt="Celo" 
+          className="w-5 h-5 object-cover rounded"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<span class="text-lg">📱</span>`;
+          }}
+        />
+      );
+    }
+    if (isBase) {
+      return (
+        <img 
+          src="/Base.logo.jpg" 
+          alt="Base" 
+          className="w-5 h-5 object-cover rounded"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<span class="text-lg">🌉</span>`;
+          }}
+        />
+      );
+    }
+    if (isLinea) {
+      return (
+        <img 
+          src="/Linea.logo.png" 
+          alt="Linea" 
+          className="w-5 h-5 object-cover rounded"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<span class="text-lg">🚀</span>`;
+          }}
+        />
+      );
+    }
+    return <span className="text-lg">🌐</span>;
+  };
+
   if (isMobile) {
     return (
       <header className="bg-gray-800/90 backdrop-blur-xl border-b border-gray-700/50 p-3 flex-shrink-0 safe-area-top">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 flex-1 min-w-0">
+            {/* Logo HUB Portal */}
             <img 
-              src="/hublogo.svg" 
+              src="/HUB.logo.png" 
               alt="HUB Portal" 
               className="w-6 h-6 flex-shrink-0"
+              onError={(e) => {
+                e.target.src = '/hublogo.svg';
+              }}
             />
             <div className="min-w-0 flex-1">
               <h1 className="text-sm font-bold text-white truncate">
@@ -267,20 +468,24 @@ const Header = ({
                 {mobileView === 'users' && 'Users'}
                 {mobileView === 'private' && 'Chat'}
               </h1>
-              <div className="text-cyan-400 text-[10px]">
-                {networkName} • {tokenSymbol}
+              <div className={`${networkDetails.textColor} text-[10px] flex items-center gap-1`}>
+                <span>{networkName} • {tokenSymbol}</span>
               </div>
             </div>
           </div>
           
           <div className="flex items-center gap-1 flex-shrink-0">
-            <button 
-              onClick={handleSwitchNetwork}
-              className="bg-gradient-to-r from-gray-700 to-gray-800 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs border border-gray-600"
-              title={`Switch to ${isCelo ? 'Base' : 'Celo'}`}
-            >
-              🌐
-            </button>
+            {/* Network Selector Button dla mobile */}
+            <div className="relative">
+              <button 
+                ref={networkButtonRef}
+                onClick={() => setShowNetworkDropdown(!showNetworkDropdown)}
+                className={`bg-gradient-to-r ${networkDetails.bgGradient} text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs border ${networkDetails.borderColor}`}
+                title="Select Network"
+              >
+                {renderNetworkLogo()}
+              </button>
+            </div>
             
             {isBase && (
               <button 
@@ -292,7 +497,7 @@ const Header = ({
               </button>
             )}
             
-            {(supportsSeasonSystem || isBase) && (
+            {(isCelo || isBase) && (
               <button 
                 onClick={() => {
                   if (isCelo) {
@@ -308,13 +513,15 @@ const Header = ({
               </button>
             )}
             
-            {(supportsDailyRewards || isBase) && (
+            {supportsDailyRewards && (
               <button 
                 onClick={() => {
                   if (isCelo) {
                     setShowDailyRewards(true);
                   } else if (isBase) {
                     setShowDailyRewardsBase(true);
+                  } else if (isLinea) {
+                    setShowDailyRewardsLinea(true);
                   }
                 }}
                 className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
@@ -326,6 +533,8 @@ const Header = ({
             <appkit-button balance="hide" />
           </div>
         </div>
+
+        <NetworkDropdown />
 
         {showDailyRewards && isCelo && (
           <DailyRewardsModal 
@@ -351,32 +560,42 @@ const Header = ({
   return (
     <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-6 flex-shrink-0">
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
+        {/* Lewa strona - Logo HUB i opis sieci w jednej linii */}
+        <div className="flex items-center gap-4">
+          {/* Logo HUB Portal */}
           <div className="flex items-center gap-3">
             <img 
-              src="/hublogo.svg" 
+              src="/HUB.logo.png" 
               alt="HUB Portal" 
               className="w-8 h-8"
+              onError={(e) => {
+                e.target.src = '/hublogo.svg';
+              }}
             />
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-                HUB Portal
-              </h1>
-              <div className="text-cyan-400 text-sm">
-                {networkName} Network • Earn {tokenSymbol} Tokens
-              </div>
-            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              HUB Portal
+            </h1>
           </div>
 
+          {/* Separator i opis sieci */}
+          <div className="h-6 w-px bg-gray-600/50"></div>
+          
+          <div className={`${networkDetails.textColor} text-sm font-medium`}>
+            {networkName} Network • Earn {tokenSymbol} Tokens
+          </div>
+        </div>
+        
+        {/* Prawa strona - Przyciski */}
+        <div className="flex items-center gap-2">
+          {/* Przycisk Mint Genesis NFT */}
           <button
             onClick={handleMintNFT}
             className="h-[36px] px-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all flex items-center justify-center animate-pulse shadow-lg shadow-purple-500/25 hover:scale-105 text-sm"
           >
             Mint Genesis NFT
           </button>
-        </div>
-        
-        <div className="flex items-center gap-2">
+
+          {/* Leaderboard przyciski */}
           {isBase && (
             <button 
               onClick={onShowBaseLeaderboard}
@@ -387,7 +606,7 @@ const Header = ({
             </button>
           )}
 
-          {isCelo && supportsSeasonSystem && (
+          {isCelo && (
             <button 
               onClick={onShowLeaderboard}
               className="h-[36px] px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-amber-500/25 hover:scale-105"
@@ -397,6 +616,7 @@ const Header = ({
             </button>
           )}
 
+          {/* Quick Access */}
           <div className="relative">
             <button 
               ref={quickAccessButtonRef}
@@ -411,22 +631,33 @@ const Header = ({
             </button>
           </div>
 
-          <button 
-            onClick={handleSwitchNetwork}
-            className="h-[36px] px-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm border border-gray-600 hover:border-gray-500 shadow-lg hover:scale-105 group"
-            title={`Switch to ${isCelo ? 'Base' : 'Celo'} network`}
-          >
-            <span className="text-lg">🌐</span>
-            <span className="text-white font-medium">
-              Switch to {isCelo ? 'Base' : 'Celo'}
-            </span>
-          </button>
+          {/* Network Selector */}
+          <div className="relative">
+            <button 
+              ref={networkButtonRef}
+              onClick={() => setShowNetworkDropdown(!showNetworkDropdown)}
+              className={`h-[36px] px-3 bg-gradient-to-r ${networkDetails.bgGradient} hover:opacity-90 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm border ${networkDetails.borderColor} shadow-lg hover:scale-105 group`}
+              title="Select Network"
+            >
+              <div className="w-5 h-5 flex items-center justify-center">
+                {renderNetworkLogo()}
+              </div>
+              <span className="text-white font-medium">
+                {networkName}
+              </span>
+              <span className={`transition-transform duration-200 ${showNetworkDropdown ? 'rotate-180' : ''}`}>
+                ▼
+              </span>
+            </button>
+          </div>
           
+          {/* Wallet Connect */}
           <appkit-button />
         </div>
       </div>
 
       <QuickAccessDropdown />
+      <NetworkDropdown />
 
       <NFTInfoModal />
 

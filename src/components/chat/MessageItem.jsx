@@ -9,7 +9,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0, direction: 'up' });
   const [isHovered, setIsHovered] = useState(false);
 
-  // Deklaracje zmiennych na początku
   const isAdmin = ADMIN_ADDRESSES.includes(msg.walletAddress?.toLowerCase());
   const canDelete = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
   
@@ -75,7 +74,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
 
   const renderedContent = renderMessageWithEmbeds(processedText);
 
-  // Hover tylko dla desktop
   const handleMouseEnter = () => {
     if (!isMobile) setIsHovered(true);
   };
@@ -90,10 +88,9 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
     const rect = e.currentTarget.getBoundingClientRect();
     const viewportHeight = window.innerHeight;
     
-    // Sprawdzamy gdzie jest więcej miejsca - na górze czy na dole
     const spaceAbove = rect.top;
     const spaceBelow = viewportHeight - rect.bottom;
-    const menuHeight = isMobile ? 120 : 150; // Zmniejszone bo tylko 2 opcje
+    const menuHeight = isMobile ? 120 : 150;
     
     let direction = 'down';
     let yPosition = rect.bottom + window.scrollY + 5;
@@ -133,6 +130,51 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
     if (msg.replyTo && onScrollToMessage) {
       onScrollToMessage(msg.replyTo.messageId);
     }
+  };
+
+  const getNetworkLabel = () => {
+    if (!msg.network) return null;
+    
+    const networkConfig = {
+      celo: { 
+        text: 'CELO', 
+        textColor: 'text-yellow-400',
+        logo: '/Celo.logo.jpg',
+        fallbackIcon: '📱' 
+      },
+      base: { 
+        text: 'BASE', 
+        textColor: 'text-blue-400',
+        logo: '/Base.logo.jpg',
+        fallbackIcon: '🌉' 
+      },
+      linea: { 
+        text: 'LINEA', 
+        textColor: 'text-cyan-400',
+        logo: '/Linea.logo.png',
+        fallbackIcon: '🚀' 
+      }
+    };
+    
+    const config = networkConfig[msg.network];
+    if (!config) return null;
+    
+    return (
+      <div className="flex items-center gap-1">
+        <img 
+          src={config.logo} 
+          alt={config.text}
+          className="w-3 h-3 object-cover rounded"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<span class="text-xs">${config.fallbackIcon}</span>`;
+          }}
+        />
+        <span className={`${config.textColor} text-xs font-medium`}>
+          {config.text}
+        </span>
+      </div>
+    );
   };
 
   return (
@@ -207,7 +249,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         </div>
         
         <div className="flex-1 min-w-0 flex items-center gap-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <strong 
               className={`
                 cursor-pointer transition-all duration-200 relative
@@ -232,14 +274,12 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
             </strong>
             
             {isAdmin && (
-              <span className={`bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-medium ${
-                isMobile 
-                  ? 'text-[8px] px-1 py-0.5' 
-                  : 'text-[10px] px-1.5 py-0.5'
-              }`}>
+              <span className="text-red-400 text-xs font-medium ml-1">
                 ADMIN
               </span>
             )}
+            
+            {getNetworkLabel()}
           </div>
           
           <span className={`text-gray-400 ${isMobile ? 'text-[10px]' : 'text-sm'}`}>
@@ -248,7 +288,6 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         </div>
       </div>
 
-      {/* REPLY QUOTE - CLICKABLE */}
       {msg.replyTo && (
         <div 
           className={`bg-gray-700/30 border-l-2 border-cyan-500 rounded-r-lg cursor-pointer hover:bg-gray-700/50 transition-all group/quote mb-3 ${
@@ -274,14 +313,12 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         </div>
       )}
       
-      {/* GŁÓWNA TREŚĆ WIADOMOŚCI - POPRAWIONE ZAWIJANIE */}
       <div className={`text-white break-words overflow-x-hidden mb-2 max-w-full ${
         isMobile ? 'text-xs' : 'text-sm'
       }`}>
         {renderedContent}
       </div>
 
-      {/* PORTAL - zoptymalizowane efekty hover */}
       {showSimpleMenu && createPortal(
         <>
           <div 
