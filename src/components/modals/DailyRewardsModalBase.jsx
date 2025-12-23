@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import { useAccount, useContractRead, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import ReactDOM from 'react-dom';
 
-const contractABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"totalClaims","type":"uint256"},{"indexed":false,"internalType":"string","name":"message","type":"string"}],"name":"Claimed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"newMessage","type":"string"}],"name":"MessageUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"string","name":"message","type":"string"}],"name":"StreakSaved","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"longestStreak","type":"uint256"}],"name":"StreakUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"}],"name":"UserBlocked","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"}],"name":"UserUnblocked","type":"event"},{"inputs":[],"name":"CLAIM_COOLDOWN","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"DAILY_USDC_REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"HUB_TOKEN_ADDRESS","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MIN_HUB_REQUIRED","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"STREAK_TIMEFRAME","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"USDC_ADDRESS","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"appLink","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"blacklist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"blacklistMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"blockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"canClaim","outputs":[{"internalType":"bool","name":"","type":"bool"},{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"cooldownMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"emergencyWithdrawUSDC","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getContractBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getHubBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getHubChatInfo","outputs":[{"internalType":"string","name":"message","type":"string"},{"internalType":"string","name":"link","type":"string"},{"internalType":"uint256","name":"rewardAmount","type":"uint256"},{"internalType":"uint256","name":"cooldownHours","type":"uint256"},{"internalType":"uint256","name":"minHubRequired","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getStreakInfo","outputs":[{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalClaims","type":"uint256"},{"internalType":"uint256","name":"lastClaimTime","type":"uint256"},{"internalType":"bool","name":"isActive","type":"bool"},{"internalType":"bool","name":"hasEnoughHUB","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserStats","outputs":[{"internalType":"bool","name":"canClaimNow","type":"bool"},{"internalType":"uint256","name":"lastClaim","type":"uint256"},{"internalType":"uint256","name":"nextAvailableClaim","type":"uint256"},{"internalType":"uint256","name":"timeRemaining","type":"uint256"},{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalClaims","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"string","name":"message","type":"string"},{"internalType":"bool","name":"hasEnoughHUB","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"insufficientHubMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"_newLink","type":"string"}],"name":"setAppLink","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_newMessage","type":"string"}],"name":"setBlacklistMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_newMessage","type":"string"}],"name":"setCooldownMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_newMessage","type":"string"}],"name":"setWelcomeMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"streakSavedMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"unblockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userStats","outputs":[{"internalType":"uint256","name":"lastClaimTime","type":"uint256"},{"internalType":"uint256","name":"streakCount","type":"uint256"},{"internalType":"uint256","name":"totalClaims","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"lastStreakUpdate","type":"uint256"},{"internalType":"bool","name":"isBlocked","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"welcomeMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"}];
+const contractABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"totalClaims","type":"uint256"},{"indexed":false,"internalType":"bool","name":"hasGenesisNFT","type":"bool"},{"indexed":false,"internalType":"string","name":"message","type":"string"}],"name":"Claimed","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"string","name":"newMessage","type":"string"}],"name":"MessageUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"string","name":"message","type":"string"}],"name":"StreakSaved","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"longestStreak","type":"uint256"}],"name":"StreakUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"}],"name":"UserBlocked","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"}],"name":"UserUnblocked","type":"event"},{"inputs":[],"name":"CLAIM_COOLDOWN","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"DAILY_USDC_REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"GENESIS_NFT_ADDRESS","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"GENESIS_NFT_REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"HUB_TOKEN_ADDRESS","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MIN_HUB_REQUIRED","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"STREAK_TIMEFRAME","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"USDC_ADDRESS","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"appLink","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"blacklist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"blacklistMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"blockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"canClaim","outputs":[{"internalType":"bool","name":"canClaimNow","type":"bool"},{"internalType":"string","name":"message","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"claim","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"cooldownMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"emergencyWithdrawUSDC","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"genesisNFTRewardMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getClaimInfo","outputs":[{"internalType":"bool","name":"canClaimNow","type":"bool"},{"internalType":"uint256","name":"lastClaim","type":"uint256"},{"internalType":"uint256","name":"nextAvailableClaim","type":"uint256"},{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"potentialReward","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getContractBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getFullUserInfo","outputs":[{"internalType":"bool","name":"canClaimNow","type":"bool"},{"internalType":"uint256","name":"lastClaim","type":"uint256"},{"internalType":"uint256","name":"nextAvailableClaim","type":"uint256"},{"internalType":"uint256","name":"timeRemaining","type":"uint256"},{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalClaims","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"bool","name":"userHasEnoughHUB","type":"bool"},{"internalType":"bool","name":"userHasGenesisNFT","type":"bool"},{"internalType":"uint256","name":"potentialReward","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getHubBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getRewardInfo","outputs":[{"internalType":"uint256","name":"dailyReward","type":"uint256"},{"internalType":"uint256","name":"nftBonus","type":"uint256"},{"internalType":"uint256","name":"totalReward","type":"uint256"},{"internalType":"bool","name":"eligibleForReward","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserStats","outputs":[{"internalType":"uint256","name":"lastClaim","type":"uint256"},{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalClaims","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"bool","name":"userHasEnoughHUB","type":"bool"},{"internalType":"bool","name":"userHasGenesisNFT","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"hasGenesisNFT","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"insufficientHubMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"_newLink","type":"string"}],"name":"setAppLink","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_newMessage","type":"string"}],"name":"setBlacklistMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_newMessage","type":"string"}],"name":"setCooldownMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_newMessage","type":"string"}],"name":"setWelcomeMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"streakSavedMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"unblockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userStats","outputs":[{"internalType":"uint256","name":"lastClaimTime","type":"uint256"},{"internalType":"uint256","name":"streakCount","type":"uint256"},{"internalType":"uint256","name":"totalClaims","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"lastStreakUpdate","type":"uint256"},{"internalType":"bool","name":"isBlocked","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"welcomeMessage","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"}];
 
-const CONTRACT_ADDRESS = "0x94fD9248505695f7BA3CbF8598E784B6C44F5924";
+const CONTRACT_ADDRESS = "0x026417Dd641C090CDAc7ecD961B25c6c45fa3018";
 
 const DailyRewardsModalBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const { address } = useAccount();
   const [userStats, setUserStats] = useState(null);
   const [txHash, setTxHash] = useState(null);
+  const [hasGenesisNFT, setHasGenesisNFT] = useState(false);
   
   const { writeContractAsync, isPending: isSending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
@@ -19,7 +20,7 @@ const DailyRewardsModalBase = ({ isOpen, onClose, currentUser, isMobile = false 
   const { data: statsData, refetch: refetchStats } = useContractRead({
     address: CONTRACT_ADDRESS,
     abi: contractABI,
-    functionName: 'getUserStats',
+    functionName: 'getFullUserInfo',
     args: [address],
     enabled: isOpen && !!address,
   });
@@ -32,9 +33,18 @@ const DailyRewardsModalBase = ({ isOpen, onClose, currentUser, isMobile = false 
     enabled: isOpen && !!address,
   });
 
+  const { data: nftData, refetch: refetchNFT } = useContractRead({
+    address: CONTRACT_ADDRESS,
+    abi: contractABI,
+    functionName: 'hasGenesisNFT',
+    args: [address],
+    enabled: isOpen && !!address,
+  });
+
   useEffect(() => {
     if (statsData) {
-      const [canClaimNow, lastClaim, nextAvailableClaim, timeRemaining, currentStreak, longestStreak, totalClaims, totalEarned, message, hasEnoughHUB] = statsData;
+      const [canClaimNow, lastClaim, nextAvailableClaim, timeRemaining, currentStreak, longestStreak, totalClaims, totalEarned, userHasEnoughHUB, userHasGenesisNFT, potentialReward] = statsData;
+      
       setUserStats({
         canClaimNow,
         lastClaim: Number(lastClaim),
@@ -44,22 +54,32 @@ const DailyRewardsModalBase = ({ isOpen, onClose, currentUser, isMobile = false 
         longestStreak: Number(longestStreak),
         totalClaims: Number(totalClaims),
         totalEarned: totalEarned.toString(),
-        message,
-        hasEnoughHUB
+        userHasEnoughHUB,
+        userHasGenesisNFT,
+        potentialReward: potentialReward.toString()
       });
+      
+      setHasGenesisNFT(userHasGenesisNFT);
     }
   }, [statsData]);
+
+  useEffect(() => {
+    if (nftData !== undefined) {
+      setHasGenesisNFT(nftData);
+    }
+  }, [nftData]);
 
   useEffect(() => {
     if (isConfirmed && txHash) {
       refetchStats();
       refetchCanClaim();
+      refetchNFT();
       
       setTimeout(() => {
         onClose();
       }, 3000);
     }
-  }, [isConfirmed, txHash, onClose, refetchStats, refetchCanClaim]);
+  }, [isConfirmed, txHash, onClose, refetchStats, refetchCanClaim, refetchNFT]);
 
   const handleClaim = async () => {
     if (!address) {
@@ -108,8 +128,30 @@ const DailyRewardsModalBase = ({ isOpen, onClose, currentUser, isMobile = false 
   };
 
   const formatUSDC = (amount) => {
-    return (amount / 10**6).toFixed(2);
+    if (!amount) return '0.00';
+    const usdcAmount = BigInt(amount);
+    return (Number(usdcAmount) / 10**6).toFixed(2);
   };
+
+  const calculateReward = () => {
+    if (!userStats?.userHasEnoughHUB) return { amount: 0, label: '0.00' };
+    
+    let baseReward = 0.01;
+    let bonus = 0;
+    
+    if (hasGenesisNFT) {
+      bonus = 0.10;
+    }
+    
+    const total = baseReward + bonus;
+    return {
+      amount: total,
+      label: total.toFixed(2),
+      hasBonus: bonus > 0
+    };
+  };
+
+  const rewardInfo = calculateReward();
 
   const ModalContent = () => {
     if (!isOpen) return null;
@@ -147,19 +189,20 @@ const DailyRewardsModalBase = ({ isOpen, onClose, currentUser, isMobile = false 
     }
 
     if (isConfirmed) {
+      const rewardText = userStats?.userHasEnoughHUB 
+        ? hasGenesisNFT 
+          ? "You received 0.11 USDC (0.01 + 0.10 NFT bonus)!"
+          : "You received 0.01 USDC!"
+        : "Your streak has been maintained! Get 100 HUB tokens to earn USDC rewards.";
+      
       return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
           <div className="bg-gray-800 border-2 border-blue-500/40 rounded-2xl text-center max-w-md w-full p-8">
             <div className="text-6xl mb-4">🎉</div>
             <h2 className="text-2xl font-bold text-blue-400 mb-2">
-              {userStats?.hasEnoughHUB ? "Reward Claimed!" : "Streak Saved!"}
+              {userStats?.userHasEnoughHUB ? "Reward Claimed!" : "Streak Saved!"}
             </h2>
-            <p className="text-gray-400 mb-4">
-              {userStats?.hasEnoughHUB 
-                ? "You received 0.01 USDC!"
-                : "Your streak has been maintained! Get 10 HUB tokens to earn USDC rewards."
-              }
-            </p>
+            <p className="text-gray-400 mb-4">{rewardText}</p>
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
               <p className="text-green-300 font-semibold">
                 ✅ Transaction confirmed!
@@ -214,11 +257,18 @@ const DailyRewardsModalBase = ({ isOpen, onClose, currentUser, isMobile = false 
                   </div>
                 </div>
 
-                <div className="mt-4 p-3 rounded-lg bg-gray-600/30 border border-gray-500/50">
-                  <div className="flex items-center justify-between">
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-gray-600/30 border border-gray-500/50">
                     <span className="text-sm text-gray-300">HUB Balance Status:</span>
-                    <span className={`text-sm font-bold ${userStats.hasEnoughHUB ? 'text-green-400' : 'text-orange-400'}`}>
-                      {userStats.hasEnoughHUB ? '✅ Eligible for USDC' : '❌ Need 10 HUB'}
+                    <span className={`text-sm font-bold ${userStats.userHasEnoughHUB ? 'text-green-400' : 'text-orange-400'}`}>
+                      {userStats.userHasEnoughHUB ? '✅ 100+ HUB' : '❌ Need 100 HUB'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-2 rounded-lg bg-gray-600/30 border border-gray-500/50">
+                    <span className="text-sm text-gray-300">Genesis NFT Status:</span>
+                    <span className={`text-sm font-bold ${hasGenesisNFT ? 'text-purple-400' : 'text-gray-400'}`}>
+                      {hasGenesisNFT ? '✅ NFT Holder' : '❌ No NFT'}
                     </span>
                   </div>
                 </div>
@@ -226,16 +276,25 @@ const DailyRewardsModalBase = ({ isOpen, onClose, currentUser, isMobile = false 
             )}
 
             <div className={`border rounded-xl p-4 ${
-              userStats?.hasEnoughHUB 
-                ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/30' 
+              userStats?.userHasEnoughHUB 
+                ? hasGenesisNFT
+                  ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/30'
+                  : 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/30'
                 : 'bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border-orange-500/30'
             }`}>
               <div className="text-center mb-3">
-                <div className="text-2xl font-bold text-green-400">0.01 USDC</div>
-                <div className="text-sm text-green-300">Daily Reward</div>
-                {!userStats?.hasEnoughHUB && (
+                <div className="text-2xl font-bold text-green-400">{rewardInfo.label} USDC</div>
+                <div className="text-sm text-green-300">
+                  {rewardInfo.hasBonus ? "Daily Reward + NFT Bonus" : "Daily Reward"}
+                </div>
+                {hasGenesisNFT && userStats?.userHasEnoughHUB && (
+                  <div className="text-purple-300 text-sm mt-1">
+                    🎭 Genesis NFT Bonus: +0.10 USDC
+                  </div>
+                )}
+                {!userStats?.userHasEnoughHUB && (
                   <div className="text-orange-300 text-sm mt-2">
-                    ⚠️ Get 10 HUB tokens to unlock USDC rewards
+                    ⚠️ Get 100 HUB tokens to unlock USDC rewards
                   </div>
                 )}
               </div>
@@ -249,13 +308,21 @@ const DailyRewardsModalBase = ({ isOpen, onClose, currentUser, isMobile = false 
               )}
             </div>
 
+            {canClaimData && canClaimData[1] && (
+              <div className="text-center text-sm text-gray-300 p-2 bg-gray-700/30 rounded-lg">
+                {canClaimData[1]}
+              </div>
+            )}
+
             <button
               onClick={handleClaim}
               disabled={!userStats?.canClaimNow || isSending || isConfirming}
               className={`w-full py-3 rounded-xl font-bold text-white transition-all ${
                 userStats?.canClaimNow 
-                  ? userStats?.hasEnoughHUB
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 hover:scale-105'
+                  ? userStats?.userHasEnoughHUB
+                    ? hasGenesisNFT
+                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 hover:scale-105'
+                      : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 hover:scale-105'
                     : 'bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 hover:scale-105'
                   : 'bg-gray-600 cursor-not-allowed'
               } ${isSending ? 'opacity-50' : ''}`}
@@ -266,23 +333,24 @@ const DailyRewardsModalBase = ({ isOpen, onClose, currentUser, isMobile = false 
                   Processing...
                 </span>
               ) : userStats?.canClaimNow ? (
-                userStats?.hasEnoughHUB ? '🎁 Claim 0.01 USDC' : '⚡ Save Streak'
+                userStats?.userHasEnoughHUB ? 
+                  hasGenesisNFT ? '🎭 Claim 0.11 USDC' : '🎁 Claim 0.01 USDC'
+                : '⚡ Save Streak'
               ) : (
                 '⏰ Come Back Later'
               )}
             </button>
 
-            {userStats?.message && (
-              <div className="text-center text-sm text-gray-300 p-2 bg-gray-700/30 rounded-lg">
-                {userStats.message}
-              </div>
-            )}
-
-            <div className="text-xs text-gray-400 text-center">
-              Claim your daily reward every 24 hours to maintain your streak!
-              {!userStats?.hasEnoughHUB && (
-                <div className="text-orange-400 mt-1">
-                  Get 10 HUB tokens to unlock USDC rewards
+            <div className="text-xs text-gray-400 text-center space-y-1">
+              <div>Claim your daily reward every 24 hours to maintain your streak!</div>
+              {!userStats?.userHasEnoughHUB && (
+                <div className="text-orange-400">
+                  Get 100 HUB tokens to unlock USDC rewards
+                </div>
+              )}
+              {!hasGenesisNFT && (
+                <div className="text-purple-400">
+                  Get Genesis NFT for +0.10 USDC daily bonus
                 </div>
               )}
             </div>
