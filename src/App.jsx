@@ -136,7 +136,7 @@ function App() {
         <div className="text-center bg-gray-800/70 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-6 sm:p-8 md:p-10 max-w-md w-full relative z-10 mx-4">
           <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-2xl flex items-center justify-center">
             <img 
-              src="/hublogo.svg" 
+              src="/HUB.logo.png" 
               alt="HUB Portal" 
               className="w-12 h-12"
             />
