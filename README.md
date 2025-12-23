@@ -1,8 +1,8 @@
-# <img src="./public/hublogo.svg" alt="HUB Portal" width="30" height="30" /> HUB Portal - Multi-Chain Social Chat Platform
+# <img src="./public/HUB.logo.png" alt="HUB Portal" width="40" height="40" /> HUB Portal - Multi-Chain Social Chat Platform
 
 <div align="center">
 
-<img src="./public/hublogo.svg" alt="HUB Portal Logo" width="200" height="200" />
+<img src="./public/HUB.logo.png" alt="HUB Portal Logo" width="200" height="200" />
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
