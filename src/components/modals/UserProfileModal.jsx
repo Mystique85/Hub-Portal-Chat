@@ -18,12 +18,14 @@ const UserProfileModal = ({
   const [userProfile, setUserProfile] = useState(null);
   const [celoBalance, setCeloBalance] = useState('0');
   const [baseBalance, setBaseBalance] = useState('0');
+  const [lineaBalance, setLineaBalance] = useState('0');
   const [loading, setLoading] = useState(true);
   const [showSendModal, setShowSendModal] = useState(false);
   const [seasonStats, setSeasonStats] = useState(null);
   const [networkStatus, setNetworkStatus] = useState({
     celo: 'loading',
-    base: 'loading'
+    base: 'loading',
+    linea: 'loading'
   });
   const [dailyUsage, setDailyUsage] = useState({
     used: 0,
@@ -32,11 +34,11 @@ const UserProfileModal = ({
     tier: 'FREE'
   });
   
-  // Nowe stany dla badge
   const [hasStakeBadge, setHasStakeBadge] = useState(false);
   const [stakeBadgeInfo, setStakeBadgeInfo] = useState(null);
 
-  const { isCelo, isBase, tokenSymbol } = useNetwork();
+  const network = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, tokenSymbol } = network;
   const season = getCurrentSeason();
   
   const isCurrentUserProfile = currentUser?.walletAddress?.toLowerCase() === user?.walletAddress?.toLowerCase();
@@ -47,7 +49,7 @@ const UserProfileModal = ({
     functionName: 'getUserBasicStats',
     args: [user?.walletAddress],
     query: {
-      enabled: !!user?.walletAddress && isBase && !isCurrentUserProfile,
+      enabled: !!user?.walletAddress && currentNetwork === 'base' && !isCurrentUserProfile,
     }
   });
 
@@ -57,7 +59,7 @@ const UserProfileModal = ({
     functionName: 'getUserSubscriptionInfo',
     args: [user?.walletAddress],
     query: {
-      enabled: !!user?.walletAddress && isBase && !isCurrentUserProfile,
+      enabled: !!user?.walletAddress && currentNetwork === 'base' && !isCurrentUserProfile,
     }
   });
 
@@ -140,7 +142,6 @@ const UserProfileModal = ({
     return number.toString();
   };
 
-  // Funkcja do sprawdzenia badge w localStorage
   const checkStakeBadge = (walletAddress) => {
     if (!walletAddress) return null;
     
@@ -149,7 +150,6 @@ const UserProfileModal = ({
     
     if (!userBadges || !userBadges.tiers) return null;
     
-    // Znajdź najwyższy claimnięty tier
     let highestTier = null;
     const tiersOrder = { 'gold': 3, 'silver': 2, 'bronze': 1 };
     
@@ -167,7 +167,6 @@ const UserProfileModal = ({
     };
   };
 
-  // Funkcja do renderowania tylko odznaki (najwyższy tier)
   const renderBadgeOnly = () => {
     if (!hasStakeBadge || !stakeBadgeInfo?.highestTier) return null;
     
@@ -193,71 +192,97 @@ const UserProfileModal = ({
       if (!user || !user.walletAddress) return;
       
       setLoading(true);
-      setNetworkStatus({ celo: 'loading', base: 'loading' });
+      setNetworkStatus({ celo: 'loading', base: 'loading', linea: 'loading' });
       
       try {
         const userDoc = await getDoc(doc(db, 'users', user.walletAddress.toLowerCase()));
         const firestoreProfile = userDoc.exists() ? userDoc.data() : null;
         setUserProfile(firestoreProfile);
         
-        // Sprawdź stake badge
         const badgeInfo = checkStakeBadge(user.walletAddress);
         if (badgeInfo && badgeInfo.highestTier) {
           setHasStakeBadge(true);
           setStakeBadgeInfo(badgeInfo);
         }
         
-        if (isCurrentUserProfile && isBase && currentUser?.subscriptionInfo) {
+        if (isCurrentUserProfile && currentNetwork === 'base' && currentUser?.subscriptionInfo) {
           const usage = calculateDailyUsage(currentUser.subscriptionInfo, null, false);
           setDailyUsage(usage);
         }
         
-        if (!isCurrentUserProfile && isBase) {
+        if (!isCurrentUserProfile && currentNetwork === 'base') {
           refetchExternalStats();
           refetchExternalSubscription();
         }
         
         if (getOtherUserBalance) {
           if (currentUser && user.walletAddress === currentUser.walletAddress) {
-            if (isCelo) {
+            // Dla aktualnego użytkownika
+            if (currentNetwork === 'celo') {
               setCeloBalance(currentUser.balance || '0');
               setNetworkStatus(prev => ({ ...prev, celo: 'live' }));
-            } else if (isBase) {
+            } else if (currentNetwork === 'base') {
               setBaseBalance(currentUser.balance || '0');
               setNetworkStatus(prev => ({ ...prev, base: 'live' }));
+            } else if (currentNetwork === 'linea') {
+              setLineaBalance(currentUser.balance || '0');
+              setNetworkStatus(prev => ({ ...prev, linea: 'live' }));
             }
             
             try {
               const balances = await getOtherUserBalance(user.walletAddress);
-              if (isCelo) {
+              if (currentNetwork === 'celo') {
                 setBaseBalance(balances.base || '0');
-                setNetworkStatus(prev => ({ ...prev, base: 'fetched' }));
-              } else if (isBase) {
+                setLineaBalance(balances.linea || '0');
+                setNetworkStatus(prev => ({ 
+                  ...prev, 
+                  base: 'fetched',
+                  linea: 'fetched'
+                }));
+              } else if (currentNetwork === 'base') {
                 setCeloBalance(balances.celo || '0');
-                setNetworkStatus(prev => ({ ...prev, celo: 'fetched' }));
+                setLineaBalance(balances.linea || '0');
+                setNetworkStatus(prev => ({ 
+                  ...prev, 
+                  celo: 'fetched',
+                  linea: 'fetched'
+                }));
+              } else if (currentNetwork === 'linea') {
+                setBaseBalance(balances.base || '0');
+                setCeloBalance(balances.celo || '0');
+                setNetworkStatus(prev => ({ 
+                  ...prev, 
+                  base: 'fetched',
+                  celo: 'fetched'
+                }));
               }
             } catch (error) {
-              if (isCelo) setBaseBalance('0');
-              if (isBase) setCeloBalance('0');
+              if (currentNetwork === 'celo') setBaseBalance('0');
+              if (currentNetwork === 'base') setCeloBalance('0');
+              if (currentNetwork === 'linea') setLineaBalance('0');
             }
           } else {
+            // Dla innych użytkowników
             try {
               const balances = await getOtherUserBalance(user.walletAddress);
               setCeloBalance(balances.celo || '0');
               setBaseBalance(balances.base || '0');
+              setLineaBalance(balances.linea || '0');
               setNetworkStatus({
                 celo: balances.celo !== '0' ? 'fetched' : 'zero',
-                base: balances.base !== '0' ? 'fetched' : 'zero'
+                base: balances.base !== '0' ? 'fetched' : 'zero',
+                linea: balances.linea !== '0' ? 'fetched' : 'zero'
               });
             } catch (error) {
               setCeloBalance('0');
               setBaseBalance('0');
-              setNetworkStatus({ celo: 'error', base: 'error' });
+              setLineaBalance('0');
+              setNetworkStatus({ celo: 'error', base: 'error', linea: 'error' });
             }
           }
         }
         
-        if (firestoreProfile && isCelo) {
+        if (firestoreProfile && currentNetwork === 'celo') {
           setSeasonStats({
             seasonMessages: firestoreProfile.season1_messages || 0,
             seasonRank: firestoreProfile.season1_rank || null,
@@ -274,14 +299,14 @@ const UserProfileModal = ({
     };
     
     loadProfileData();
-  }, [user, getOtherUserBalance, isCelo, isBase, currentUser, isCurrentUserProfile]);
+  }, [user, getOtherUserBalance, currentNetwork, currentUser, isCurrentUserProfile]);
 
   useEffect(() => {
-    if (!isCurrentUserProfile && isBase && (externalBasicStatsData || externalSubscriptionData)) {
+    if (!isCurrentUserProfile && currentNetwork === 'base' && (externalBasicStatsData || externalSubscriptionData)) {
       const usage = calculateDailyUsage(null, null, true);
       setDailyUsage(usage);
     }
-  }, [externalBasicStatsData, externalSubscriptionData, isCurrentUserProfile, isBase]);
+  }, [externalBasicStatsData, externalSubscriptionData, isCurrentUserProfile, currentNetwork]);
 
   const getBadgeColor = (badgeType) => {
     switch(badgeType) {
@@ -293,8 +318,9 @@ const UserProfileModal = ({
   };
 
   const getNetworkStatusText = (network, status) => {
-    if (network === 'celo' && isCelo) return 'Live';
-    if (network === 'base' && isBase) return 'Live';
+    if (network === 'celo' && currentNetwork === 'celo') return 'Live';
+    if (network === 'base' && currentNetwork === 'base') return 'Live';
+    if (network === 'linea' && currentNetwork === 'linea') return 'Live';
     
     switch(status) {
       case 'live': return 'Live';
@@ -306,7 +332,7 @@ const UserProfileModal = ({
   };
 
   const renderSubscriptionInfo = () => {
-    if (!isBase) return null;
+    if (currentNetwork !== 'base') return null;
 
     const subscriptionInfo = isCurrentUserProfile ? currentUser?.subscriptionInfo : null;
     
@@ -552,9 +578,10 @@ const UserProfileModal = ({
                   isMobile ? 'text-[10px]' : 'text-xs'
                 }`}>Token Balance</div>
                 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
+                  {/* HUB Balance - Base */}
                   <div className={`bg-blue-500/10 border rounded-xl p-2 text-center ${
-                    isBase ? 'border-blue-500/40' : 'border-blue-500/20'
+                    currentNetwork === 'base' ? 'border-blue-500/40' : 'border-blue-500/20'
                   }`}>
                     <div className="flex items-center justify-between mb-0.5">
                       <div className="flex items-center gap-1">
@@ -574,24 +601,18 @@ const UserProfileModal = ({
                       </div>
                     </div>
                     <div className={`text-blue-400 font-bold truncate ${
-                      isMobile ? 'text-base' : 'text-lg'
+                      isMobile ? 'text-sm' : 'text-base'
                     }`} title={baseBalance}>
                       {formatLargeNumber(baseBalance)}
                     </div>
                     <div className={`text-blue-300 ${
                       isMobile ? 'text-[9px]' : 'text-[10px]'
-                    }`}>$HUB Token</div>
-                    {parseFloat(baseBalance) >= 1000 && (
-                      <div className={`text-blue-500/70 truncate ${
-                        isMobile ? 'text-[7px] mt-0.5' : 'text-[8px] mt-0.5'
-                      }`} title={baseBalance}>
-                        ({baseBalance})
-                      </div>
-                    )}
+                    }`}>$HUB</div>
                   </div>
                   
+                  {/* HC Balance - Celo */}
                   <div className={`bg-amber-500/10 border rounded-xl p-2 text-center ${
-                    isCelo ? 'border-amber-500/40' : 'border-amber-500/20'
+                    currentNetwork === 'celo' ? 'border-amber-500/40' : 'border-amber-500/20'
                   }`}>
                     <div className="flex items-center justify-between mb-0.5">
                       <div className="flex items-center gap-1">
@@ -611,20 +632,44 @@ const UserProfileModal = ({
                       </div>
                     </div>
                     <div className={`text-amber-400 font-bold truncate ${
-                      isMobile ? 'text-base' : 'text-lg'
+                      isMobile ? 'text-sm' : 'text-base'
                     }`} title={celoBalance}>
                       {formatLargeNumber(celoBalance)}
                     </div>
                     <div className={`text-amber-300 ${
                       isMobile ? 'text-[9px]' : 'text-[10px]'
-                    }`}>$HC Token</div>
-                    {parseFloat(celoBalance) >= 1000 && (
-                      <div className={`text-amber-500/70 truncate ${
-                        isMobile ? 'text-[7px] mt-0.5' : 'text-[8px] mt-0.5'
-                      }`} title={celoBalance}>
-                        ({celoBalance})
+                    }`}>$HC</div>
+                  </div>
+                  
+                  {/* LPX Balance - Linea */}
+                  <div className={`bg-cyan-500/10 border rounded-xl p-2 text-center ${
+                    currentNetwork === 'linea' ? 'border-cyan-500/40' : 'border-cyan-500/20'
+                  }`}>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <div className="flex items-center gap-1">
+                        <span className={`text-cyan-400 ${
+                          isMobile ? 'text-[10px]' : 'text-xs'
+                        }`}>🚀</span>
+                        <span className={`text-cyan-300 ${
+                          isMobile ? 'text-[9px]' : 'text-[10px]'
+                        }`}>Linea</span>
                       </div>
-                    )}
+                      <div className={`px-0.5 py-0.5 rounded ${
+                        networkStatus.linea === 'live' ? 'bg-cyan-500/30 text-cyan-300' :
+                        networkStatus.linea === 'fetched' ? 'bg-cyan-500/20 text-cyan-400' :
+                        'bg-gray-700/50 text-gray-400'
+                      } ${isMobile ? 'text-[8px]' : 'text-[9px]'}`}>
+                        {getNetworkStatusText('linea', networkStatus.linea)}
+                      </div>
+                    </div>
+                    <div className={`text-cyan-400 font-bold truncate ${
+                      isMobile ? 'text-sm' : 'text-base'
+                    }`} title={lineaBalance}>
+                      {formatLargeNumber(lineaBalance)}
+                    </div>
+                    <div className={`text-cyan-300 ${
+                      isMobile ? 'text-[9px]' : 'text-[10px]'
+                    }`}>$LPX</div>
                   </div>
                 </div>
               </div>
@@ -642,10 +687,9 @@ const UserProfileModal = ({
                 }`}>Total Messages</div>
               </div>
 
-              {/* TYLKO ODNAKA - bez dodatkowych informacji */}
               {renderBadgeOnly()}
 
-              {isCelo && (
+              {currentNetwork === 'celo' && (
                 <>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="bg-gray-700/40 rounded-lg p-1.5 text-center">
@@ -720,7 +764,7 @@ const UserProfileModal = ({
                 </>
               )}
 
-              {isBase && renderSubscriptionInfo()}
+              {currentNetwork === 'base' && renderSubscriptionInfo()}
 
               <div className={`flex gap-2 pt-1 ${
                 isMobile ? 'pt-1' : 'pt-2'

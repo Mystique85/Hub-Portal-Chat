@@ -145,26 +145,36 @@ function App() {
             HUB Portal
           </h1>
           <p className="text-gray-400 mb-1">Multi-Chain Social Chat</p>
-          <p className="text-gray-400 text-sm mb-6">Celo + Base Networks</p>
+          <p className="text-gray-400 text-sm mb-6">Celo • Base • Linea Networks</p> {/* ZAKTUALIZOWANE */}
           
           <div className="flex justify-center mb-6">
             <appkit-button />
           </div>
           
           <div className="mb-4">
-            <div className="text-cyan-400 font-semibold text-sm mb-3">🔥 DUAL REWARD SYSTEM</div>
+            <div className="text-cyan-400 font-semibold text-sm mb-3">🔥 TRIPLE REWARD SYSTEM</div> {/* ZAKTUALIZOWANE */}
             
             <div className="flex justify-center gap-3 text-xs">
               <div className="bg-gray-700/50 border border-cyan-500/20 rounded-lg p-3 flex-1">
                 <div className="text-cyan-300 font-medium mb-1">🌉 BASE</div>
                 <div className="text-gray-300">• HUB Token Rewards</div>
                 <div className="text-gray-300">• Subscription System</div>
+                <div className="text-gray-300">• Staking</div>
               </div>
               
               <div className="bg-gray-700/50 border border-yellow-500/20 rounded-lg p-3 flex-1">
                 <div className="text-yellow-300 font-medium mb-1">📱 CELO</div>
                 <div className="text-gray-300">• HC Token Mining</div>
                 <div className="text-gray-300">• Daily CELO Rewards</div>
+                <div className="text-gray-300">• Season System</div>
+              </div>
+
+              {/* DODANA SIEC LINEA */}
+              <div className="bg-gray-700/50 border border-cyan-500/20 rounded-lg p-3 flex-1">
+                <div className="text-cyan-300 font-medium mb-1">🚀 LINEA</div>
+                <div className="text-gray-300">• LINA Token Rewards</div>
+                <div className="text-gray-300">• Daily ETH Rewards</div>
+                <div className="text-gray-300">• Coming Soon!</div>
               </div>
             </div>
           </div>

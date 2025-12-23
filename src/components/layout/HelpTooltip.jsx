@@ -22,16 +22,16 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
       type: 'vision',
       content: language === 'pl' 
         ? `<div class="space-y-4 text-white">
-            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> to pierwsza na świecie społeczność Web3, która łączy realne zarobki z komunikacją w czasie rzeczywistym na dwóch sieciach blockchain!</p>
+            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> to pierwsza na świecie społeczność Web3, która łączy realne zarobki z komunikacją w czasie rzeczywistym na trzech sieciach blockchain!</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base</p>
-            <p>Działamy na dwóch sieciach blockchain! Na <span class="text-yellow-300">Celo</span> zdobywasz tokeny <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span>, a na <span class="text-blue-300">Base</span> zarabiasz główne tokeny <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span> ekosystemu.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea</p>
+            <p>Działamy na trzech sieciach blockchain! Na <span class="text-yellow-300">Celo</span> zdobywasz tokeny <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span>, na <span class="text-blue-300">Base</span> zarabiasz główne tokeny <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span>, a na <span class="text-blue-400">Linea</span> zdobywasz tokeny <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent font-semibold">LPX</span>.</p>
 
             <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
               <p class="text-purple-300 font-semibold text-center mb-2">💎 Co nas wyróżnia?</p>
               <div class="space-y-2">
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Szybkie nagrody</span> - tokeny trafiają bezpośrednio do portfela</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Dwa ekosystemy</span> - zarabiaj na Celo i Base jednocześnie</p>
+                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Trzy ekosystemy</span> - zarabiaj na Celo, Base i Linea jednocześnie</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Prawdziwa własność</span> - Twoje tokeny, Twoja kontrola</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Bezpieczeństwo</span> - audytowane smart kontrakty</p>
               </div>
@@ -40,16 +40,16 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
             <p class="text-center text-white italic border-t border-gray-600/30 pt-4 mt-4">Dołącz do społeczności, która nie tylko obserwuje rewolucję Web3 - ale aktywnie ją tworzy.</p>
           </div>`
         : `<div class="space-y-4 text-white">
-            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> is the world's first Web3 community combining real earnings with real-time communication on two blockchain networks!</p>
+            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> is the world's first Web3 community combining real earnings with real-time communication on three blockchain networks!</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base</p>
-            <p>We operate on two blockchain networks! On <span class="text-yellow-300">Celo</span> you earn <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span> tokens, while on <span class="text-blue-300">Base</span> you collect main <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span> ecosystem tokens.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea</p>
+            <p>We operate on three blockchain networks! On <span class="text-yellow-300">Celo</span> you earn <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span> tokens, on <span class="text-blue-300">Base</span> you collect main <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span> ecosystem tokens, and on <span class="text-blue-400">Linea</span> you earn <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent font-semibold">LPX</span> tokens.</p>
 
             <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
               <p class="text-purple-300 font-semibold text-center mb-2">💎 What Makes Us Unique?</p>
               <div class="space-y-2">
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Fast Rewards</span> - tokens go directly to your wallet</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Dual Ecosystems</span> - earn on Celo and Base simultaneously</p>
+                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Triple Ecosystems</span> - earn on Celo, Base and Linea simultaneously</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">True Ownership</span> - your tokens, your control</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Security</span> - audited smart contracts</p>
               </div>
@@ -71,7 +71,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">1.</span> Kliknij <span class="text-cyan-300 font-semibold">"Connect Wallet"</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">2.</span> Wybierz kompatybilny portfel EVM</p>
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Portfel automatycznie przełączy się na odpowiednią sieć</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Wspierane sieci:</span> Celo i Base</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Wspierane sieci:</span> Celo, Base i Linea</p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Połączenie jest w <span class="text-green-400 font-semibold">100% bezpieczne</span></p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 Możesz zmieniać sieci w aplikacji jednym kliknięciem!</p>
@@ -82,7 +82,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">1.</span> Click <span class="text-cyan-300 font-semibold">"Connect Wallet"</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">2.</span> Choose compatible EVM wallet</p>
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Wallet will auto-switch to correct network</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Supported networks:</span> Celo and Base</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Supported networks:</span> Celo, Base and Linea</p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Connection is <span class="text-green-400 font-semibold">100% secure</span></p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 You can switch networks in the app with one click!</p>
@@ -103,7 +103,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Wybierz avatar z dostępnych emoji</p>
               <p class="flex items-center gap-2"><span class="text-green-400">4.</span> Profil powiązany z adresem portfela <span class="text-cyan-300 font-semibold">na zawsze</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Dane widoczne dla całej społeczności</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> Jeden profil działa na obu sieciach!</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> Jeden profil działa na wszystkich trzech sieciach!</p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 Twój profil to Twoja cyfrowa tożsamość w Web3!</p>
           </div>`
@@ -115,7 +115,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Select avatar from available emojis</p>
               <p class="flex items-center gap-2"><span class="text-green-400">4.</span> Profile linked to wallet address <span class="text-cyan-300 font-semibold">forever</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Data visible to entire community</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> One profile works on both networks!</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> One profile works on all three networks!</p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 Your profile is your digital identity in Web3!</p>
           </div>`,
@@ -128,7 +128,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
       type: 'step',
       content: language === 'pl'
         ? `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Nowy System Nagród na Base Network</p>
+            <p class="text-cyan-300 font-semibold text-center">Systemy Nagród na Wszystkich Sieciach</p>
             
             <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-3">
               <p class="text-yellow-300 font-semibold text-center mb-2">📱 CELO NETWORK (Klasyczny)</p>
@@ -140,8 +140,8 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               </div>
             </div>
 
-            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
-              <p class="text-blue-300 font-semibold text-center mb-2">🌉 BASE NETWORK (Nowy System)</p>
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-3">
+              <p class="text-blue-300 font-semibold text-center mb-2">🌉 BASE NETWORK (Zaawansowany)</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-purple-300">1 HUB token</span> za każdą wiadomość</p>
                 <p>• <strong class="text-cyan-300">System subskrypcji:</strong></p>
@@ -152,10 +152,21 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               </div>
             </div>
 
+            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mb-3">
+              <p class="text-cyan-300 font-semibold text-center mb-2">🔷 LINEA NETWORK (Nowość!)</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-cyan-300">1 LPX token</span> za każdą wiadomość</p>
+                <p>• Limit: <span class="text-cyan-300">100 LPX dziennie</span></p>
+                <p>• Nowy token <span class="text-cyan-300 font-semibold">Linea Prime (LPX)</span></p>
+                <p>• Maksymalna podaż: 1,000,000,000 LPX</p>
+                <p>• Zaawansowane funkcje antyspamowe</p>
+              </div>
+            </div>
+
             <p class="text-yellow-300 text-sm text-center">💡 Wybierz sieć w aplikacji by przełączać między systemami!</p>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">New Rewards System on Base Network</p>
+            <p class="text-cyan-300 font-semibold text-center">Rewards Systems on All Networks</p>
             
             <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-3">
               <p class="text-yellow-300 font-semibold text-center mb-2">📱 CELO NETWORK (Classic)</p>
@@ -167,8 +178,8 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               </div>
             </div>
 
-            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
-              <p class="text-blue-300 font-semibold text-center mb-2">🌉 BASE NETWORK (New System)</p>
+            <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-3">
+              <p class="text-blue-300 font-semibold text-center mb-2">🌉 BASE NETWORK (Advanced)</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-purple-300">1 HUB token</span> per message</p>
                 <p>• <strong class="text-cyan-300">Subscription System:</strong></p>
@@ -176,6 +187,17 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
                 <p class="ml-4">🚀 <span class="text-blue-400">BASIC</span>: 50 messages/day (10 USDC/month)</p>
                 <p class="ml-4">👑 <span class="text-purple-400">PREMIUM</span>: Unlimited (50 USDC/month)</p>
                 <p>• Daily USDC rewards available for everyone</p>
+              </div>
+            </div>
+
+            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mb-3">
+              <p class="text-cyan-300 font-semibold text-center mb-2">🔷 LINEA NETWORK (New!)</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-cyan-300">1 LPX token</span> per message</p>
+                <p>• Limit: <span class="text-cyan-300">100 LPX daily</span></p>
+                <p>• New <span class="text-cyan-300 font-semibold">Linea Prime (LPX)</span> token</p>
+                <p>• Max supply: 1,000,000,000 LPX</p>
+                <p>• Advanced anti-spam features</p>
               </div>
             </div>
 
@@ -195,7 +217,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-cyan-300">💬</span> <span class="font-semibold">Czat publiczny</span> - rozmawiaj ze społecznością</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">🔒</span> <span class="font-semibold">Czaty prywatne</span> - bezpieczne rozmowy 1-na-1</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">⚡</span> <span class="font-semibold">Real-time sync</span> - wiadomości na wszystkich urządzeniach</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Przełączanie sieci</span> - zarabiaj na Celo i Base</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Przełączanie sieci</span> - zarabiaj na Celo, Base i Linea</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">👥</span> <span class="font-semibold">Lista użytkowników</span> - zobacz kto jest online</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">🎯</span> <span class="font-semibold">Limit dzienny</span> - śledź swoje postępy</p>
             </div>
@@ -220,7 +242,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-cyan-300">💬</span> <span class="font-semibold">Public chat</span> - talk with community</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">🔒</span> <span class="font-semibold">Private chats</span> - secure 1-on-1 conversations</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">⚡</span> <span class="font-semibold">Real-time sync</span> - messages on all devices</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Network switching</span> - earn on Celo and Base</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Network switching</span> - earn on Celo, Base and Linea</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">👥</span> <span class="font-semibold">User list</span> - see who's online</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">🎯</span> <span class="font-semibold">Daily limit</span> - track your progress</p>
             </div>

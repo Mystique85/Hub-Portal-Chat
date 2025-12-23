@@ -3,55 +3,58 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagm
 import ReactDOM from 'react-dom';
 import { useNetwork } from '../../hooks/useNetwork';
 
-// DODANE: Różne adresy donation dla różnych sieci
-const DONATION_ADDRESSES = {
-  celo: '0xd30286180E142628cc437624Ea4160d5450F73D6',
-  base: '0xd30286180E142628cc437624Ea4160d5450F73D6' // Ten sam adres, ale USDC na Base
-};
+// TEN SAM ADRES DLA WSZYSTKICH SIECI
+const DONATION_ADDRESS = '0xd30286180E142628cc437624Ea4160d5450F73D6';
 
-// DODANE: Adresy tokenów USDC na Base
 const TOKEN_ADDRESSES = {
-  base: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' // USDC na Base
+  base: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC na Base
+  linea: '0xaca92e438df0b2401ff60da7e4337b687a2435da' // mUSD na Linea
 };
 
-// DODANE: Konfiguracja tokenów donation
 const DONATION_CONFIG = {
   celo: {
     symbol: 'CELO',
     decimals: 18,
     explorer: 'https://celoscan.io',
-    isNative: true // CELO to native token
+    isNative: true,
+    color: 'text-yellow-400',
+    bgColor: 'bg-yellow-500/10',
+    borderColor: 'border-yellow-500/30',
+    icon: '📱'
   },
   base: {
-    symbol: 'USDC', 
-    decimals: 6, // USDC ma 6 decimal places
+    symbol: 'USDC',
+    decimals: 6,
     explorer: 'https://basescan.org',
-    isNative: false, // USDC to ERC20 token
-    tokenAddress: TOKEN_ADDRESSES.base
+    isNative: false,
+    tokenAddress: TOKEN_ADDRESSES.base,
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    borderColor: 'border-blue-500/30',
+    icon: '🌉'
+  },
+  linea: {
+    symbol: 'mUSD',
+    decimals: 6,
+    explorer: 'https://lineascan.build',
+    isNative: false,
+    tokenAddress: TOKEN_ADDRESSES.linea,
+    color: 'text-cyan-400',
+    bgColor: 'bg-cyan-500/10',
+    borderColor: 'border-cyan-500/30',
+    icon: '🚀'
   }
 };
 
-// DODANE: ABI dla ERC20 transfer
 const ERC20_ABI = [
   {
     "constant": false,
     "inputs": [
-      {
-        "name": "_to",
-        "type": "address"
-      },
-      {
-        "name": "_value",
-        "type": "uint256"
-      }
+      {"name": "_to", "type": "address"},
+      {"name": "_value", "type": "uint256"}
     ],
     "name": "transfer",
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool"
-      }
-    ],
+    "outputs": [{"name": "", "type": "bool"}],
     "type": "function"
   }
 ];
@@ -65,8 +68,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
   const [txHash, setTxHash] = useState(null);
   const [currentStep, setCurrentStep] = useState('select');
 
-  // DODANE: Wykrywanie sieci
-  const { currentNetwork, isCelo, isBase, networkConfig } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, networkConfig } = useNetwork();
 
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
 
@@ -74,12 +76,23 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     hash: txHash,
   });
 
-  const donationConfig = DONATION_CONFIG[currentNetwork];
-  const donationAddress = DONATION_ADDRESSES[currentNetwork];
+  const donationConfig = DONATION_CONFIG[currentNetwork] || DONATION_CONFIG.celo;
 
-  const presetAmounts = isMobile 
-    ? isBase ? ['1', '5', '10', '20'] : ['0.1', '0.5', '1', '5'] // Różne kwoty dla różnych sieci
-    : isBase ? ['1', '5', '10', '20', '50'] : ['0.1', '0.5', '1', '5', '10'];
+  const getPresetAmounts = () => {
+    if (isMobile) {
+      if (isCelo) return ['0.1', '0.5', '1', '5'];
+      if (isBase) return ['1', '5', '10', '20'];
+      if (isLinea) return ['1', '5', '10', '20'];
+      return ['0.1', '0.5', '1', '5'];
+    } else {
+      if (isCelo) return ['0.1', '0.5', '1', '5', '10'];
+      if (isBase) return ['1', '5', '10', '20', '50'];
+      if (isLinea) return ['1', '5', '10', '20', '50'];
+      return ['0.1', '0.5', '1', '5', '10'];
+    }
+  };
+
+  const presetAmounts = getPresetAmounts();
 
   const handleClose = () => {
     if (onClose) {
@@ -122,7 +135,6 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     try {
       setCurrentStep('confirming');
       
-      // DODANE: Różne decimal places dla różnych tokenów
       const decimals = donationConfig.decimals;
       const amountInWei = BigInt(Math.floor(parseFloat(donateAmount) * 10 ** decimals));
       
@@ -131,27 +143,25 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
       if (donationConfig.isNative) {
         // Dla native tokenów (CELO) - prosty transfer
         hash = await writeContractAsync({
-          address: donationAddress,
-          abi: [
-            {
-              name: 'transfer',
-              type: 'function',
-              stateMutability: 'payable',
-              inputs: [],
-              outputs: [{ name: '', type: 'bool' }],
-            }
-          ],
+          address: DONATION_ADDRESS,
+          abi: [{
+            name: 'transfer',
+            type: 'function',
+            stateMutability: 'payable',
+            inputs: [],
+            outputs: [{ name: '', type: 'bool' }],
+          }],
           functionName: 'transfer',
           args: [],
           value: amountInWei,
         });
       } else {
-        // Dla ERC20 tokenów (USDC) - użyj funkcji transfer
+        // Dla ERC20 tokenów (USDC/mUSD) - użyj funkcji transfer
         hash = await writeContractAsync({
-          address: donationConfig.tokenAddress, // Adres tokena USDC
+          address: donationConfig.tokenAddress,
           abi: ERC20_ABI,
           functionName: 'transfer',
-          args: [donationAddress, amountInWei], // To, amount
+          args: [DONATION_ADDRESS, amountInWei],
         });
       }
       
@@ -178,9 +188,11 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     setAmount('');
   };
 
-  // DODANE: Dynamiczne teksty w zależności od sieci
   const getDonationTokenText = () => {
-    return isBase ? 'Donate in USDC' : 'Donate in CELO';
+    if (isCelo) return 'Donate in CELO';
+    if (isBase) return 'Donate in USDC';
+    if (isLinea) return 'Donate in mUSD';
+    return 'Donate';
   };
 
   const getExplorerUrl = () => {
@@ -188,7 +200,17 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
   };
 
   const getExplorerName = () => {
-    return isBase ? 'BaseScan' : 'CeloScan';
+    if (isCelo) return 'CeloScan';
+    if (isBase) return 'BaseScan';
+    if (isLinea) return 'LineaScan';
+    return 'Explorer';
+  };
+
+  const getTokenInfo = () => {
+    if (isCelo) return 'CELO is the native token of Celo network';
+    if (isBase) return 'USDC is the stablecoin on Base network';
+    if (isLinea) return 'mUSD is the stablecoin on Linea network';
+    return '';
   };
 
   const DonationModal = () => {
@@ -197,13 +219,13 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     const modalContent = (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
         {currentStep === 'confirming' && (
-          <div className={`bg-gray-800 border-2 border-cyan-500/40 rounded-2xl text-center ${
+          <div className={`${donationConfig.bgColor} border-2 ${donationConfig.borderColor} rounded-2xl text-center ${
             isMobile ? 'max-w-xs w-full p-6' : 'max-w-md w-full p-8'
           }`}>
-            <div className={`animate-spin rounded-full border-b-2 border-cyan-500 mx-auto mb-4 ${
+            <div className={`animate-spin rounded-full border-b-2 ${donationConfig.color} mx-auto mb-4 ${
               isMobile ? 'h-12 w-12' : 'h-16 w-16'
             }`}></div>
-            <h2 className={`font-bold text-cyan-400 mb-2 ${
+            <h2 className={`font-bold ${donationConfig.color} mb-2 ${
               isMobile ? 'text-xl' : 'text-2xl'
             }`}>{`Sending Donation ⏳`}</h2>
             <p className={`text-gray-400 mb-4 ${
@@ -213,12 +235,12 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
             </p>
             
             <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
-              <div className="bg-cyan-500 h-2 rounded-full animate-pulse"></div>
+              <div className={`${donationConfig.color.replace('text-', 'bg-')} h-2 rounded-full animate-pulse`}></div>
             </div>
             
             {txHash && (
-              <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-3 mb-4">
-                <p className={`text-cyan-300 break-all ${
+              <div className={`${donationConfig.bgColor} border ${donationConfig.borderColor} rounded-xl p-3 mb-4`}>
+                <p className={`${donationConfig.color} break-all ${
                   isMobile ? 'text-xs' : 'text-xs'
                 }`}>
                   <strong>TX Hash:</strong> {isMobile ? `${txHash.slice(0, 12)}...${txHash.slice(-8)}` : txHash}
@@ -227,7 +249,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
                   href={getExplorerUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-cyan-400 hover:text-cyan-300 underline text-xs"
+                  className={`${donationConfig.color} hover:opacity-80 underline text-xs`}
                 >
                   🔍 {`Track transaction on ${getExplorerName()}`}
                 </a>
@@ -247,13 +269,13 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
         )}
 
         {currentStep === 'success' && (
-          <div className={`bg-gray-800 border-2 border-cyan-500/40 rounded-2xl text-center ${
+          <div className={`${donationConfig.bgColor} border-2 ${donationConfig.borderColor} rounded-2xl text-center ${
             isMobile ? 'max-w-xs w-full p-6' : 'max-w-md w-full p-8'
           }`}>
             <div className={`mb-4 ${
               isMobile ? 'text-4xl' : 'text-6xl'
             }`}>🎉</div>
-            <h2 className={`font-bold text-cyan-400 mb-2 ${
+            <h2 className={`font-bold ${donationConfig.color} mb-2 ${
               isMobile ? 'text-xl' : 'text-2xl'
             }`}>Thank You!</h2>
             <p className={`text-gray-400 mb-4 ${
@@ -275,15 +297,20 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
         )}
 
         {currentStep === 'select' && (
-          <div className={`bg-gray-800 border-2 border-cyan-500/40 rounded-2xl ${
+          <div className={`bg-gray-800 border-2 ${donationConfig.borderColor} rounded-2xl ${
             isMobile ? 'p-4 w-full max-w-xs' : 'p-6 w-full max-w-md'
           }`}>
             <div className={`flex items-center justify-between ${isMobile ? 'mb-4' : 'mb-6'}`}>
-              <h2 className={`font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent ${
-                isMobile ? 'text-lg' : 'text-2xl'
-              }`}>
-                {isMobile ? 'Support 💝' : 'Support the Project 💝'}
-              </h2>
+              <div className="flex items-center gap-2">
+                <span className={`${donationConfig.color} ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                  {donationConfig.icon}
+                </span>
+                <h2 className={`font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent ${
+                  isMobile ? 'text-lg' : 'text-2xl'
+                }`}>
+                  {isMobile ? 'Support 💝' : 'Support the Project 💝'}
+                </h2>
+              </div>
               <button
                 onClick={handleClose}
                 className={`text-gray-400 hover:text-white font-bold leading-none ${
@@ -301,25 +328,28 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
                 {isMobile ? 'Support HUB Ecosystem development!' : 'Your support helps develop the HUB Ecosystem and create better tools for the community!'}
               </p>
               
-              <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mb-4">
-                <p className={`text-cyan-300 text-center ${
-                  isMobile ? 'text-xs' : 'text-sm'
-                }`}>
-                  💛 {getDonationTokenText()}
-                </p>
-                <p className="text-cyan-400 text-center text-xs mt-1">
+              <div className={`${donationConfig.bgColor} border ${donationConfig.borderColor} rounded-xl p-4 mb-4`}>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <span className={`${donationConfig.color} ${isMobile ? 'text-sm' : 'text-base'}`}>
+                    {donationConfig.icon}
+                  </span>
+                  <p className={`${donationConfig.color} text-center ${
+                    isMobile ? 'text-xs' : 'text-sm'
+                  }`}>
+                    💛 {getDonationTokenText()}
+                  </p>
+                </div>
+                <p className={`${donationConfig.color} text-center text-xs mt-1`}>
                   Network: {networkConfig.name}
                 </p>
-                {isBase && (
-                  <p className="text-cyan-300 text-center text-xs mt-1">
-                    Make sure you have USDC on Base network
-                  </p>
-                )}
+                <p className="text-cyan-300 text-center text-xs mt-1">
+                  {getTokenInfo()}
+                </p>
               </div>
             </div>
 
             <div className={isMobile ? 'mb-4' : 'mb-6'}>
-              <h3 className={`text-cyan-400 font-semibold mb-3 ${
+              <h3 className={`${donationConfig.color} font-semibold mb-3 ${
                 isMobile ? 'text-sm' : ''
               }`}>Select amount:</h3>
               <div className={`grid gap-3 mb-4 ${
@@ -331,7 +361,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
                     onClick={() => handleAmountSelect(presetAmount)}
                     className={`py-3 rounded-xl font-semibold transition-all border-2 ${
                       amount === presetAmount
-                        ? 'bg-cyan-500 text-white border-cyan-500 shadow-lg'
+                        ? `${donationConfig.color.replace('text-', 'bg-')} text-white ${donationConfig.borderColor} shadow-lg`
                         : 'bg-gray-700/50 text-gray-300 border-gray-600/50 hover:bg-gray-700'
                     } ${isMobile ? 'text-xs py-2' : ''}`}
                   >
@@ -341,7 +371,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
               </div>
 
               <div>
-                <label className={`block text-cyan-400 font-medium mb-2 ${
+                <label className={`block ${donationConfig.color} font-medium mb-2 ${
                   isMobile ? 'text-xs' : 'text-sm'
                 }`}>
                   {isMobile ? 'Custom amount:' : 'Or enter custom amount:'}
@@ -354,11 +384,11 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
                     placeholder="0.00"
                     step="0.01"
                     min="0.001"
-                    className={`w-full bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent ${
+                    className={`w-full bg-gray-700/50 border ${donationConfig.borderColor} rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 ${donationConfig.color.replace('text-', 'focus:ring-')} focus:border-transparent ${
                       isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-3'
                     }`}
                   />
-                  <div className={`absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400 font-medium ${
+                  <div className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${donationConfig.color} font-medium ${
                     isMobile ? 'text-xs' : ''
                   }`}>
                     {donationConfig.symbol}
@@ -377,7 +407,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
                 <p className={`text-blue-400 font-mono break-all ${
                   isMobile ? 'text-xs' : 'text-xs'
                 }`}>
-                  {isMobile ? `${donationAddress.slice(0, 8)}...${donationAddress.slice(-6)}` : donationAddress}
+                  {isMobile ? `${DONATION_ADDRESS.slice(0, 8)}...${DONATION_ADDRESS.slice(-6)}` : DONATION_ADDRESS}
                 </p>
                 {!isMobile && (
                   <p className="text-blue-300 text-xs mt-2">

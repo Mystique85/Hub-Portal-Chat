@@ -23,6 +23,7 @@
 | **Celo** | HC Token | HelloCelo ERC20 | [`0x12b6e1f30cb714e8129F6101a7825a910a9982F2`](https://celoscan.io/token/0x12b6e1f30cb714e8129F6101a7825a910a9982F2) |
 | **Celo** | Daily CELO Rewards | Hub Portal Chat Rewards | [`0xD2b8E623aD7A5ae8cd04F11e2C059dA2e549b268`](https://celoscan.io/address/0xD2b8E623aD7A5ae8cd04F11e2C059dA2e549b268) |
 | **Base** | Genesis NFT | HUB Ecosystem Genesis NFT | [`0xdAf7B15f939F6a8faf87d338010867883AAB366a`](https://basescan.org/address/0xdAf7B15f939F6a8faf87d338010867883AAB366a) |
+| **Linea** | Linea Prime Token | LPX ERC20 Token | [`0x668F584d27Ce86149d6162a94D0BCd3C643Cb525`](https://lineascan.build/address/0x668F584d27Ce86149d6162a94D0BCd3C643Cb525) |
 
 ---
 
@@ -31,7 +32,7 @@
 ### 💬 Intelligent Messaging System
 - **Public Chat** - Community conversations with instant delivery and reply system
 - **Real-time Synchronization** - Messages appear instantly across all devices
-- **Multi-Chain Rewards** - Earn tokens on both Celo and Base networks
+- **Multi-Chain Rewards** - Earn tokens on Base, Celo, and Linea networks
 - **Admin Tools** - Message moderation and embedded content for administrators
 - **Genesis NFT Bonus** - Exclusive rewards for NFT holders
 
@@ -145,6 +146,37 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 
 ---
 
+### 🔷 Linea Network – Linea Prime Token (LPX)
+
+#### LPX Token Mining
+- **Token Name**: Linea Prime
+- **Token Symbol**: LPX
+- **Decimals**: 18
+- **Reward per Message**: 1 LPX
+- **Daily Limit**: 100 messages per day
+- **Max Supply**: 1,000,000,000 LPX
+- **Dev Allocation**: 150,000,000 LPX (15%)
+- **Contract:** [`0x668F584d27Ce86149d6162a94D0BCd3C643Cb525`](https://lineascan.build/address/0x668F584d27Ce86149d6162a94D0BCd3C643Cb525)
+
+#### Key Features:
+- **Anti-spam Protection**: 100 message daily limit per wallet
+- **User Blocking System**: Admins can block/unblock users
+- **Message Storage**: All messages stored on-chain
+- **Admin Management**: Multi-admin system with owner controls
+- **Pausable Contract**: Emergency pause functionality
+- **Daily Reset**: UTC-based daily message counter reset
+- **Statistics Tracking**: Comprehensive user stats and analytics
+
+#### Contract Functions:
+- `sendMessage()` - Send message and earn 1 LPX reward
+- `getUserStats()` - View user statistics and earnings
+- `remainingRewards()` - Check remaining messages for today
+- `canSendMessage()` - Verify if user can send message
+- `getAllMessages()` - View all chat messages
+- `getMessagesPaginated()` - Paginated message viewing
+
+---
+
 ## 🎭 Genesis NFT Collection
 
 ### HUB Ecosystem Genesis NFT
@@ -186,6 +218,14 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 - Utility: Chat mining and CELO reward access
 - **Increased requirement**: 200 HC needed for CELO rewards (up from 100)
 
+### 🔷 LPX Token (Linea Network)
+- Name: Linea Prime
+- Symbol: LPX
+- Decimals: 18
+- Total Supply: 1,000,000,000 LPX
+- Utility: Linea network chat rewards with daily limits
+- Features: Anti-spam protection, admin controls, on-chain messaging
+
 ---
 
 ## 🏗️ Technical Architecture
@@ -201,13 +241,16 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 - HC Token
 - CELO Daily Rewards V2 (Hub Portal Chat Rewards)
 
+### Linea Network Contracts
+- Linea Prime Token (LPX) - Chat Rewards System
+
 ---
 
 ## 🌐 HUB Ecosystem Integration
 
 HUB Portal is the flagship social application within the **HUB Ecosystem**.
 
-- Multi-chain identity
+- Multi-chain identity (Base, Celo, Linea)
 - NFT-integrated rewards
 - Governance readiness
 - Growing dApp suite
@@ -237,6 +280,7 @@ MIT License
 [![Use HUB Chat](https://img.shields.io/badge/💬_Use_HUB_Chat-8844ff?style=for-the-badge)](https://hub-portal-chat.vercel.app)
 [![Base Network](https://img.shields.io/badge/🌉_Base_Network-0052FF?style=for-the-badge)](https://base.org)
 [![Celo Network](https://img.shields.io/badge/📱_Celo_Network-FCFF52?style=for-the-badge)](https://celo.org)
+[![Linea Network](https://img.shields.io/badge/🔷_Linea_Network-61DBFB?style=for-the-badge)](https://linea.build)
 [![Genesis NFT](https://img.shields.io/badge/🎭_Genesis_NFT-FF6B8B?style=for-the-badge)](https://opensea.io/collection/hub-ecosystem-genesis-nft)
 
 </div>
