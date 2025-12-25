@@ -40,7 +40,6 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     isSuccess: stakingSuccess,
     refetchAll,
     isBase,
-    // Nowe funkcje dla 3-poziomowego badge systemu
     badgeEligibility,
     userBadgeInfo,
     claimStakeBadge
@@ -394,7 +393,6 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     }
   }, [fundAmount, balance, allowance, fundPool]);
 
-  // Funkcja do claimowania badge (3-poziomowo)
   const handleClaimBadge = useCallback(async (tier) => {
     setClaimingTier(tier);
     setBadgeClaiming(true);
@@ -404,7 +402,6 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       await claimStakeBadge(tier);
       setActionMessage(`✅ ${tier.charAt(0).toUpperCase() + tier.slice(1)} Badge claimed successfully!`);
       
-      // Odśwież dane
       refetchAll();
       
       const timer = setTimeout(() => {
@@ -511,7 +508,6 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     );
   };
 
-  // Funkcja do renderowania 3-poziomowego badge systemu
   const renderBadgeTier = (tier, medal, color, title, description, requirement) => {
     const isClaimed = userBadgeInfo?.tiers?.[tier];
     const isEligible = badgeEligibility[tier]?.eligible;
@@ -1008,7 +1004,6 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
 
           {activeTab === 'badge' && (
             <div className={`${isMobile ? 'space-y-4' : 'space-y-6'}`}>
-              {/* Header */}
               <div className="text-center">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 mb-3">
                   <span className="text-2xl">🏆</span>
@@ -1022,7 +1017,6 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
               </div>
               
-              {/* Current Status */}
               <div className="bg-gray-800/50 rounded-xl p-4">
                 <h4 className="text-white font-semibold mb-3">Your Staking Status</h4>
                 
@@ -1054,7 +1048,6 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
               </div>
               
-              {/* 3 Tier Badges */}
               <div className="space-y-4">
                 {renderBadgeTier(
                   'bronze',
@@ -1084,7 +1077,6 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 )}
               </div>
               
-              {/* Progress to Next Tier */}
               <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-4">
                 <h4 className="text-white font-semibold mb-3">🎯 Progress to Next Tier</h4>
                 
@@ -1161,7 +1153,6 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
               </div>
               
-              {/* Benefits Section */}
               <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-xl p-4">
                 <h4 className="text-white font-semibold mb-3">🎁 Badge Benefits</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1311,28 +1302,15 @@ const StakingModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
           <div className={`flex flex-col md:flex-row justify-between text-sm text-gray-400 gap-3 ${isMobile ? 'text-xs' : ''}`}>
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <span>💎 Need HUB?</span>
-                <a 
-                  href="https://app.uniswap.org/swap?outputCurrency=0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E&chain=base"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-green-400 hover:text-green-300"
+                <span className="text-cyan-300">HUB Token:</span>
+                <span className="font-mono">{isMobile ? `${HUB_TOKEN_ADDRESS.slice(0, 8)}...${HUB_TOKEN_ADDRESS.slice(-6)}` : HUB_TOKEN_ADDRESS}</span>
+                <button
+                  onClick={() => copyToClipboard(HUB_TOKEN_ADDRESS, 'HUB Token Address')}
+                  className="text-xs px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded"
                 >
-                  Get on Uniswap
-                </a>
+                  📋
+                </button>
               </div>
-              {!isMobile && (
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-cyan-300">HUB Token:</span>
-                  <span className="font-mono">{HUB_TOKEN_ADDRESS}</span>
-                  <button
-                    onClick={() => copyToClipboard(HUB_TOKEN_ADDRESS, 'HUB Token Address')}
-                    className="text-xs px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded"
-                  >
-                    📋
-                  </button>
-                </div>
-              )}
             </div>
             <div className="flex items-center gap-2">
               <span>🔗</span>
