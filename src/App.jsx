@@ -17,6 +17,7 @@ import LeaderboardModal from './components/modals/LeaderboardModal';
 import BaseLeaderboardModal from './components/modals/BaseLeaderboardModal';
 import SubscriptionModal from './components/modals/SubscriptionModal';
 import StakingModal from './components/modals/StakingModal';
+import DailyGMLinea from './components/modals/DailyGMLinea';
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
@@ -36,6 +37,7 @@ function App() {
   const [showBaseLeaderboard, setShowBaseLeaderboard] = useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
+  const [showDailyStreakLinea, setShowDailyStreakLinea] = useState(false);
   
   const [activeChat, setActiveChat] = useState('public');
   
@@ -145,14 +147,14 @@ function App() {
             HUB Portal
           </h1>
           <p className="text-gray-400 mb-1">Multi-Chain Social Chat</p>
-          <p className="text-gray-400 text-sm mb-6">Celo • Base • Linea Networks</p> {/* ZAKTUALIZOWANE */}
+          <p className="text-gray-400 text-sm mb-6">Celo • Base • Linea Networks</p>
           
           <div className="flex justify-center mb-6">
             <appkit-button />
           </div>
           
           <div className="mb-4">
-            <div className="text-cyan-400 font-semibold text-sm mb-3">🔥 TRIPLE REWARD SYSTEM</div> {/* ZAKTUALIZOWANE */}
+            <div className="text-cyan-400 font-semibold text-sm mb-3">🔥 TRIPLE REWARD SYSTEM</div>
             
             <div className="flex justify-center gap-3 text-xs">
               <div className="bg-gray-700/50 border border-cyan-500/20 rounded-lg p-3 flex-1">
@@ -169,7 +171,6 @@ function App() {
                 <div className="text-gray-300">• Season System</div>
               </div>
 
-              {/* DODANA SIEC LINEA */}
               <div className="bg-gray-700/50 border border-cyan-500/20 rounded-lg p-3 flex-1">
                 <div className="text-cyan-300 font-medium mb-1">🚀 LINEA</div>
                 <div className="text-gray-300">• LINA Token Rewards</div>
@@ -402,6 +403,15 @@ function App() {
           getOtherUserBalance={getOtherUserBalance}
           currentUser={userWithBalance}
           onOpenSubscription={() => setShowSubscriptionModal(true)}
+          isMobile={isMobile}
+        />
+      )}
+
+      {showDailyStreakLinea && (
+        <DailyGMLinea 
+          isOpen={showDailyStreakLinea}
+          onClose={() => setShowDailyStreakLinea(false)}
+          currentUser={userWithBalance}
           isMobile={isMobile}
         />
       )}

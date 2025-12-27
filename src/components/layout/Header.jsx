@@ -5,6 +5,7 @@ import { ADMIN_ADDRESSES, NETWORK_DETAILS } from '../../utils/constants';
 import { useState, useRef, useEffect } from 'react';
 import DailyRewardsModal from '../modals/DailyRewardsModal';
 import DailyRewardsModalBase from '../modals/DailyRewardsModalBase';
+import DailyGMLinea from '../modals/DailyGMLinea'; // DODANY IMPORT
 import ReactDOM from 'react-dom';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useSwitchChain } from 'wagmi';
@@ -20,9 +21,9 @@ const Header = ({
   onShowSubscriptionModal,
   onShowStakingModal
 }) => {
-  const [showDailyRewards, setShowDailyRewards] = useState(false);
-  const [showDailyRewardsBase, setShowDailyRewardsBase] = useState(false);
-  const [showDailyRewardsLinea, setShowDailyRewardsLinea] = useState(false);
+  const [showDailyStreak, setShowDailyStreak] = useState(false);
+  const [showDailyStreakBase, setShowDailyStreakBase] = useState(false);
+  const [showDailyStreakLinea, setShowDailyStreakLinea] = useState(false);
   const [showQuickAccessMenu, setShowQuickAccessMenu] = useState(false);
   const [showNFTInfo, setShowNFTInfo] = useState(false);
   const [showNetworkDropdown, setShowNetworkDropdown] = useState(false);
@@ -103,7 +104,7 @@ const Header = ({
 
   const handleSwitchNetwork = async (targetNetwork) => {
     try {
-      setShowNetworkDropdown(false); // Zamknij dropdown po wyborze
+      setShowNetworkDropdown(false);
       
       if (targetNetwork === 'celo') {
         await switchChain({ chainId: celo.id });
@@ -237,18 +238,18 @@ const Header = ({
           <button 
             onClick={() => {
               if (isCelo) {
-                setShowDailyRewards(true);
+                setShowDailyStreak(true);
               } else if (isBase) {
-                setShowDailyRewardsBase(true);
+                setShowDailyStreakBase(true);
               } else if (isLinea) {
-                setShowDailyRewardsLinea(true);
+                setShowDailyStreakLinea(true);
               }
               setShowQuickAccessMenu(false);
             }}
             className="w-full px-4 py-3 text-left hover:bg-gray-700/50 transition-colors flex items-center gap-3 text-white"
           >
-            <span>🎁</span>
-            <span>Daily Rewards</span>
+            <span>🔥</span>
+            <span>Daily Streak</span>
           </button>
         )}
 
@@ -453,7 +454,6 @@ const Header = ({
       <header className="bg-gray-800/90 backdrop-blur-xl border-b border-gray-700/50 p-3 flex-shrink-0 safe-area-top">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            {/* Logo HUB Portal */}
             <img 
               src="/HUB.logo.png" 
               alt="HUB Portal" 
@@ -475,7 +475,6 @@ const Header = ({
           </div>
           
           <div className="flex items-center gap-1 flex-shrink-0">
-            {/* Network Selector Button dla mobile */}
             <div className="relative">
               <button 
                 ref={networkButtonRef}
@@ -517,17 +516,17 @@ const Header = ({
               <button 
                 onClick={() => {
                   if (isCelo) {
-                    setShowDailyRewards(true);
+                    setShowDailyStreak(true);
                   } else if (isBase) {
-                    setShowDailyRewardsBase(true);
+                    setShowDailyStreakBase(true);
                   } else if (isLinea) {
-                    setShowDailyRewardsLinea(true);
+                    setShowDailyStreakLinea(true);
                   }
                 }}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
-                title="Daily Rewards"
+                className="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
+                title="Daily Streak"
               >
-                🎁
+                🔥
               </button>
             )}
             <appkit-button balance="hide" />
@@ -536,19 +535,28 @@ const Header = ({
 
         <NetworkDropdown />
 
-        {showDailyRewards && isCelo && (
+        {showDailyStreak && isCelo && (
           <DailyRewardsModal 
-            isOpen={showDailyRewards}
-            onClose={() => setShowDailyRewards(false)}
+            isOpen={showDailyStreak}
+            onClose={() => setShowDailyStreak(false)}
             currentUser={currentUser}
             isMobile={true}
           />
         )}
 
-        {showDailyRewardsBase && isBase && (
+        {showDailyStreakBase && isBase && (
           <DailyRewardsModalBase 
-            isOpen={showDailyRewardsBase}
-            onClose={() => setShowDailyRewardsBase(false)}
+            isOpen={showDailyStreakBase}
+            onClose={() => setShowDailyStreakBase(false)}
+            currentUser={currentUser}
+            isMobile={true}
+          />
+        )}
+
+        {showDailyStreakLinea && isLinea && (
+          <DailyGMLinea 
+            isOpen={showDailyStreakLinea}
+            onClose={() => setShowDailyStreakLinea(false)}
             currentUser={currentUser}
             isMobile={true}
           />
@@ -560,9 +568,7 @@ const Header = ({
   return (
     <header className="bg-gray-800/50 backdrop-blur-xl border-b border-gray-700/50 p-6 flex-shrink-0">
       <div className="flex justify-between items-center">
-        {/* Lewa strona - Logo HUB i opis sieci w jednej linii */}
         <div className="flex items-center gap-4">
-          {/* Logo HUB Portal */}
           <div className="flex items-center gap-3">
             <img 
               src="/HUB.logo.png" 
@@ -577,7 +583,6 @@ const Header = ({
             </h1>
           </div>
 
-          {/* Separator i opis sieci */}
           <div className="h-6 w-px bg-gray-600/50"></div>
           
           <div className={`${networkDetails.textColor} text-sm font-medium`}>
@@ -585,9 +590,7 @@ const Header = ({
           </div>
         </div>
         
-        {/* Prawa strona - Przyciski */}
         <div className="flex items-center gap-2">
-          {/* Przycisk Mint Genesis NFT */}
           <button
             onClick={handleMintNFT}
             className="h-[36px] px-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all flex items-center justify-center animate-pulse shadow-lg shadow-purple-500/25 hover:scale-105 text-sm"
@@ -595,7 +598,6 @@ const Header = ({
             Mint Genesis NFT
           </button>
 
-          {/* Leaderboard przyciski */}
           {isBase && (
             <button 
               onClick={onShowBaseLeaderboard}
@@ -616,7 +618,6 @@ const Header = ({
             </button>
           )}
 
-          {/* Quick Access */}
           <div className="relative">
             <button 
               ref={quickAccessButtonRef}
@@ -631,7 +632,6 @@ const Header = ({
             </button>
           </div>
 
-          {/* Network Selector */}
           <div className="relative">
             <button 
               ref={networkButtonRef}
@@ -651,7 +651,6 @@ const Header = ({
             </button>
           </div>
           
-          {/* Wallet Connect */}
           <appkit-button />
         </div>
       </div>
@@ -682,19 +681,28 @@ const Header = ({
         onClose={() => setShowDonation(false)}
       />
 
-      {showDailyRewards && isCelo && (
+      {showDailyStreak && isCelo && (
         <DailyRewardsModal 
-          isOpen={showDailyRewards}
-          onClose={() => setShowDailyRewards(false)}
+          isOpen={showDailyStreak}
+          onClose={() => setShowDailyStreak(false)}
           currentUser={currentUser}
           isMobile={false}
         />
       )}
 
-      {showDailyRewardsBase && isBase && (
+      {showDailyStreakBase && isBase && (
         <DailyRewardsModalBase 
-          isOpen={showDailyRewardsBase}
-          onClose={() => setShowDailyRewardsBase(false)}
+          isOpen={showDailyStreakBase}
+          onClose={() => setShowDailyStreakBase(false)}
+          currentUser={currentUser}
+          isMobile={false}
+        />
+      )}
+
+      {showDailyStreakLinea && isLinea && (
+        <DailyGMLinea 
+          isOpen={showDailyStreakLinea}
+          onClose={() => setShowDailyStreakLinea(false)}
           currentUser={currentUser}
           isMobile={false}
         />

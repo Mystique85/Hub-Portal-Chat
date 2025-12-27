@@ -3,12 +3,12 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadCont
 import ReactDOM from 'react-dom';
 import { parseUnits } from 'viem';
 
-const GM_CONTRACT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"totalGMs","type":"uint256"}],"name":"GMSent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Withdrawn","type":"event"},{"inputs":[],"name":"GM_FEE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PRIZE_POOL","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"USDC_TOKEN","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"canSendGM","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getContractBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getUSDCBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserStats","outputs":[{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalGMs","type":"uint256"},{"internalType":"uint256","name":"lastGMTimestamp","type":"uint256"},{"internalType":"uint256","name":"totalSpent","type":"uint256"},{"internalType":"bool","name":"canSendNow","type":"bool"},{"internalType":"uint256","name":"timeRemaining","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"sendGM","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"timeUntilNextGM","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userStats","outputs":[{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalGMs","type":"uint256"},{"internalType":"uint256","name":"lastGMTimestamp","type":"uint256"},{"internalType":"uint256","name":"totalSpent","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawERC20","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawNative","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}];
+const GM_CONTRACT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"totalGMs","type":"uint256"}],"name":"GMSent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Withdrawn","type":"event"},{"inputs":[],"name":"GM_FEE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MUSD_TOKEN","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PRIZE_POOL","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"canSendGM","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getContractBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getMUSDBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserStats","outputs":[{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalGMs","type":"uint256"},{"internalType":"uint256","name":"lastGMTimestamp","type":"uint256"},{"internalType":"uint256","name":"totalSpent","type":"uint256"},{"internalType":"bool","name":"canSendNow","type":"bool"},{"internalType":"uint256","name":"timeRemaining","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"sendGM","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"timeUntilNextGM","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userStats","outputs":[{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalGMs","type":"uint256"},{"internalType":"uint256","name":"lastGMTimestamp","type":"uint256"},{"internalType":"uint256","name":"totalSpent","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawERC20","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawNative","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}];
 
-const GM_CONTRACT_ADDRESS = "0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686";
+const GM_CONTRACT_ADDRESS = "0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8";
 
-// ABI dla USDC dla approve
-const USDC_ABI = [
+// ABI dla mUSD dla approve
+const MUSD_ABI = [
   {
     "constant": false,
     "inputs": [
@@ -38,15 +38,15 @@ const USDC_ABI = [
   }
 ];
 
-const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
+const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const { address } = useAccount();
   const [userStats, setUserStats] = useState(null);
   const [txHash, setTxHash] = useState(null);
   const [feeAmount, setFeeAmount] = useState("0.01");
-  const [usdcBalance, setUsdcBalance] = useState("0");
-  const [usdcAllowance, setUsdcAllowance] = useState("0");
+  const [musdBalance, setMusdBalance] = useState("0");
+  const [musdAllowance, setMusdAllowance] = useState("0");
   const [isApproving, setIsApproving] = useState(false);
-  const [usdcTokenAddress, setUsdcTokenAddress] = useState(null);
+  const [musdTokenAddress, setMusdTokenAddress] = useState(null);
   
   const { writeContractAsync, isPending: isSending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
@@ -62,11 +62,11 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     enabled: isOpen && !!address,
   });
 
-  // Pobierz adres USDC tokena
-  const { data: usdcTokenData } = useReadContract({
+  // Pobierz adres mUSD tokena
+  const { data: musdTokenData } = useReadContract({
     address: GM_CONTRACT_ADDRESS,
     abi: GM_CONTRACT_ABI,
-    functionName: 'USDC_TOKEN',
+    functionName: 'MUSD_TOKEN',
     enabled: isOpen,
   });
 
@@ -86,44 +86,44 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     enabled: isOpen,
   });
 
-  // Pobierz balance i allowance USDC
-  const { data: usdcData } = useReadContracts({
+  // Pobierz balance i allowance mUSD
+  const { data: musdData } = useReadContracts({
     contracts: [
       {
-        address: usdcTokenData,
-        abi: USDC_ABI,
+        address: musdTokenData,
+        abi: MUSD_ABI,
         functionName: 'balanceOf',
         args: [address],
       },
       {
-        address: usdcTokenData,
-        abi: USDC_ABI,
+        address: musdTokenData,
+        abi: MUSD_ABI,
         functionName: 'allowance',
         args: [address, GM_CONTRACT_ADDRESS],
       },
     ],
-    enabled: isOpen && !!address && !!usdcTokenData,
+    enabled: isOpen && !!address && !!musdTokenData,
   });
 
   useEffect(() => {
-    if (usdcTokenData) {
-      setUsdcTokenAddress(usdcTokenData);
+    if (musdTokenData) {
+      setMusdTokenAddress(musdTokenData);
     }
-  }, [usdcTokenData]);
+  }, [musdTokenData]);
 
   useEffect(() => {
     if (feeData) {
-      const feeInUSDC = Number(feeData) / 10**6; // USDC ma 6 decimals
-      setFeeAmount(feeInUSDC.toFixed(2));
+      const feeInMUSD = Number(feeData) / 10**6; // mUSD ma 6 decimals
+      setFeeAmount(feeInMUSD.toFixed(2));
     }
   }, [feeData]);
 
   useEffect(() => {
-    if (usdcData && usdcData[0] && usdcData[1]) {
-      setUsdcBalance((Number(usdcData[0].result) / 10**6).toFixed(2));
-      setUsdcAllowance((Number(usdcData[1].result) / 10**6).toFixed(2));
+    if (musdData && musdData[0] && musdData[1]) {
+      setMusdBalance((Number(musdData[0].result) / 10**6).toFixed(2));
+      setMusdAllowance((Number(musdData[1].result) / 10**6).toFixed(2));
     }
-  }, [usdcData]);
+  }, [musdData]);
 
   useEffect(() => {
     if (statsData) {
@@ -149,22 +149,22 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     }
   }, [isConfirmed, txHash, onClose, refetchStats]);
 
-  const checkUSDCApproval = () => {
+  const checkMUSDApproval = () => {
     const requiredAllowance = parseFloat(feeAmount);
-    const currentAllowance = parseFloat(usdcAllowance);
+    const currentAllowance = parseFloat(musdAllowance);
     return currentAllowance >= requiredAllowance;
   };
 
-  const handleApproveUSDC = async () => {
-    if (!address || !usdcTokenAddress) return;
+  const handleApproveMUSD = async () => {
+    if (!address || !musdTokenAddress) return;
 
     setIsApproving(true);
     try {
-      const feeInWei = parseUnits(feeAmount, 6); // USDC has 6 decimals
+      const feeInWei = parseUnits(feeAmount, 6); // mUSD has 6 decimals
       
       const hash = await writeContractAsync({
-        address: usdcTokenAddress,
-        abi: USDC_ABI,
+        address: musdTokenAddress,
+        abi: MUSD_ABI,
         functionName: 'approve',
         args: [GM_CONTRACT_ADDRESS, feeInWei],
       });
@@ -173,13 +173,13 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
         // Wait for approval
         await new Promise(resolve => setTimeout(resolve, 3000));
         // Refresh allowance
-        if (usdcData && usdcData[1]) {
-          setUsdcAllowance(feeAmount);
+        if (musdData && musdData[1]) {
+          setMusdAllowance(feeAmount);
         }
       }
     } catch (error) {
       console.error('❌ Approval failed:', error);
-      alert('❌ USDC approval failed: ' + error.message);
+      alert('❌ mUSD approval failed: ' + error.message);
     } finally {
       setIsApproving(false);
     }
@@ -196,18 +196,18 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       return;
     }
 
-    // Check USDC balance
-    const userBalance = parseFloat(usdcBalance);
+    // Check mUSD balance
+    const userBalance = parseFloat(musdBalance);
     const requiredFee = parseFloat(feeAmount);
     
     if (userBalance < requiredFee) {
-      alert(`❌ Insufficient USDC balance. You need ${feeAmount} USDC, but you have ${usdcBalance} USDC`);
+      alert(`❌ Insufficient mUSD balance. You need ${feeAmount} mUSD, but you have ${musdBalance} mUSD`);
       return;
     }
 
-    // Check USDC approval
-    if (!checkUSDCApproval()) {
-      alert(`❌ Please approve ${feeAmount} USDC spending first`);
+    // Check mUSD approval
+    if (!checkMUSDApproval()) {
+      alert(`❌ Please approve ${feeAmount} mUSD spending first`);
       return;
     }
 
@@ -227,10 +227,10 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       
       if (error.message?.includes('user rejected')) {
         alert('❌ Transaction was rejected');
-      } else if (error.message?.includes('Insufficient USDC balance')) {
-        alert('❌ Insufficient USDC balance');
-      } else if (error.message?.includes('Insufficient USDC allowance')) {
-        alert('❌ Please approve USDC spending first');
+      } else if (error.message?.includes('Insufficient mUSD balance')) {
+        alert('❌ Insufficient mUSD balance');
+      } else if (error.message?.includes('Insufficient mUSD allowance')) {
+        alert('❌ Please approve mUSD spending first');
       } else if (error.message?.includes('Wait 24 hours')) {
         alert('⏰ Please wait 24 hours between GMs');
       } else {
@@ -265,27 +265,27 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     if (txHash && !isConfirmed) {
       return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
-          <div className="bg-gray-800 border-2 border-blue-500/40 rounded-2xl text-center max-w-md w-full p-8">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <h2 className="text-2xl font-bold text-blue-400 mb-2">Sending GM... ⚡</h2>
-            <p className="text-gray-400 mb-4">Processing {feeAmount} USDC transaction to prize pool...</p>
+          <div className="bg-gray-800 border-2 border-cyan-500/40 rounded-2xl text-center max-w-md w-full p-8">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+            <h2 className="text-2xl font-bold text-cyan-400 mb-2">Sending GM... ⚡</h2>
+            <p className="text-gray-400 mb-4">Processing {feeAmount} mUSD transaction to prize pool...</p>
             
             <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
-              <div className="bg-blue-500 h-2 rounded-full animate-pulse"></div>
+              <div className="bg-cyan-500 h-2 rounded-full animate-pulse"></div>
             </div>
             
             {txHash && (
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 mb-4">
-                <p className="text-blue-300 break-all text-xs">
+              <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-3 mb-4">
+                <p className="text-cyan-300 break-all text-xs">
                   <strong>TX Hash:</strong> {txHash.slice(0, 12)}...{txHash.slice(-8)}
                 </p>
                 <a 
-                  href={`https://basescan.org/tx/${txHash}`}
+                  href={`https://lineascan.build/tx/${txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:text-blue-300 underline text-xs"
+                  className="text-cyan-400 hover:text-cyan-300 underline text-xs"
                 >
-                  🔍 Track transaction on BaseScan
+                  🔍 Track transaction on LineaScan
                 </a>
               </div>
             )}
@@ -301,7 +301,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
             <div className="text-6xl mb-4">🎉</div>
             <h2 className="text-2xl font-bold text-green-400 mb-2">GM Sent Successfully!</h2>
             <p className="text-gray-400 mb-4">
-              You sent {feeAmount} USDC to the prize pool
+              You sent {feeAmount} mUSD to the prize pool
             </p>
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
               <p className="text-green-300 font-semibold">
@@ -321,21 +321,21 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       );
     }
 
-    const hasSufficientBalance = parseFloat(usdcBalance) >= parseFloat(feeAmount);
-    const isApproved = checkUSDCApproval();
+    const hasSufficientBalance = parseFloat(musdBalance) >= parseFloat(feeAmount);
+    const isApproved = checkMUSDApproval();
     const canSendGM = userStats?.canSendNow && hasSufficientBalance && isApproved;
 
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
-        <div className={`bg-gray-800/90 backdrop-blur-xl border border-blue-500/40 rounded-2xl p-6 max-w-md w-full mx-auto ${
+        <div className={`bg-gray-800/90 backdrop-blur-xl border border-cyan-500/40 rounded-2xl p-6 max-w-md w-full mx-auto ${
           isMobile ? 'max-h-[90vh] overflow-y-auto' : ''
         }`}>
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                🌅 Daily GM - Base Network
+                🌅 Daily GM - Linea Network
               </h2>
-              <p className="text-gray-400 text-xs mt-1">Keep your streak alive with USDC!</p>
+              <p className="text-gray-400 text-xs mt-1">Keep your streak alive with mUSD!</p>
             </div>
             <button
               onClick={onClose}
@@ -370,18 +370,18 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   </div>
                   <div className="text-gray-300">
                     <div className="font-semibold">Total Spent:</div>
-                    <div className="text-green-400">{(parseInt(userStats.totalSpent) / 10**6).toFixed(2)} USDC</div>
+                    <div className="text-green-400">{(parseInt(userStats.totalSpent) / 10**6).toFixed(2)} mUSD</div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* USDC Status */}
+            {/* mUSD Status */}
             <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600/50">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div className="text-center">
                   <div className={`text-lg font-bold ${hasSufficientBalance ? 'text-green-400' : 'text-red-400'}`}>
-                    {usdcBalance} USDC
+                    {musdBalance} mUSD
                   </div>
                   <div className="text-xs text-gray-400">Your Balance</div>
                 </div>
@@ -395,11 +395,11 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               
               {!isApproved && (
                 <button
-                  onClick={handleApproveUSDC}
+                  onClick={handleApproveMUSD}
                   disabled={isApproving || !hasSufficientBalance}
                   className={`w-full py-2 rounded-lg font-bold text-white transition-all ${
                     hasSufficientBalance
-                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600'
                       : 'bg-gray-600 cursor-not-allowed'
                   }`}
                 >
@@ -409,21 +409,21 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                       Approving...
                     </span>
                   ) : (
-                    `Approve ${feeAmount} USDC`
+                    `Approve ${feeAmount} mUSD`
                   )}
                 </button>
               )}
             </div>
 
-            <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl p-4">
+            <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-xl p-4">
               <div className="text-center mb-3">
-                <div className="text-2xl font-bold text-blue-400">{feeAmount} USDC</div>
-                <div className="text-sm text-blue-300">Daily GM Fee</div>
+                <div className="text-2xl font-bold text-cyan-400">{feeAmount} mUSD</div>
+                <div className="text-sm text-cyan-300">Daily GM Fee</div>
               </div>
               
               <div className="text-center">
                 <div className="text-green-400 text-sm mb-1">
-                  💰 {feeAmount} USDC goes directly to prize pool
+                  💰 {feeAmount} mUSD goes directly to prize pool
                 </div>
                 <div className="text-xs text-gray-300">
                   Pool: 0xd302...F73D6
@@ -431,7 +431,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               </div>
               
               {userStats && !userStats.canSendNow && userStats.timeRemaining > 0 && (
-                <div className="text-center mt-3 pt-3 border-t border-blue-500/20">
+                <div className="text-center mt-3 pt-3 border-t border-cyan-500/20">
                   <div className="text-orange-400 text-sm">
                     ⏰ Next GM available in: {formatTime(userStats.timeRemaining)}
                   </div>
@@ -442,16 +442,16 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
             <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-3">
               <div className="text-purple-400 text-sm">
                 <p className="font-semibold mb-1 flex items-center gap-2">
-                  <span>📝</span> How Daily GM Works on Base:
+                  <span>📝</span> How Daily GM Works on Linea:
                 </p>
                 <ul className="space-y-1 text-xs mt-2">
                   <li className="flex items-start gap-2">
                     <span className="text-purple-300 mt-0.5">•</span>
-                    <span>Pay {feeAmount} USDC to send your daily GM</span>
+                    <span>Pay {feeAmount} mUSD to send your daily GM</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-300 mt-0.5">•</span>
-                    <span>First, approve USDC spending</span>
+                    <span>First, approve mUSD (MetaMask USD) spending</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-300 mt-0.5">•</span>
@@ -459,7 +459,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-300 mt-0.5">•</span>
-                    <span>Entire {feeAmount} USDC goes to prize pool</span>
+                    <span>Entire {feeAmount} mUSD goes to prize pool</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-300 mt-0.5">•</span>
@@ -474,7 +474,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               disabled={!canSendGM || isSending || isConfirming}
               className={`w-full py-3 rounded-xl font-bold text-white transition-all duration-200 ${
                 canSendGM
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 active:scale-95' 
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 active:scale-95' 
                   : 'bg-gray-600 cursor-not-allowed'
               } ${isSending || isConfirming ? 'opacity-50' : ''}`}
             >
@@ -486,7 +486,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               ) : canSendGM ? (
                 <span className="flex items-center justify-center gap-2">
                   <span>🌅</span>
-                  Send Daily GM ({feeAmount} USDC)
+                  Send Daily GM ({feeAmount} mUSD)
                 </span>
               ) : !userStats?.canSendNow ? (
                 <span className="flex items-center justify-center gap-2">
@@ -496,12 +496,12 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               ) : !hasSufficientBalance ? (
                 <span className="flex items-center justify-center gap-2">
                   <span>💰</span>
-                  Need {feeAmount} USDC
+                  Need {feeAmount} mUSD
                 </span>
               ) : !isApproved ? (
                 <span className="flex items-center justify-center gap-2">
                   <span>🔓</span>
-                  Approve USDC First
+                  Approve mUSD First
                 </span>
               ) : (
                 'Send GM'
@@ -510,7 +510,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
 
             <div className="text-center">
               <div className="text-xs text-gray-400">
-                <p>Streaks are recorded on-chain • Contract: 0x5A37...CD686</p>
+                <p>Streaks are recorded on-chain • Contract: 0x4e4F...D4a8</p>
                 <p className="mt-1">Keep your streak alive every 24 hours! 🔥</p>
               </div>
             </div>
@@ -523,4 +523,4 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   return ReactDOM.createPortal(<ModalContent />, document.body);
 };
 
-export default DailyGMBase;
+export default DailyGMLinea;
