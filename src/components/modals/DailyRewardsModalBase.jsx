@@ -47,6 +47,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const [usdcAllowance, setUsdcAllowance] = useState("0");
   const [isApproving, setIsApproving] = useState(false);
   const [usdcTokenAddress, setUsdcTokenAddress] = useState(null);
+  const [showHowItWorks, setShowHowItWorks] = useState(false); // Nowy stan dla dropdownu
   
   const { writeContractAsync, isPending: isSending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
@@ -439,34 +440,54 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               )}
             </div>
 
-            <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-3">
-              <div className="text-purple-400 text-sm">
-                <p className="font-semibold mb-1 flex items-center gap-2">
-                  <span>📝</span> How Daily GM Works on Base:
-                </p>
-                <ul className="space-y-1 text-xs mt-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-300 mt-0.5">•</span>
-                    <span>Pay {feeAmount} USDC to send your daily GM</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-300 mt-0.5">•</span>
-                    <span>First, approve USDC spending</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-300 mt-0.5">•</span>
-                    <span>Then send GM to maintain your streak</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-300 mt-0.5">•</span>
-                    <span>Entire {feeAmount} USDC goes to prize pool</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-300 mt-0.5">•</span>
-                    <span>You pay ETH gas fee for the transaction</span>
-                  </li>
-                </ul>
-              </div>
+            {/* Collapsible How It Works Section */}
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl overflow-hidden">
+              <button
+                onClick={() => setShowHowItWorks(!showHowItWorks)}
+                className="w-full p-3 text-left flex items-center justify-between hover:bg-purple-500/5 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-purple-400">📝</span>
+                  <span className="font-semibold text-purple-400">How Daily GM Works on Base</span>
+                </div>
+                <div className="transform transition-transform duration-300">
+                  <svg
+                    className={`w-5 h-5 text-purple-400 ${showHowItWorks ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </button>
+              
+              {showHowItWorks && (
+                <div className="px-4 pb-3 border-t border-purple-500/20 pt-2">
+                  <ul className="space-y-1.5 text-sm">
+                    <li className="flex items-start gap-2 text-purple-300">
+                      <span className="text-purple-400 mt-0.5">•</span>
+                      <span>Pay {feeAmount} USDC to send your daily GM</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-purple-300">
+                      <span className="text-purple-400 mt-0.5">•</span>
+                      <span>First, approve USDC spending</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-purple-300">
+                      <span className="text-purple-400 mt-0.5">•</span>
+                      <span>Then send GM to maintain your streak</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-purple-300">
+                      <span className="text-purple-400 mt-0.5">•</span>
+                      <span>Entire {feeAmount} USDC goes to prize pool</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-purple-300">
+                      <span className="text-purple-400 mt-0.5">•</span>
+                      <span>You pay ETH gas fee for the transaction</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
 
             <button
