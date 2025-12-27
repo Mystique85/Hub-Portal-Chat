@@ -12,6 +12,7 @@ const DailyGM = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const [userStats, setUserStats] = useState(null);
   const [txHash, setTxHash] = useState(null);
   const [feeAmount, setFeeAmount] = useState("0.1");
+  const [showHowItWorks, setShowHowItWorks] = useState(false); // Nowy stan dla dropdownu
   
   const { writeContractAsync, isPending: isSending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
@@ -271,34 +272,54 @@ const DailyGM = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               )}
             </div>
 
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
-              <div className="text-blue-400 text-sm">
-                <p className="font-semibold mb-1 flex items-center gap-2">
-                  <span>📝</span> How Daily GM Works:
-                </p>
-                <ul className="space-y-1 text-xs mt-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-300 mt-0.5">•</span>
-                    <span>Pay {feeAmount} CELO to send your daily GM</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-300 mt-0.5">•</span>
-                    <span>Entire {feeAmount} CELO goes to prize pool address</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-300 mt-0.5">•</span>
-                    <span>You pay gas fee separately for the transaction</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-300 mt-0.5">•</span>
-                    <span>Streak continues if you GM within 24h window</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-300 mt-0.5">•</span>
-                    <span>Miss 24h? Your streak resets to 1</span>
-                  </li>
-                </ul>
-              </div>
+            {/* Collapsible How It Works Section */}
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl overflow-hidden">
+              <button
+                onClick={() => setShowHowItWorks(!showHowItWorks)}
+                className="w-full p-3 text-left flex items-center justify-between hover:bg-blue-500/5 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-400">📝</span>
+                  <span className="font-semibold text-blue-400">How Daily GM Works</span>
+                </div>
+                <div className="transform transition-transform duration-300">
+                  <svg
+                    className={`w-5 h-5 text-blue-400 ${showHowItWorks ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </button>
+              
+              {showHowItWorks && (
+                <div className="px-4 pb-3 border-t border-blue-500/20 pt-2">
+                  <ul className="space-y-1.5 text-sm">
+                    <li className="flex items-start gap-2 text-blue-300">
+                      <span className="text-blue-400 mt-0.5">•</span>
+                      <span>Pay {feeAmount} CELO to send your daily GM</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-blue-300">
+                      <span className="text-blue-400 mt-0.5">•</span>
+                      <span>Entire {feeAmount} CELO goes to prize pool address</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-blue-300">
+                      <span className="text-blue-400 mt-0.5">•</span>
+                      <span>You pay gas fee separately for the transaction</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-blue-300">
+                      <span className="text-blue-400 mt-0.5">•</span>
+                      <span>Streak continues if you GM within 24h window</span>
+                    </li>
+                    <li className="flex items-start gap-2 text-blue-300">
+                      <span className="text-blue-400 mt-0.5">•</span>
+                      <span>Miss 24h? Your streak resets to 1</span>
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
 
             <button
