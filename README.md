@@ -18,12 +18,13 @@
 |--------|----------|----------|----------|
 | **Base** | HUB Token (ERC20) | HUB Ecosystem Token | [`0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E`](https://basescan.org/address/0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E) |
 | **Base** | HUB Chat Rewards | Tiered Mining System | [`0x8ea3818294887376673e4e64fBd518598e3a2306`](https://basescan.org/address/0x8ea3818294887376673e4e64fBd518598e3a2306) |
-| **Base** | Daily USDC Rewards V2 | USDC Claim System + Genesis NFT Bonus | [`0x026417Dd641C090CDAc7ecD961B25c6c45fa3018`](https://basescan.org/address/0x026417Dd641C090CDAc7ecD961B25c6c45fa3018) |
 | **Base** | HUB Staking | Multi-Tier Staking 3/6/12M | [`0xd4ca2b40cEAEC7006Fa38c3Bb07ceD449b9bF7DB`](https://basescan.org/address/0xd4ca2b40cEAEC7006Fa38c3Bb07ceD449b9bF7DB) |
 | **Celo** | HC Token | HelloCelo ERC20 | [`0x12b6e1f30cb714e8129F6101a7825a910a9982F2`](https://celoscan.io/token/0x12b6e1f30cb714e8129F6101a7825a910a9982F2) |
-| **Celo** | Daily CELO Rewards | Hub Portal Chat Rewards | [`0xD2b8E623aD7A5ae8cd04F11e2C059dA2e549b268`](https://celoscan.io/address/0xD2b8E623aD7A5ae8cd04F11e2C059dA2e549b268) |
 | **Base** | Genesis NFT | HUB Ecosystem Genesis NFT | [`0xdAf7B15f939F6a8faf87d338010867883AAB366a`](https://basescan.org/address/0xdAf7B15f939F6a8faf87d338010867883AAB366a) |
 | **Linea** | Linea Prime Token | LPX ERC20 Token | [`0x668F584d27Ce86149d6162a94D0BCd3C643Cb525`](https://lineascan.build/address/0x668F584d27Ce86149d6162a94D0BCd3C643Cb525) |
+| **Celo** | Daily GM CELO Streak | Daily GM CELO Streak System | [`0xBeBfac3472171C4c6693b5808c039c50e73D99e9`](https://celoscan.io/address/0xBeBfac3472171C4c6693b5808c039c50e73D99e9) |
+| **Base** | Daily GM USDC Streak | Daily GM USDC Streak System | [`0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686`](https://basescan.org/address/0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686) |
+| **Linea** | Daily GM mUSD Streak | Daily GM mUSD Streak System | [`0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8`](https://lineascan.build/address/0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8) |
 
 ---
 
@@ -55,28 +56,30 @@
 
 ---
 
-### 💎 Daily USDC Rewards V2 (Base) - Genesis NFT Edition
+### 💎 Daily GM USDC Streak (Base Network)
 
-**New V2 Features:**
-- **Genesis NFT Bonus**: 0.11 USDC daily for NFT holders (0.01 base + 0.10 bonus)
-- **Increased Requirements**: Minimum 100 HUB tokens required
-- **Enhanced Streak System**: Maintain streaks for bonus rewards
-- **NFT Integration**: Automatic NFT verification and bonus application
+**New Daily GM Streak System:**
+- **Pay 0.01 USDC** to maintain your daily streak
+- **100% of funds** go to community prize pool
+- **24-hour cooldown** between GM sends
+- **On-chain streak tracking** with longest streak records
+- **Automatic prize pool distribution**
 
-#### Reward Tiers:
-| Status | Daily Reward | Requirements |
-|--------|--------------|--------------|
-| Standard User | 0.01 USDC | 100+ HUB tokens |
-| Genesis NFT Holder | 0.11 USDC | 100+ HUB tokens + Genesis NFT |
+#### How it works:
+| Feature | Details |
+|---------|---------|
+| **GM Fee** | 0.01 USDC per GM |
+| **Cooldown** | 24 hours between GMs |
+| **Prize Pool** | 0xd30286180E142628cc437624Ea4160d5450F73D6 |
+| **Streak Tracking** | On-chain current & longest streak |
+| **Contract** | `0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686` |
 
 #### Key Features:
-- 24-hour claim cooldown
-- Streak maintenance system (48-hour window)
-- Automatic NFT detection
-- Real-time eligibility checking
-- Transparent reward calculation
-
-**New V2 Contract:** `0x026417Dd641C090CDAc7ecD961B25c6c45fa3018`
+- Simple 1-click GM sending
+- Automatic USDC approval system
+- Real-time streak statistics
+- Prize pool transparency
+- Gas paid by user separately
 
 ---
 
@@ -138,11 +141,12 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 - Direct on-chain minting
 - **Contract:** `0x12b6e1f30cb714e8129F6101a7825a910a9982F2`
 
-#### Daily CELO Rewards 
-- **1 CELO** claimable every 24 hours 
-- Requires **200+ HC balance**
-- Streak system with rewards for consistent daily claims
-- **Contract:** `0xD2b8E623aD7A5ae8cd04F11e2C059dA2e549b268`
+#### Daily GM CELO Streak
+- **0.1 CELO** per GM to maintain streak
+- **100% of CELO** goes to prize pool
+- 24-hour cooldown between GMs
+- On-chain streak tracking
+- **Contract:** `0xBeBfac3472171C4c6693b5808c039c50e73D99e9`
 
 ---
 
@@ -157,6 +161,14 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 - **Max Supply**: 1,000,000,000 LPX
 - **Dev Allocation**: 150,000,000 LPX (15%)
 - **Contract:** [`0x668F584d27Ce86149d6162a94D0BCd3C643Cb525`](https://lineascan.build/address/0x668F584d27Ce86149d6162a94D0BCd3C643Cb525)
+
+#### Daily GM mUSD Streak (Linea Network)
+- **0.01 mUSD** per GM to maintain streak
+- **100% of mUSD** goes to prize pool
+- 24-hour cooldown between GMs
+- On-chain streak tracking
+- Uses MetaMask USD (mUSD) token
+- **Contract:** `0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8`
 
 #### Key Features:
 - **Anti-spam Protection**: 100 message daily limit per wallet
@@ -215,8 +227,8 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 
 ### 💫 HC Token (Celo Network)
 - Supply: 1,000,000 HC
-- Utility: Chat mining and CELO reward access
-- **Increased requirement**: 200 HC needed for CELO rewards (up from 100)
+- Utility: Chat mining and CELO streak access
+- **Increased requirement**: 200 HC needed for CELO streaks (up from 100)
 
 ### 🔷 LPX Token (Linea Network)
 - Name: Linea Prime
@@ -233,16 +245,44 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 ### Base Network Contracts
 - HUB Token
 - HUB Chat Mining System
-- USDC Daily Rewards V2 (with NFT bonus)
 - HUB Multi-Tier Staking
 - Genesis NFT Collection
+- Daily GM USDC Streak System
 
 ### Celo Network Contracts
 - HC Token
-- CELO Daily Rewards V2 (Hub Portal Chat Rewards)
+- Daily GM CELO Streak System
 
 ### Linea Network Contracts
 - Linea Prime Token (LPX) - Chat Rewards System
+- Daily GM mUSD Streak System
+
+---
+
+## 🔥 Daily GM Streak System (All Networks)
+
+### Unified Daily Streak Experience
+HUB Portal now features **Daily GM Streak** across all 3 networks:
+
+| Network | Token | Fee | Prize Pool | Contract |
+|---------|-------|-----|------------|----------|
+| **Base** | USDC | 0.01 USDC | 0xd302...F73D6 | `0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686` |
+| **Celo** | CELO | 0.1 CELO | 0xd302...F73D6 | `0xBeBfac3472171C4c6693b5808c039c50e73D99e9` |
+| **Linea** | mUSD | 0.01 mUSD | 0xd302...F73D6 | `0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8` |
+
+#### How Daily GM Streak Works:
+1. **Connect Wallet** on supported network
+2. **Pay small fee** (0.01 USDC/mUSD or 0.1 CELO)
+3. **Send GM** to maintain your streak
+4. **100% of fee** goes to community prize pool
+5. **Track streak** on-chain (current & longest)
+
+#### Benefits:
+- Simple 1-click interaction
+- Community funding through participation
+- On-chain proof of engagement
+- Cross-network consistency
+- Gas fees paid separately by user
 
 ---
 
@@ -282,5 +322,6 @@ MIT License
 [![Celo Network](https://img.shields.io/badge/📱_Celo_Network-FCFF52?style=for-the-badge)](https://celo.org)
 [![Linea Network](https://img.shields.io/badge/🔷_Linea_Network-61DBFB?style=for-the-badge)](https://linea.build)
 [![Genesis NFT](https://img.shields.io/badge/🎭_Genesis_NFT-FF6B8B?style=for-the-badge)](https://opensea.io/collection/hub-ecosystem-genesis-nft)
+[![Daily GM Streak](https://img.shields.io/badge/🔥_Daily_GM_Streak-FF6A00?style=for-the-badge)](https://hub-portal-chat.vercel.app)
 
 </div>

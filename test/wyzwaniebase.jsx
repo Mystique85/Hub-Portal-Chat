@@ -13,8 +13,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
   });
   const { isCelo, isBase } = useNetwork();
 
-  const launchDate = new Date('2026-04-01T00:00:00');
-  const MIN_TOKENS_REQUIRED = 1000;
+  const launchDate = new Date('2026-01-01T00:00:00');
   const GENESIS_NFT_CONTRACT = "0xdAf7B15f939F6a8faf87d338010867883AAB366a";
 
   const NFT_ABI = [
@@ -50,7 +49,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
         setUserStatus(prev => ({ ...prev, loading: true }));
 
         const hubBalance = parseFloat(currentUser?.balance || '0');
-        const hasEnoughTokens = hubBalance >= MIN_TOKENS_REQUIRED;
+        const hasEnoughTokens = hubBalance >= 100;
 
         let hasNFT = false;
         if (nftBalanceData !== undefined) {
@@ -117,8 +116,8 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
               Base Leaderboard Available Soon
             </h2>
             <p className="text-gray-300 mb-6">
-              The Base network leaderboard with 2000 USDC rewards pool launches on April 1st, 2026!
-              The first season starts in April - get ready to compete!
+              The Base network leaderboard with 2000 USDC rewards pool launches on January 1st, 2026!
+              Stay tuned for the competition.
             </p>
             <button 
               onClick={onClose}
@@ -158,10 +157,10 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
           <div className={`flex items-center justify-between ${isMobile ? 'p-3' : 'p-4'} border-b border-gray-700/50`}>
             <div>
               <h2 className={`${isMobile ? 'text-base' : 'text-xl'} font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent`}>
-                🏆 Base Leaderboard - First Season Coming Soon!
+                🏆 Base Leaderboard - Coming Soon!
               </h2>
               <p className={`text-gray-400 ${isMobile ? 'text-xs mt-0.5' : 'text-xs mt-1'}`}>
-                Launching on April 1st, 2026 - April Season Only!
+                Launching on January 1st, 2026 - Get Ready!
               </p>
             </div>
             <button 
@@ -174,7 +173,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
 
           <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-y border-blue-500/20 p-3">
             <div className="text-center">
-              <h3 className="text-blue-400 font-bold text-sm mb-2">⏰ Countdown to April Season Launch</h3>
+              <h3 className="text-blue-400 font-bold text-sm mb-2">⏰ Countdown to Launch</h3>
               <div className={`grid grid-cols-4 gap-2 ${isMobile ? 'max-w-xs' : 'max-w-md'} mx-auto`}>
                 <div className="bg-blue-500/20 rounded-lg p-2 border border-blue-500/30">
                   <div className={`text-blue-300 font-bold ${isMobile ? 'text-base' : 'text-lg'}`}>{timeRemaining.days || 0}</div>
@@ -218,7 +217,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
                     />
                     <StatusBadge 
                       condition={userStatus.hasEnoughTokens} 
-                      text={`${userStatus.hubBalance.toFixed(2)} HUB / ${MIN_TOKENS_REQUIRED} Required`} 
+                      text={`${userStatus.hubBalance.toFixed(2)} HUB / 100 Required`} 
                     />
                   </div>
                   
@@ -232,9 +231,9 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
                     </div>
                     {!userStatus.isEligible && (
                       <div className="text-xs mt-1">
-                        {!userStatus.hasNFT && !userStatus.hasEnoughTokens && `Get Genesis NFT and ${MIN_TOKENS_REQUIRED}+ HUB tokens`}
+                        {!userStatus.hasNFT && !userStatus.hasEnoughTokens && 'Get Genesis NFT and 100+ HUB tokens'}
                         {!userStatus.hasNFT && userStatus.hasEnoughTokens && 'Get Genesis NFT to qualify'}
-                        {userStatus.hasNFT && !userStatus.hasEnoughTokens && `Need ${(MIN_TOKENS_REQUIRED - userStatus.hubBalance).toFixed(2)} more HUB tokens`}
+                        {userStatus.hasNFT && !userStatus.hasEnoughTokens && `Need ${(100 - userStatus.hubBalance).toFixed(2)} more HUB tokens`}
                       </div>
                     )}
                   </div>
@@ -245,10 +244,10 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
             <div className="text-center mb-4">
               <div className={`${isMobile ? 'text-2xl' : 'text-3xl'} mb-2`}>🎯</div>
               <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-white mb-1`}>
-                HUB Chat Base Leaderboard - April Season
+                HUB Chat Base Leaderboard
               </h2>
               <p className={`text-blue-400 ${isMobile ? 'text-sm' : 'text-base'} font-semibold mb-3`}>
-                Launching on April 1st, 2026 for 1 Month Only!
+                Launching on January 1st, 2026!
               </p>
               <div className={`bg-gradient-to-r from-green-500 to-emerald-500 text-white ${isMobile ? 'text-sm py-1.5 px-3' : 'text-base py-2 px-4'} font-bold rounded-xl inline-block`}>
                 $2000 USDC Reward Pool! 💰
@@ -267,7 +266,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-amber-400 mt-1">•</span>
-                    <span>Hold at least {MIN_TOKENS_REQUIRED} HUB tokens</span>
+                    <span>Hold at least 100 HUB tokens</span>
                   </li>
                 </ul>
                 <div className="space-y-2 text-xs mb-3">
@@ -283,74 +282,46 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
                      rel="noopener noreferrer"
                      className="text-cyan-400 hover:text-cyan-300 flex items-center gap-2 py-1">
                     <span className="text-sm">🌐</span>
-                    <span>Earn HUB tokens to reach {MIN_TOKENS_REQUIRED} HUB requirement</span>
+                    <span>Earn HUB tokens</span>
                   </a>
                 </div>
                 <p className="text-amber-300 text-xs font-semibold bg-amber-500/10 border border-amber-500/20 rounded-lg p-2 text-center">
-                  ⏳ You have time to secure your NFT and collect {MIN_TOKENS_REQUIRED} HUB tokens before April 1st!
+                  ⏳ You have time to secure your NFT and collect 100 HUB tokens!
                 </p>
               </div>
 
               <div className="bg-gray-700/30 rounded-xl p-4 border border-purple-500/30">
                 <h3 className={`text-purple-400 font-bold ${isMobile ? 'text-sm' : 'text-base'} mb-3 flex items-center gap-2`}>
-                  <span>📊</span> April Season Details
+                  <span>📊</span> How the Leaderboard Works
                 </h3>
                 <ul className={`space-y-2 text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'}`}>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-400 mt-1">•</span>
-                    <span><strong>FIRST SEASON ONLY</strong> - April 1st to April 30th, 2026</span>
+                    <span><strong>12 seasons competition</strong> - year-long tournament</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-400 mt-1">•</span>
-                    <span><strong>1 month competition</strong> - exclusive April event</span>
+                    <span><strong>Each season: 1 month</strong> - fresh start every month</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-400 mt-1">•</span>
-                    <span><strong>Total messages on Base network</strong> - count every message sent during April</span>
+                    <span><strong>Total messages on Base network</strong> - count every message sent during the season</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-400 mt-1">•</span>
-                    <span><strong>Future seasons depend on April participation</strong> - show your activity!</span>
+                    <span><strong>Leaderboard resets after each season</strong> - fair competition for all</span>
                   </li>
                 </ul>
-              </div>
-            </div>
-
-            <div className="bg-gray-700/30 rounded-xl p-4 border border-green-500/30 mb-4">
-              <h3 className={`text-green-400 font-bold ${isMobile ? 'text-sm' : 'text-base'} mb-3 flex items-center gap-2`}>
-                <span>🔮</span> What Happens After April?
-              </h3>
-              <div className="text-gray-300 text-sm">
-                <p className="mb-2">
-                  <strong>The April season is our pilot program!</strong> Future leaderboard seasons will depend on:
-                </p>
-                <ul className="space-y-1.5 mb-3">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">•</span>
-                    <span>Total number of active participants in April</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">•</span>
-                    <span>Community engagement and feedback</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">•</span>
-                    <span>Overall activity and message volume</span>
-                  </li>
-                </ul>
-                <p className="text-green-300 text-xs font-semibold bg-green-500/10 border border-green-500/20 rounded-lg p-2 text-center">
-                  📢 Continuation announcement will be made during the April season!
-                </p>
               </div>
             </div>
 
             <div className="text-center py-4">
               <div className={`${isMobile ? 'text-3xl' : 'text-4xl'} mb-2`}>💬🔥</div>
               <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-bold text-white mb-1`}>
-                Make April count - Your activity decides the future of leaderboards!
+                The more active you are, the bigger your rewards!
               </h3>
               <p className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                Join us for the exclusive April season starting April 1st, 2026!
+                See you on the HUB Chat Base leaderboard starting January 1st, 2026!
               </p>
             </div>
           </div>
@@ -360,12 +331,12 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
           isMobile ? 'p-2' : 'p-3'
         }`}>
           <div className={`text-center text-gray-400 ${isMobile ? 'text-[9px]' : 'text-[10px]'}`}>
-            <p>Base Network Leaderboard • April Season Only: April 1-30, 2026 • $2000 USDC Total Rewards</p>
-            <p className={isMobile ? 'mt-0.5' : 'mt-1'}>Genesis NFT + {MIN_TOKENS_REQUIRED} HUB tokens required • Only 1 season in April</p>
+            <p>Base Network Leaderboard • Launching: January 1st, 2026 • $2000 USDC Total Rewards</p>
+            <p className={isMobile ? 'mt-0.5' : 'mt-1'}>Start preparing today to compete for amazing rewards! 🎉</p>
             
             <div className={`mt-2 pt-2 border-t border-gray-700/30 ${isMobile ? 'mt-1 pt-1' : ''}`}>
               <p className={`text-gray-500 ${isMobile ? 'text-[8px]' : 'text-[9px]'}`}>
-                ℹ️ Future leaderboard seasons will be announced based on April participation results
+                ℹ️ Leaderboard launch requires minimum 20 qualified users (Genesis NFT + 100 HUB tokens)
               </p>
             </div>
           </div>
