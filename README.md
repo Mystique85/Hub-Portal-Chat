@@ -22,7 +22,7 @@
 | **Celo** | HC Token | HelloCelo ERC20 | [`0x12b6e1f30cb714e8129F6101a7825a910a9982F2`](https://celoscan.io/token/0x12b6e1f30cb714e8129F6101a7825a910a9982F2) |
 | **Base** | Genesis NFT | HUB Ecosystem Genesis NFT | [`0xdAf7B15f939F6a8faf87d338010867883AAB366a`](https://basescan.org/address/0xdAf7B15f939F6a8faf87d338010867883AAB366a) |
 | **Linea** | Linea Prime Token | LPX ERC20 Token | [`0x668F584d27Ce86149d6162a94D0BCd3C643Cb525`](https://lineascan.build/address/0x668F584d27Ce86149d6162a94D0BCd3C643Cb525) |
-| **Celo** | Daily GM CELO Streak | Daily GM CELO Streak System | [`0xBeBfac3472171C4c6693b5808c039c50e73D99e9`](https://celoscan.io/address/0xBeBfac3472171C4c6693b5808c039c50e73D99e9) |
+| **Celo** | Daily GM CELO Streak | Daily GM CELO Streak System | [`0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc`](https://celoscan.io/address/0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc) |
 | **Base** | Daily GM USDC Streak | Daily GM USDC Streak System | [`0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686`](https://basescan.org/address/0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686) |
 | **Linea** | Daily GM mUSD Streak | Daily GM mUSD Streak System | [`0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8`](https://lineascan.build/address/0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8) |
 
@@ -59,26 +59,18 @@
 ### 💎 Daily GM USDC Streak (Base Network)
 
 **New Daily GM Streak System:**
-- **Pay 0.01 USDC** to maintain your daily streak
-- **100% of funds** go to community prize pool
-- **24-hour cooldown** between GM sends
+- **Send daily GM** to maintain your streak
 - **On-chain streak tracking** with longest streak records
-- **Automatic prize pool distribution**
 
 #### How it works:
-| Feature | Details |
-|---------|---------|
-| **GM Fee** | 0.01 USDC per GM |
-| **Cooldown** | 24 hours between GMs |
-| **Prize Pool** | 0xd30286180E142628cc437624Ea4160d5450F73D6 |
-| **Streak Tracking** | On-chain current & longest streak |
-| **Contract** | `0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686` |
+1. **Send your daily GM** to keep your streak alive
+2. **Streak continues** if you GM within 24h window
+3. **Miss 24h?** Your streak resets to 1
+4. **Longer streak = bigger rewards!**
 
 #### Key Features:
 - Simple 1-click GM sending
-- Automatic USDC approval system
 - Real-time streak statistics
-- Prize pool transparency
 - Gas paid by user separately
 
 ---
@@ -142,11 +134,16 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 - **Contract:** `0x12b6e1f30cb714e8129F6101a7825a910a9982F2`
 
 #### Daily GM CELO Streak
-- **0.1 CELO** per GM to maintain streak
-- **100% of CELO** goes to prize pool
-- 24-hour cooldown between GMs
-- On-chain streak tracking
-- **Contract:** `0xBeBfac3472171C4c6693b5808c039c50e73D99e9`
+- **Send daily GM** to maintain streak
+- **24-hour cooldown** between GMs
+- **On-chain streak tracking**
+- **Contract:** `0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc`
+
+#### How Daily GM CELO Works:
+1. **Send your daily GM** to keep your streak alive
+2. **Streak continues** if you GM within 24h window
+3. **Miss 24h?** Your streak resets to 1
+4. **Longer streak = bigger rewards!**
 
 ---
 
@@ -163,11 +160,9 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 - **Contract:** [`0x668F584d27Ce86149d6162a94D0BCd3C643Cb525`](https://lineascan.build/address/0x668F584d27Ce86149d6162a94D0BCd3C643Cb525)
 
 #### Daily GM mUSD Streak (Linea Network)
-- **0.01 mUSD** per GM to maintain streak
-- **100% of mUSD** goes to prize pool
-- 24-hour cooldown between GMs
-- On-chain streak tracking
-- Uses MetaMask USD (mUSD) token
+- **Send daily GM** to maintain streak
+- **24-hour cooldown** between GMs
+- **On-chain streak tracking**
 - **Contract:** `0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8`
 
 #### Key Features:
@@ -264,25 +259,22 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 ### Unified Daily Streak Experience
 HUB Portal now features **Daily GM Streak** across all 3 networks:
 
-| Network | Token | Fee | Prize Pool | Contract |
-|---------|-------|-----|------------|----------|
-| **Base** | USDC | 0.01 USDC | 0xd302...F73D6 | `0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686` |
-| **Celo** | CELO | 0.1 CELO | 0xd302...F73D6 | `0xBeBfac3472171C4c6693b5808c039c50e73D99e9` |
-| **Linea** | mUSD | 0.01 mUSD | 0xd302...F73D6 | `0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8` |
+| Network | Token | Contract |
+|---------|-------|----------|
+| **Base** | USDC | `0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686` |
+| **Celo** | CELO | `0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc` |
+| **Linea** | mUSD | `0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8` |
 
 #### How Daily GM Streak Works:
 1. **Connect Wallet** on supported network
-2. **Pay small fee** (0.01 USDC/mUSD or 0.1 CELO)
-3. **Send GM** to maintain your streak
-4. **100% of fee** goes to community prize pool
-5. **Track streak** on-chain (current & longest)
+2. **Send GM** to maintain your streak
+3. **Track streak** on-chain (current & longest)
 
-#### Benefits:
-- Simple 1-click interaction
-- Community funding through participation
-- On-chain proof of engagement
-- Cross-network consistency
-- Gas fees paid separately by user
+#### Key Benefits:
+- Send your daily GM to keep your streak alive
+- Streak continues if you GM within 24h window
+- Miss 24h? Your streak resets to 1
+- Longer streak = bigger rewards!
 
 ---
 
