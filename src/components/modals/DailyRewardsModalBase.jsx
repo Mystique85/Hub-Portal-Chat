@@ -3,11 +3,12 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadCont
 import ReactDOM from 'react-dom';
 import { parseUnits } from 'viem';
 
-const GM_CONTRACT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"totalGMs","type":"uint256"}],"name":"GMSent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Withdrawn","type":"event"},{"inputs":[],"name":"GM_FEE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"PRIZE_POOL","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"USDC_TOKEN","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"canSendGM","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getContractBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getUSDCBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserStats","outputs":[{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalGMs","type":"uint256"},{"internalType":"uint256","name":"lastGMTimestamp","type":"uint256"},{"internalType":"uint256","name":"totalSpent","type":"uint256"},{"internalType":"bool","name":"canSendNow","type":"bool"},{"internalType":"uint256","name":"timeRemaining","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"sendGM","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"timeUntilNextGM","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userStats","outputs":[{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalGMs","type":"uint256"},{"internalType":"uint256","name":"lastGMTimestamp","type":"uint256"},{"internalType":"uint256","name":"totalSpent","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawERC20","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawNative","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}];
+const GM_CONTRACT_ABI = [{"inputs":[{"internalType":"address","name":"feeCollector","type":"address"},{"internalType":"address","name":"newOwnerAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"oldCollector","type":"address"},{"indexed":true,"internalType":"address","name":"newCollector","type":"address"}],"name":"FeeCollectorUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"oldFee","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"newFee","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"}],"name":"FeeUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"newStreak","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"totalGMs","type":"uint256"}],"name":"GMSent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"Withdrawn","type":"event"},{"inputs":[],"name":"MAX_FEE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MIN_FEE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"USDC_TOKEN","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"amIOwner","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"canSendGM","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getContractBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCurrentFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getFeeCollector","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getFeeLimits","outputs":[{"internalType":"uint256","name":"minFee","type":"uint256"},{"internalType":"uint256","name":"maxFee","type":"uint256"}],"stateMutability":"pure","type":"function"},{"inputs":[],"name":"getOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getUSDCBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserStats","outputs":[{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalGMs","type":"uint256"},{"internalType":"uint256","name":"lastGMTimestamp","type":"uint256"},{"internalType":"uint256","name":"totalSpent","type":"uint256"},{"internalType":"bool","name":"canSendNow","type":"bool"},{"internalType":"uint256","name":"timeRemaining","type":"uint256"},{"internalType":"uint256","name":"currentFee","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"gmFee","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"sendGM","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"newFee","type":"uint256"}],"name":"setGMFee","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"timeUntilNextGM","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newCollector","type":"address"}],"name":"updateFeeCollector","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userStats","outputs":[{"internalType":"uint256","name":"currentStreak","type":"uint256"},{"internalType":"uint256","name":"longestStreak","type":"uint256"},{"internalType":"uint256","name":"totalGMs","type":"uint256"},{"internalType":"uint256","name":"lastGMTimestamp","type":"uint256"},{"internalType":"uint256","name":"totalSpent","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawERC20","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address payable","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"withdrawNative","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}];
 
-const GM_CONTRACT_ADDRESS = "0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686";
+const GM_CONTRACT_ADDRESS = "0x220160fad5f6f5c2Af2674469dD99e132759D9Ca";
 
-// ABI dla USDC dla approve
+const USDC_TOKEN_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+
 const USDC_ABI = [
   {
     "constant": false,
@@ -46,15 +47,13 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const [usdcBalance, setUsdcBalance] = useState("0");
   const [usdcAllowance, setUsdcAllowance] = useState("0");
   const [isApproving, setIsApproving] = useState(false);
-  const [usdcTokenAddress, setUsdcTokenAddress] = useState(null);
-  const [showHowItWorks, setShowHowItWorks] = useState(false); // Nowy stan dla dropdownu
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
   
   const { writeContractAsync, isPending: isSending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
   });
 
-  // Pobierz statystyki użytkownika
   const { data: statsData, refetch: refetchStats } = useReadContract({
     address: GM_CONTRACT_ADDRESS,
     abi: GM_CONTRACT_ABI,
@@ -63,7 +62,13 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     enabled: isOpen && !!address,
   });
 
-  // Pobierz adres USDC tokena
+  const { data: feeData } = useReadContract({
+    address: GM_CONTRACT_ADDRESS,
+    abi: GM_CONTRACT_ABI,
+    functionName: 'gmFee',
+    enabled: isOpen,
+  });
+
   const { data: usdcTokenData } = useReadContract({
     address: GM_CONTRACT_ADDRESS,
     abi: GM_CONTRACT_ABI,
@@ -71,70 +76,59 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     enabled: isOpen,
   });
 
-  // Pobierz opłatę
-  const { data: feeData } = useReadContract({
-    address: GM_CONTRACT_ADDRESS,
-    abi: GM_CONTRACT_ABI,
-    functionName: 'GM_FEE',
-    enabled: isOpen,
-  });
-
-  // Pobierz adres prize pool
-  const { data: prizePoolData } = useReadContract({
-    address: GM_CONTRACT_ADDRESS,
-    abi: GM_CONTRACT_ABI,
-    functionName: 'PRIZE_POOL',
-    enabled: isOpen,
-  });
-
-  // Pobierz balance i allowance USDC
-  const { data: usdcData } = useReadContracts({
+  const { data: usdcData, error: usdcError, isLoading: usdcLoading } = useReadContracts({
     contracts: [
       {
-        address: usdcTokenData,
+        address: USDC_TOKEN_ADDRESS,
         abi: USDC_ABI,
         functionName: 'balanceOf',
         args: [address],
       },
       {
-        address: usdcTokenData,
+        address: USDC_TOKEN_ADDRESS,
         abi: USDC_ABI,
         functionName: 'allowance',
         args: [address, GM_CONTRACT_ADDRESS],
       },
     ],
-    enabled: isOpen && !!address && !!usdcTokenData,
+    enabled: isOpen && !!address,
   });
 
   useEffect(() => {
-    if (usdcTokenData) {
-      setUsdcTokenAddress(usdcTokenData);
-    }
-  }, [usdcTokenData]);
-
-  useEffect(() => {
     if (feeData) {
-      const feeInUSDC = Number(feeData) / 10**6; // USDC ma 6 decimals
+      const feeInUSDC = Number(feeData) / 10**6;
       setFeeAmount(feeInUSDC.toFixed(2));
     }
   }, [feeData]);
 
   useEffect(() => {
+    console.log('USDC Data:', usdcData);
+    console.log('USDC Error:', usdcError);
+    console.log('USDC Loading:', usdcLoading);
+    
     if (usdcData && usdcData[0] && usdcData[1]) {
-      setUsdcBalance((Number(usdcData[0].result) / 10**6).toFixed(2));
-      setUsdcAllowance((Number(usdcData[1].result) / 10**6).toFixed(2));
+      console.log('USDC Balance raw:', usdcData[0].result);
+      console.log('USDC Allowance raw:', usdcData[1].result);
+      
+      const balance = Number(usdcData[0].result) / 10**6;
+      const allowance = Number(usdcData[1].result) / 10**6;
+      
+      console.log('USDC Balance parsed:', balance);
+      console.log('USDC Allowance parsed:', allowance);
+      
+      setUsdcBalance(balance.toFixed(2));
+      setUsdcAllowance(allowance.toFixed(2));
     }
-  }, [usdcData]);
+  }, [usdcData, usdcError, usdcLoading]);
 
   useEffect(() => {
     if (statsData) {
-      const [currentStreak, longestStreak, totalGMs, lastGMTimestamp, totalSpent, canSendNow, timeRemaining] = statsData;
+      const [currentStreak, longestStreak, totalGMs, lastGMTimestamp, totalSpent, canSendNow, timeRemaining, currentFee] = statsData;
       setUserStats({
         currentStreak: Number(currentStreak),
         longestStreak: Number(longestStreak),
         totalGMs: Number(totalGMs),
         lastGMTimestamp: Number(lastGMTimestamp) * 1000,
-        totalSpent: totalSpent.toString(),
         canSendNow,
         timeRemaining: Number(timeRemaining)
       });
@@ -153,30 +147,35 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const checkUSDCApproval = () => {
     const requiredAllowance = parseFloat(feeAmount);
     const currentAllowance = parseFloat(usdcAllowance);
+    console.log('Check approval:', { requiredAllowance, currentAllowance, feeAmount, usdcAllowance });
     return currentAllowance >= requiredAllowance;
   };
 
   const handleApproveUSDC = async () => {
-    if (!address || !usdcTokenAddress) return;
+    console.log('Approving USDC...');
+    if (!address) {
+      console.error('No address');
+      return;
+    }
 
     setIsApproving(true);
     try {
-      const feeInWei = parseUnits(feeAmount, 6); // USDC has 6 decimals
+      const feeInWei = parseUnits(feeAmount, 6);
+      console.log('Approving amount:', feeAmount, 'in wei:', feeInWei);
       
       const hash = await writeContractAsync({
-        address: usdcTokenAddress,
+        address: USDC_TOKEN_ADDRESS,
         abi: USDC_ABI,
         functionName: 'approve',
         args: [GM_CONTRACT_ADDRESS, feeInWei],
       });
 
+      console.log('Approval hash:', hash);
+      
       if (hash) {
-        // Wait for approval
         await new Promise(resolve => setTimeout(resolve, 3000));
-        // Refresh allowance
-        if (usdcData && usdcData[1]) {
-          setUsdcAllowance(feeAmount);
-        }
+        setUsdcAllowance(feeAmount);
+        console.log('Approval completed, allowance set to:', feeAmount);
       }
     } catch (error) {
       console.error('❌ Approval failed:', error);
@@ -197,7 +196,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       return;
     }
 
-    // Check USDC balance
     const userBalance = parseFloat(usdcBalance);
     const requiredFee = parseFloat(feeAmount);
     
@@ -206,7 +204,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       return;
     }
 
-    // Check USDC approval
     if (!checkUSDCApproval()) {
       alert(`❌ Please approve ${feeAmount} USDC spending first`);
       return;
@@ -269,7 +266,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
           <div className="bg-gray-800 border-2 border-blue-500/40 rounded-2xl text-center max-w-md w-full p-8">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
             <h2 className="text-2xl font-bold text-blue-400 mb-2">Sending GM... ⚡</h2>
-            <p className="text-gray-400 mb-4">Processing {feeAmount} USDC transaction to prize pool...</p>
+            <p className="text-gray-400 mb-4">Processing transaction...</p>
             
             <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
               <div className="bg-blue-500 h-2 rounded-full animate-pulse"></div>
@@ -302,13 +299,13 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
             <div className="text-6xl mb-4">🎉</div>
             <h2 className="text-2xl font-bold text-green-400 mb-2">GM Sent Successfully!</h2>
             <p className="text-gray-400 mb-4">
-              You sent {feeAmount} USDC to the prize pool
+              Transaction completed successfully
             </p>
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
               <p className="text-green-300 font-semibold">
                 ✅ Transaction confirmed!<br/>
                 🔥 Your streak is now: {userStats ? userStats.currentStreak + 1 : 1} days<br/>
-                💰 Funds sent to prize pool
+                ⚡ Longer streak = bigger rewards!
               </p>
             </div>
             <button
@@ -326,6 +323,16 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     const isApproved = checkUSDCApproval();
     const canSendGM = userStats?.canSendNow && hasSufficientBalance && isApproved;
 
+    console.log('Modal render:', {
+      hasSufficientBalance,
+      isApproved,
+      canSendGM,
+      usdcBalance,
+      feeAmount,
+      usdcAllowance,
+      userStatsCanSendNow: userStats?.canSendNow
+    });
+
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
         <div className={`bg-gray-800/90 backdrop-blur-xl border border-blue-500/40 rounded-2xl p-6 max-w-md w-full mx-auto ${
@@ -334,9 +341,9 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                🌅 Daily GM - Base Network
+                🌅 Daily GM Challenge
               </h2>
-              <p className="text-gray-400 text-xs mt-1">Keep your streak alive with USDC!</p>
+              <p className="text-gray-400 text-xs mt-1">Keep your streak alive!</p>
             </div>
             <button
               onClick={onClose}
@@ -349,7 +356,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
           <div className="space-y-4">
             {userStats && (
               <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600/50">
-                <div className="grid grid-cols-3 gap-4 text-center mb-4">
+                <div className="grid grid-cols-3 gap-4 text-center mb-6">
                   <div>
                     <div className="text-2xl font-bold text-orange-400">{userStats.currentStreak}</div>
                     <div className="text-xs text-gray-400">Current Streak</div>
@@ -364,33 +371,37 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4 text-center text-sm">
+                <div className="text-center text-sm">
                   <div className="text-gray-300">
                     <div className="font-semibold">Last GM:</div>
                     <div>{formatDate(userStats.lastGMTimestamp)}</div>
-                  </div>
-                  <div className="text-gray-300">
-                    <div className="font-semibold">Total Spent:</div>
-                    <div className="text-green-400">{(parseInt(userStats.totalSpent) / 10**6).toFixed(2)} USDC</div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* USDC Status */}
-            <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600/50">
-              <div className="grid grid-cols-2 gap-4 mb-3">
-                <div className="text-center">
-                  <div className={`text-lg font-bold ${hasSufficientBalance ? 'text-green-400' : 'text-red-400'}`}>
-                    {usdcBalance} USDC
+            <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl p-4">
+              <div className="text-center mb-3">
+                <div className="text-2xl font-bold text-blue-400">Daily GM</div>
+                <div className="text-sm text-blue-300">Send your daily GM</div>
+              </div>
+              
+              {userStats && !userStats.canSendNow && userStats.timeRemaining > 0 && (
+                <div className="text-center mt-3 pt-3 border-t border-blue-500/20">
+                  <div className="text-orange-400 text-sm">
+                    ⏰ Next GM available in: {formatTime(userStats.timeRemaining)}
                   </div>
-                  <div className="text-xs text-gray-400">Your Balance</div>
                 </div>
-                <div className="text-center">
-                  <div className={`text-lg font-bold ${isApproved ? 'text-green-400' : 'text-yellow-400'}`}>
-                    {isApproved ? '✅ Approved' : '❌ Not Approved'}
-                  </div>
-                  <div className="text-xs text-gray-400">Allowance Status</div>
+              )}
+            </div>
+
+            <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600/50">
+              <div className="text-center mb-3">
+                <div className={`text-lg font-bold ${hasSufficientBalance ? 'text-green-400' : 'text-red-400'}`}>
+                  Balance: {usdcBalance} USDC
+                </div>
+                <div className={`text-sm ${isApproved ? 'text-green-400' : 'text-yellow-400'}`}>
+                  Allowance: {usdcAllowance} USDC {isApproved ? '✅' : '❌'}
                 </div>
               </div>
               
@@ -398,9 +409,9 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 <button
                   onClick={handleApproveUSDC}
                   disabled={isApproving || !hasSufficientBalance}
-                  className={`w-full py-2 rounded-lg font-bold text-white transition-all ${
+                  className={`w-full py-3 rounded-lg font-bold text-white transition-all ${
                     hasSufficientBalance
-                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600'
+                      ? 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 active:scale-95'
                       : 'bg-gray-600 cursor-not-allowed'
                   }`}
                 >
@@ -416,31 +427,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               )}
             </div>
 
-            <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl p-4">
-              <div className="text-center mb-3">
-                <div className="text-2xl font-bold text-blue-400">{feeAmount} USDC</div>
-                <div className="text-sm text-blue-300">Daily GM Fee</div>
-              </div>
-              
-              <div className="text-center">
-                <div className="text-green-400 text-sm mb-1">
-                  💰 {feeAmount} USDC goes directly to prize pool
-                </div>
-                <div className="text-xs text-gray-300">
-                  Pool: 0xd302...F73D6
-                </div>
-              </div>
-              
-              {userStats && !userStats.canSendNow && userStats.timeRemaining > 0 && (
-                <div className="text-center mt-3 pt-3 border-t border-blue-500/20">
-                  <div className="text-orange-400 text-sm">
-                    ⏰ Next GM available in: {formatTime(userStats.timeRemaining)}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Collapsible How It Works Section */}
             <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl overflow-hidden">
               <button
                 onClick={() => setShowHowItWorks(!showHowItWorks)}
@@ -448,7 +434,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               >
                 <div className="flex items-center gap-2">
                   <span className="text-purple-400">📝</span>
-                  <span className="font-semibold text-purple-400">How Daily GM Works on Base</span>
+                  <span className="font-semibold text-purple-400">How Daily GM Works</span>
                 </div>
                 <div className="transform transition-transform duration-300">
                   <svg
@@ -467,23 +453,19 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   <ul className="space-y-1.5 text-sm">
                     <li className="flex items-start gap-2 text-purple-300">
                       <span className="text-purple-400 mt-0.5">•</span>
-                      <span>Pay {feeAmount} USDC to send your daily GM</span>
+                      <span>Send your daily GM to keep your streak alive</span>
                     </li>
                     <li className="flex items-start gap-2 text-purple-300">
                       <span className="text-purple-400 mt-0.5">•</span>
-                      <span>First, approve USDC spending</span>
+                      <span>Streak continues if you GM within 24h window</span>
                     </li>
                     <li className="flex items-start gap-2 text-purple-300">
                       <span className="text-purple-400 mt-0.5">•</span>
-                      <span>Then send GM to maintain your streak</span>
+                      <span>Miss 24h? Your streak resets to 1</span>
                     </li>
                     <li className="flex items-start gap-2 text-purple-300">
                       <span className="text-purple-400 mt-0.5">•</span>
-                      <span>Entire {feeAmount} USDC goes to prize pool</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-purple-300">
-                      <span className="text-purple-400 mt-0.5">•</span>
-                      <span>You pay ETH gas fee for the transaction</span>
+                      <span>Longer streak = bigger rewards!</span>
                     </li>
                   </ul>
                 </div>
@@ -507,7 +489,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               ) : canSendGM ? (
                 <span className="flex items-center justify-center gap-2">
                   <span>🌅</span>
-                  Send Daily GM ({feeAmount} USDC)
+                  Send Daily GM
                 </span>
               ) : !userStats?.canSendNow ? (
                 <span className="flex items-center justify-center gap-2">
@@ -531,7 +513,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
 
             <div className="text-center">
               <div className="text-xs text-gray-400">
-                <p>Streaks are recorded on-chain • Contract: 0x5A37...CD686</p>
+                <p>Streaks are recorded on-chain • Contract: 0x2201...D9Ca</p>
                 <p className="mt-1">Keep your streak alive every 24 hours! 🔥</p>
               </div>
             </div>

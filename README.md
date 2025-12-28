@@ -23,7 +23,7 @@
 | **Base** | Genesis NFT | HUB Ecosystem Genesis NFT | [`0xdAf7B15f939F6a8faf87d338010867883AAB366a`](https://basescan.org/address/0xdAf7B15f939F6a8faf87d338010867883AAB366a) |
 | **Linea** | Linea Prime Token | LPX ERC20 Token | [`0x668F584d27Ce86149d6162a94D0BCd3C643Cb525`](https://lineascan.build/address/0x668F584d27Ce86149d6162a94D0BCd3C643Cb525) |
 | **Celo** | Daily GM CELO Streak | Daily GM CELO Streak System | [`0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc`](https://celoscan.io/address/0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc) |
-| **Base** | Daily GM USDC Streak | Daily GM USDC Streak System | [`0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686`](https://basescan.org/address/0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686) |
+| **Base** | Daily GM USDC Streak | Daily GM USDC Streak System | [`0x220160fad5f6f5c2Af2674469dD99e132759D9Ca`](https://basescan.org/address/0x220160fad5f6f5c2Af2674469dD99e132759D9Ca) |
 | **Linea** | Daily GM mUSD Streak | Daily GM mUSD Streak System | [`0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8`](https://lineascan.build/address/0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8) |
 
 ---
@@ -61,6 +61,8 @@
 **New Daily GM Streak System:**
 - **Send daily GM** to maintain your streak
 - **On-chain streak tracking** with longest streak records
+- **Configurable fee system** with owner controls
+- **Private fee collector address** for enhanced security
 
 #### How it works:
 1. **Send your daily GM** to keep your streak alive
@@ -71,7 +73,17 @@
 #### Key Features:
 - Simple 1-click GM sending
 - Real-time streak statistics
+- Configurable USDC fee (0.01 - 0.2 USDC)
+- Private fee collector system
 - Gas paid by user separately
+
+#### Contract Features:
+- **Dynamic Fee Management**: Owner can adjust GM fee within limits
+- **Enhanced Privacy**: Private fee collector address
+- **Full Statistics**: Complete user streak tracking
+- **Ownership Control**: Transferable ownership with event logging
+
+**Contract:** `0x220160fad5f6f5c2Af2674469dD99e132759D9Ca`
 
 ---
 
@@ -137,6 +149,7 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 - **Send daily GM** to maintain streak
 - **24-hour cooldown** between GMs
 - **On-chain streak tracking**
+- **Configurable CELO fee system**
 - **Contract:** `0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc`
 
 #### How Daily GM CELO Works:
@@ -242,11 +255,11 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 - HUB Chat Mining System
 - HUB Multi-Tier Staking
 - Genesis NFT Collection
-- Daily GM USDC Streak System
+- Daily GM USDC Streak System (GMHUBEcosystem)
 
 ### Celo Network Contracts
 - HC Token
-- Daily GM CELO Streak System
+- Daily GM CELO Streak System (GMHUBEcosystem)
 
 ### Linea Network Contracts
 - Linea Prime Token (LPX) - Chat Rewards System
@@ -257,13 +270,13 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 ## 🔥 Daily GM Streak System (All Networks)
 
 ### Unified Daily Streak Experience
-HUB Portal now features **Daily GM Streak** across all 3 networks:
+HUB Portal now features **Daily GM Streak** across all 3 networks with enhanced GMHUBEcosystem contracts:
 
-| Network | Token | Contract |
-|---------|-------|----------|
-| **Base** | USDC | `0x5A37adB55C1CA05585c0F83A8C468b6FA39CD686` |
-| **Celo** | CELO | `0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc` |
-| **Linea** | mUSD | `0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8` |
+| Network | Token | Contract | Features |
+|---------|-------|----------|----------|
+| **Base** | USDC | `0x220160fad5f6f5c2Af2674469dD99e132759D9Ca` | Configurable fee, private collector |
+| **Celo** | CELO | `0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc` | Configurable fee, private collector |
+| **Linea** | mUSD | `0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8` | Fixed fee, public prize pool |
 
 #### How Daily GM Streak Works:
 1. **Connect Wallet** on supported network
@@ -275,6 +288,13 @@ HUB Portal now features **Daily GM Streak** across all 3 networks:
 - Streak continues if you GM within 24h window
 - Miss 24h? Your streak resets to 1
 - Longer streak = bigger rewards!
+
+#### GMHUBEcosystem Contract Features (Base & Celo):
+- **Dynamic Fee Adjustment**: Owner can change GM fee within predefined limits
+- **Private Fee Collector**: Enhanced privacy for fee collection
+- **Full Ownership Control**: Transferable ownership with event tracking
+- **Comprehensive Statistics**: Complete user streak and spending tracking
+- **Emergency Functions**: Token withdrawal capabilities for contract owner
 
 ---
 
