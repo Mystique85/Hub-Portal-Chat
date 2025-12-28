@@ -14,7 +14,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
   const { isCelo, isBase } = useNetwork();
 
   const launchDate = new Date('2026-04-01T00:00:00');
-  const MIN_TOKENS_REQUIRED = 1000;
+  const MIN_TOKENS_REQUIRED = 100;
   const GENESIS_NFT_CONTRACT = "0xdAf7B15f939F6a8faf87d338010867883AAB366a";
 
   const NFT_ABI = [
