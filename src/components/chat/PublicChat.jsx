@@ -35,7 +35,7 @@ const PublicChat = ({
     hash: transactionHash,
   });
 
-  const { currentNetwork, isCelo, isBase, isLinea, tokenSymbol } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, tokenSymbol } = useNetwork();
 
   useEffect(() => {
     if (!db) return;
@@ -204,10 +204,10 @@ const PublicChat = ({
       if (isCelo) return "Type message and earn HC...";
       if (isBase) return "Type message and earn HUB...";
       if (isLinea) return "Type message and earn LPX...";
+      if (isPolygon) return "Type message and earn MSG...";
       return "Type message...";
     }
     
-    // Desktop placeholders
     if (isCelo) {
       return "Type your message in public chat and earn HC tokens (10 msg daily) - Enter to send";
     }
@@ -217,6 +217,9 @@ const PublicChat = ({
     if (isLinea) {
       return "Type your message in public chat and earn LPX tokens (max 100 msg daily) - Enter to send";
     }
+    if (isPolygon) {
+      return "Type your message in public chat and earn MSG tokens (max 100 msg daily, 2-560 chars) - Enter to send";
+    }
     
     return "Type your message in public chat... (Enter to send)";
   };
@@ -225,6 +228,7 @@ const PublicChat = ({
     if (isCelo) return "from-yellow-500/10 to-yellow-500/5 border-yellow-500/30 text-yellow-400";
     if (isBase) return "from-blue-500/10 to-blue-500/5 border-blue-500/30 text-blue-400";
     if (isLinea) return "from-cyan-500/10 to-cyan-500/5 border-cyan-500/30 text-cyan-400";
+    if (isPolygon) return "from-purple-500/10 to-purple-500/5 border-purple-500/30 text-purple-400";
     return "from-cyan-500/10 to-blue-500/10 border-cyan-500/30 text-cyan-400";
   };
 
@@ -232,6 +236,7 @@ const PublicChat = ({
     if (isCelo) return "from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600";
     if (isBase) return "from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600";
     if (isLinea) return "from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600";
+    if (isPolygon) return "from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600";
     return "from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600";
   };
 

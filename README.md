@@ -25,6 +25,8 @@
 | **Celo** | Daily GM CELO Streak | Daily GM CELO Streak System | [`0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc`](https://celoscan.io/address/0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc) |
 | **Base** | Daily GM USDC Streak | Daily GM USDC Streak System | [`0x220160fad5f6f5c2Af2674469dD99e132759D9Ca`](https://basescan.org/address/0x220160fad5f6f5c2Af2674469dD99e132759D9Ca) |
 | **Linea** | Daily GM mUSD Streak | Daily GM mUSD Streak System | [`0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8`](https://lineascan.build/address/0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8) |
+| **Polygon** | Message Protocol Token | MSG Token (ERC20) | [`0x139E53FC21f5B95e88dA8Ef9Da57cA5d143f2163`](https://polygonscan.com/address/0x139E53FC21f5B95e88dA8Ef9Da57cA5d143f2163) |
+| **Polygon** | Daily GM POL Streak | Daily GM POL Streak System | [`0x12F9003d35e30D6Cec22C3E618CE4d4Cd87F8444`](https://polygonscan.com/address/0x12F9003d35e30D6Cec22C3E618CE4d4Cd87F8444) |
 
 ---
 
@@ -33,13 +35,110 @@
 ### 💬 Intelligent Messaging System
 - **Public Chat** - Community conversations with instant delivery and reply system
 - **Real-time Synchronization** - Messages appear instantly across all devices
-- **Multi-Chain Rewards** - Earn tokens on Base, Celo, and Linea networks
+- **Multi-Chain Rewards** - Earn tokens on Base, Celo, Linea, and Polygon networks
 - **Admin Tools** - Message moderation and embedded content for administrators
 - **Genesis NFT Bonus** - Exclusive rewards for NFT holders
 
 ---
 
 ## 🎁 Advanced Token Reward System
+
+### 🔷 Polygon Network – Message Protocol Token (MSG)
+
+#### MSG Token Mining System
+- **Token Name**: Message Protocol
+- **Token Symbol**: MSG
+- **Decimals**: 18
+- **Reward per Message**: 1 MSG
+- **Daily Limit**: 100 messages per day
+- **Max Supply**: 1,000,000,000 MSG
+- **Initial Supply**: 150,000,000 MSG (15% for ecosystem development)
+- **Message Length**: 2-560 characters
+- **Contract:** [`0x139E53FC21f5B95e88dA8Ef9Da57cA5d143f2163`](https://polygonscan.com/address/0x139E53FC21f5B95e88dA8Ef9Da57cA5d143f2163)
+
+#### Key Features:
+- **Anti-spam Protection**: 100 message daily limit per wallet
+- **User Blocking System**: Admins can block/unblock users
+- **Message Storage**: All messages stored on-chain with timestamp and length
+- **Gas Optimization**: `sendMessageLight()` function for reduced gas costs
+- **Admin Management**: Multi-admin system with owner controls
+- **Pausable Contract**: Emergency pause functionality
+- **Daily Reset**: UTC-based daily message counter reset
+- **Comprehensive Statistics**: Detailed user stats and analytics
+
+#### Message Types:
+1. **Full Message** (`sendMessage()`): Stores complete message content on-chain
+2. **Light Message** (`sendMessageLight()`): Stores only metadata (sender, timestamp, length) for gas savings
+
+#### Contract Functions:
+- `sendMessage()` - Send full message and earn 1 MSG reward
+- `sendMessageLight()` - Send gas-optimized message (stores only metadata)
+- `getUserStats()` - View complete user statistics and earnings
+- `remainingRewards()` - Check remaining messages for today
+- `canSendMessage()` - Verify if user can send message (returns boolean + reason)
+- `getMessagesPaginated()` - Paginated message viewing
+- `getAllMessages()` - View all chat messages (use with caution for large arrays)
+- `getMessageLimits()` - Get minimum and maximum message lengths
+- `getContractStats()` - View contract-wide statistics
+- `getNextResetTime()` - Check when daily counter resets for a user
+- `getTokenInfo()` - Get complete token information
+
+#### Admin Features:
+- `addAdmin()` / `removeAdmin()` - Manage admin addresses
+- `blockUser()` / `unblockUser()` - User moderation tools
+- `pause()` / `unpause()` - Emergency contract control
+- `adminBurn()` - Burn tokens from any address
+- `rescueERC20()` - Rescue accidentally sent ERC20 tokens
+- `transferOwnership()` - Transfer contract ownership
+
+#### Tokenomics:
+- **Total Supply**: 1,000,000,000 MSG
+- **Initial Mint**: 150,000,000 MSG (15%) to HUB Ecosystem development
+- **Mining Rewards**: 1 MSG per message from remaining supply
+- **Daily Cap**: 100 messages per user = max 100 MSG daily
+- **Max Supply Protection**: Minting stops when MAX_SUPPLY is reached
+
+### 🔶 Daily GM POL Streak (Polygon Network)
+
+**Daily GM Streak System for Polygon:**
+- **Send daily GM** to maintain your streak with POL (MATIC) fees
+- **On-chain streak tracking** with longest streak records
+- **Configurable fee system** with owner controls (0.1-2 POL range)
+- **Private fee collector address** for enhanced security
+
+#### How it works:
+1. **Send your daily GM** to keep your streak alive
+2. **Streak continues** if you GM within 24h window
+3. **Miss 24h?** Your streak resets to 1
+4. **Longer streak = bigger rewards!**
+
+#### Key Features:
+- Simple 1-click GM sending with POL (MATIC)
+- Real-time streak statistics
+- Configurable POL fee (0.1 - 2 POL)
+- Private fee collector system
+- Gas paid by user separately
+
+#### Contract Features:
+- **Dynamic Fee Management**: Owner can adjust GM fee within limits (0.1-2 POL)
+- **Initial Fee**: 0.1 POL per GM
+- **Enhanced Privacy**: Private fee collector address
+- **Full Statistics**: Complete user streak and spending tracking
+- **Ownership Control**: Transferable ownership with event logging
+- **Emergency Functions**: POL withdrawal capabilities for contract owner
+
+**Contract:** [`0x12F9003d35e30D6Cec22C3E618CE4d4Cd87F8444`](https://polygonscan.com/address/0x12F9003d35e30D6Cec22C3E618CE4d4Cd87F8444)
+
+#### Contract Functions:
+- `sendGM()` - Send daily GM with POL fee
+- `getUserStats()` - Get comprehensive user statistics
+- `canSendGM()` - Check if user can send GM now
+- `timeUntilNextGM()` - Get time until next GM can be sent
+- `setGMFee()` - Owner can adjust GM fee (0.1-2 POL)
+- `updateFeeCollector()` - Update fee collector address
+- `transferOwnership()` - Transfer contract ownership
+
+---
 
 ### 🌉 Base Network – Tiered Subscription Model
 
@@ -246,6 +345,18 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 - Utility: Linea network chat rewards with daily limits
 - Features: Anti-spam protection, admin controls, on-chain messaging
 
+### 🔶 MSG Token (Polygon Network)
+- Name: Message Protocol
+- Symbol: MSG
+- Decimals: 18
+- Total Supply: 1,000,000,000 MSG
+- Initial Supply: 150,000,000 MSG (15% for ecosystem)
+- Reward per Message: 1 MSG
+- Daily Limit: 100 messages per user
+- Message Length: 2-560 characters
+- Utility: Polygon network chat rewards with advanced features
+- Features: Gas-optimized light messages, comprehensive admin tools, full on-chain statistics
+
 ---
 
 ## 🏗️ Technical Architecture
@@ -265,18 +376,23 @@ HUB Badge System allows users to earn **badges for staking HUB tokens** with rea
 - Linea Prime Token (LPX) - Chat Rewards System
 - Daily GM mUSD Streak System
 
+### Polygon Network Contracts
+- Message Protocol Token (MSG) - Advanced Chat Rewards System with gas optimization
+- Daily GM POL Streak System (GMHUBEcosystem)
+
 ---
 
 ## 🔥 Daily GM Streak System (All Networks)
 
 ### Unified Daily Streak Experience
-HUB Portal now features **Daily GM Streak** across all 3 networks with enhanced GMHUBEcosystem contracts:
+HUB Portal now features **Daily GM Streak** across all 4 networks with enhanced GMHUBEcosystem contracts:
 
 | Network | Token | Contract | Features |
 |---------|-------|----------|----------|
-| **Base** | USDC | `0x220160fad5f6f5c2Af2674469dD99e132759D9Ca` | Configurable fee, private collector |
-| **Celo** | CELO | `0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc` | Configurable fee, private collector |
+| **Base** | USDC | `0x220160fad5f6f5c2Af2674469dD99e132759D9Ca` | Configurable fee (0.01-0.2 USDC), private collector |
+| **Celo** | CELO | `0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc` | Configurable fee (0.1-10 CELO), private collector |
 | **Linea** | mUSD | `0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8` | Fixed fee, public prize pool |
+| **Polygon** | POL (MATIC) | `0x12F9003d35e30D6Cec22C3E618CE4d4Cd87F8444` | Configurable fee (0.1-2 POL), private collector |
 
 #### How Daily GM Streak Works:
 1. **Connect Wallet** on supported network
@@ -289,7 +405,7 @@ HUB Portal now features **Daily GM Streak** across all 3 networks with enhanced 
 - Miss 24h? Your streak resets to 1
 - Longer streak = bigger rewards!
 
-#### GMHUBEcosystem Contract Features (Base & Celo):
+#### GMHUBEcosystem Contract Features (Base, Celo & Polygon):
 - **Dynamic Fee Adjustment**: Owner can change GM fee within predefined limits
 - **Private Fee Collector**: Enhanced privacy for fee collection
 - **Full Ownership Control**: Transferable ownership with event tracking
@@ -302,7 +418,7 @@ HUB Portal now features **Daily GM Streak** across all 3 networks with enhanced 
 
 HUB Portal is the flagship social application within the **HUB Ecosystem**.
 
-- Multi-chain identity (Base, Celo, Linea)
+- Multi-chain identity (Base, Celo, Linea, Polygon)
 - NFT-integrated rewards
 - Governance readiness
 - Growing dApp suite
@@ -333,6 +449,7 @@ MIT License
 [![Base Network](https://img.shields.io/badge/🌉_Base_Network-0052FF?style=for-the-badge)](https://base.org)
 [![Celo Network](https://img.shields.io/badge/📱_Celo_Network-FCFF52?style=for-the-badge)](https://celo.org)
 [![Linea Network](https://img.shields.io/badge/🔷_Linea_Network-61DBFB?style=for-the-badge)](https://linea.build)
+[![Polygon Network](https://img.shields.io/badge/🔶_Polygon_Network-8247E5?style=for-the-badge)](https://polygon.technology)
 [![Genesis NFT](https://img.shields.io/badge/🎭_Genesis_NFT-FF6B8B?style=for-the-badge)](https://opensea.io/collection/hub-ecosystem-genesis-nft)
 [![Daily GM Streak](https://img.shields.io/badge/🔥_Daily_GM_Streak-FF6A00?style=for-the-badge)](https://hub-portal-chat.vercel.app)
 

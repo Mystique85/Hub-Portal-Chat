@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useNetwork } from '../../hooks/useNetwork';
+// POPRAWIONY IMPORT - usunięto MSG_TOKEN_ADDRESS
 import { CONTRACT_ADDRESSES, CONTRACT_ABIS, NETWORK_CONFIG, HUB_TOKEN_ADDRESS } from '../../utils/constants';
 
 const SendHCModal = ({ user, onClose, isMobile = false }) => {
@@ -14,7 +15,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     hash: txHash,
   });
 
-  const { currentNetwork, isCelo, isBase, isLinea, tokenSymbol, networkConfig } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, tokenSymbol, networkConfig } = useNetwork();
 
   const ERC20_ABI = [
     {
@@ -81,6 +82,10 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
       } else if (isLinea) {
         contractAddress = CONTRACT_ADDRESSES.linea;
         contractAbi = CONTRACT_ABIS.linea;
+      } else if (isPolygon) {
+        // POPRAWIONE - używamy HUB_TOKEN_ADDRESS.polygon zamiast MSG_TOKEN_ADDRESS
+        contractAddress = HUB_TOKEN_ADDRESS.polygon;
+        contractAbi = ERC20_ABI;
       }
 
       const hash = await writeContractAsync({
@@ -116,6 +121,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isCelo) return 'CeloScan';
     if (isBase) return 'BaseScan';
     if (isLinea) return 'LineaScan';
+    if (isPolygon) return 'PolygonScan';
     return 'Explorer';
   };
 
@@ -123,6 +129,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isCelo) return '📱';
     if (isBase) return '🌉';
     if (isLinea) return '🚀';
+    if (isPolygon) return '🔶';
     return '🔗';
   };
 
@@ -130,6 +137,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isCelo) return 'border-yellow-500/40 text-yellow-400';
     if (isBase) return 'border-blue-500/40 text-blue-400';
     if (isLinea) return 'border-cyan-500/40 text-cyan-400';
+    if (isPolygon) return 'border-purple-500/40 text-purple-400';
     return 'border-cyan-500/40 text-cyan-400';
   };
 
@@ -149,6 +157,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
             isCelo ? 'border-yellow-500' :
             isBase ? 'border-blue-500' :
             isLinea ? 'border-cyan-500' :
+            isPolygon ? 'border-purple-500' :
             'border-cyan-500'
           }`}></div>
           <h2 className={`font-bold mb-2 ${
@@ -157,6 +166,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
             isCelo ? 'text-yellow-400' :
             isBase ? 'text-blue-400' :
             isLinea ? 'text-cyan-400' :
+            isPolygon ? 'text-purple-400' :
             'text-cyan-400'
           }`}>{`Sending ${tokenSymbol} Tokens ⏳`}</h2>
           <p className={`text-gray-400 mb-3 ${
@@ -168,6 +178,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
               isCelo ? 'bg-yellow-500' :
               isBase ? 'bg-blue-500' :
               isLinea ? 'bg-cyan-500' :
+              isPolygon ? 'bg-purple-500' :
               'bg-cyan-500'
             }`}></div>
           </div>
@@ -179,6 +190,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
               isCelo ? 'bg-yellow-500/10 border-yellow-500/30' :
               isBase ? 'bg-blue-500/10 border-blue-500/30' :
               isLinea ? 'bg-cyan-500/10 border-cyan-500/30' :
+              isPolygon ? 'bg-purple-500/10 border-purple-500/30' :
               'bg-cyan-500/10 border-cyan-500/30'
             }`}>
               <p className={`break-all ${
@@ -187,6 +199,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
                 isCelo ? 'text-yellow-300' :
                 isBase ? 'text-blue-300' :
                 isLinea ? 'text-cyan-300' :
+                isPolygon ? 'text-purple-300' :
                 'text-cyan-300'
               }`}>
                 <strong>TX Hash:</strong> {txHash.slice(0, 12)}...{txHash.slice(-8)}
@@ -201,6 +214,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
                   isCelo ? 'text-yellow-400 hover:text-yellow-300' :
                   isBase ? 'text-blue-400 hover:text-blue-300' :
                   isLinea ? 'text-cyan-400 hover:text-cyan-300' :
+                  isPolygon ? 'text-purple-400 hover:text-purple-300' :
                   'text-cyan-400 hover:text-cyan-300'
                 }`}
               >
@@ -232,6 +246,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
             isCelo ? 'text-yellow-400' :
             isBase ? 'text-blue-400' :
             isLinea ? 'text-cyan-400' :
+            isPolygon ? 'text-purple-400' :
             'text-cyan-400'
           }`}>{`${tokenSymbol} Sent Successfully!`}</h2>
           <p className={`text-gray-400 mb-3 ${
@@ -245,6 +260,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
             isCelo ? 'bg-yellow-500/10 border-yellow-500/30' :
             isBase ? 'bg-blue-500/10 border-blue-500/30' :
             isLinea ? 'bg-cyan-500/10 border-cyan-500/30' :
+            isPolygon ? 'bg-purple-500/10 border-purple-500/30' :
             'bg-cyan-500/10 border-cyan-500/30'
           }`}>
             <p className={`font-semibold ${
@@ -253,6 +269,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
               isCelo ? 'text-yellow-300' :
               isBase ? 'text-blue-300' :
               isLinea ? 'text-cyan-300' :
+              isPolygon ? 'text-purple-300' :
               'text-cyan-300'
             }`}>
               ✅ Transaction confirmed!
@@ -281,6 +298,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
             isCelo ? 'bg-gradient-to-r from-yellow-400 to-amber-500' :
             isBase ? 'bg-gradient-to-r from-blue-400 to-purple-500' :
             isLinea ? 'bg-gradient-to-r from-cyan-400 to-blue-500' :
+            isPolygon ? 'bg-gradient-to-r from-purple-400 to-pink-500' :
             'bg-gradient-to-r from-cyan-400 to-blue-500'
           }`}>
             {`Send ${tokenSymbol} Tokens`}
@@ -301,6 +319,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
           isCelo ? 'bg-yellow-500/10 border-yellow-500/30' :
           isBase ? 'bg-blue-500/10 border-blue-500/30' :
           isLinea ? 'bg-cyan-500/10 border-cyan-500/30' :
+          isPolygon ? 'bg-purple-500/10 border-purple-500/30' :
           'bg-cyan-500/10 border-cyan-500/30'
         }`}>
           <div className="flex items-center justify-center gap-2 mb-1">
@@ -308,6 +327,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
               isCelo ? 'text-yellow-400' :
               isBase ? 'text-blue-400' :
               isLinea ? 'text-cyan-400' :
+              isPolygon ? 'text-purple-400' :
               'text-cyan-400'
             }`}>{getNetworkIcon()}</span>
             <p className={`font-semibold ${
@@ -316,6 +336,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
               isCelo ? 'text-yellow-300' :
               isBase ? 'text-blue-300' :
               isLinea ? 'text-cyan-300' :
+              isPolygon ? 'text-purple-300' :
               'text-cyan-300'
             }`}>
               Sending to: <strong>{user.nickname}</strong>
@@ -327,6 +348,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
             isCelo ? 'text-yellow-400' :
             isBase ? 'text-blue-400' :
             isLinea ? 'text-cyan-400' :
+            isPolygon ? 'text-purple-400' :
             'text-cyan-400'
           }`}>
             {user.walletAddress?.slice(0, 8)}...{user.walletAddress?.slice(-6)}
@@ -337,6 +359,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
             isCelo ? 'text-yellow-300' :
             isBase ? 'text-blue-300' :
             isLinea ? 'text-cyan-300' :
+            isPolygon ? 'text-purple-300' :
             'text-cyan-300'
           }`}>
             Network: {networkConfig.name}
@@ -350,6 +373,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
             isCelo ? 'text-yellow-400' :
             isBase ? 'text-blue-400' :
             isLinea ? 'text-cyan-400' :
+            isPolygon ? 'text-purple-400' :
             'text-cyan-400'
           }`}>Select amount:</h3>
           <div className={`grid grid-cols-2 gap-2 mb-3 ${
@@ -365,6 +389,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
                         isCelo ? 'bg-yellow-500 border-yellow-500' :
                         isBase ? 'bg-blue-500 border-blue-500' :
                         isLinea ? 'bg-cyan-500 border-cyan-500' :
+                        isPolygon ? 'bg-purple-500 border-purple-500' :
                         'bg-cyan-500 border-cyan-500'
                       }`
                     : 'bg-gray-700/50 text-gray-300 border-gray-600/50 hover:bg-gray-700'
@@ -386,6 +411,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
               isCelo ? 'text-yellow-400' :
               isBase ? 'text-blue-400' :
               isLinea ? 'text-cyan-400' :
+              isPolygon ? 'text-purple-400' :
               'text-cyan-400'
             }`}>
               Or enter custom amount:
@@ -406,6 +432,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
                   isCelo ? 'focus:ring-yellow-500' :
                   isBase ? 'focus:ring-blue-500' :
                   isLinea ? 'focus:ring-cyan-500' :
+                  isPolygon ? 'focus:ring-purple-500' :
                   'focus:ring-cyan-500'
                 }`}
               />
@@ -415,6 +442,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
                 isCelo ? 'text-yellow-400' :
                 isBase ? 'text-blue-400' :
                 isLinea ? 'text-cyan-400' :
+                isPolygon ? 'text-purple-400' :
                 'text-cyan-400'
               }`}>
                 {tokenSymbol}
@@ -445,6 +473,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
               isCelo ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600' :
               isBase ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600' :
               isLinea ? 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600' :
+              isPolygon ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' :
               'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600'
             }`}
           >

@@ -4,8 +4,7 @@ import { useNetwork } from './useNetwork';
 import { 
   CONTRACT_ADDRESSES, 
   CONTRACT_ABIS,
-  HUB_TOKEN_ADDRESS,
-  USDC_TOKEN_ADDRESS 
+  HUB_TOKEN_ADDRESS
 } from '../utils/constants';
 
 export const useWeb3 = (address) => {
@@ -13,7 +12,7 @@ export const useWeb3 = (address) => {
   const [remaining, setRemaining] = useState('0');
   const [subscriptionInfo, setSubscriptionInfo] = useState(null);
   const [userStats, setUserStats] = useState(null);
-  const { currentNetwork, isCelo, isBase, isLinea, networkConfig } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, networkConfig } = useNetwork();
   const { chain } = useAccount();
 
   const ERC20_ABI = [
@@ -36,7 +35,7 @@ export const useWeb3 = (address) => {
     }
   });
 
-  const { data: remainingData } = useReadContract({
+  const { data: celoRemainingData } = useReadContract({
     address: CONTRACT_ADDRESSES.celo,
     abi: CONTRACT_ABIS.celo,
     functionName: 'remainingRewards',
@@ -53,6 +52,16 @@ export const useWeb3 = (address) => {
     args: [address],
     query: {
       enabled: !!address && isLinea,
+    }
+  });
+
+  const { data: polygonRemainingData } = useReadContract({
+    address: CONTRACT_ADDRESSES.polygon,
+    abi: CONTRACT_ABIS.polygon,
+    functionName: 'remainingRewards',
+    args: [address],
+    query: {
+      enabled: !!address && isPolygon,
     }
   });
 
@@ -86,6 +95,16 @@ export const useWeb3 = (address) => {
     }
   });
 
+  const { data: polygonUserStatsData } = useReadContract({
+    address: CONTRACT_ADDRESSES.polygon,
+    abi: CONTRACT_ABIS.polygon,
+    functionName: 'getUserStats',
+    args: [address],
+    query: {
+      enabled: !!address && isPolygon,
+    }
+  });
+
   const { data: simpleSubscriptionData } = useReadContract({
     address: CONTRACT_ADDRESSES.base,
     abi: CONTRACT_ABIS.base,
@@ -104,8 +123,8 @@ export const useWeb3 = (address) => {
   }, [balanceData]);
 
   useEffect(() => {
-    if (isCelo && remainingData) {
-      setRemaining(remainingData.toString());
+    if (isCelo && celoRemainingData) {
+      setRemaining(celoRemainingData.toString());
     } else if (isCelo) {
       setRemaining('0');
     } else if (isBase) {
@@ -121,8 +140,12 @@ export const useWeb3 = (address) => {
       setRemaining(lineaRemainingData.toString());
     } else if (isLinea) {
       setRemaining('0');
+    } else if (isPolygon && polygonRemainingData) {
+      setRemaining(polygonRemainingData.toString());
+    } else if (isPolygon) {
+      setRemaining('0');
     }
-  }, [remainingData, lineaRemainingData, userSubscriptionInfoData, isCelo, isBase, isLinea]);
+  }, [celoRemainingData, lineaRemainingData, polygonRemainingData, userSubscriptionInfoData, isCelo, isBase, isLinea, isPolygon]);
 
   useEffect(() => {
     if (isBase && address) {
@@ -211,15 +234,41 @@ export const useWeb3 = (address) => {
         
         setSubscriptionInfo(lineaSubscriptionInfo);
       }
+    } else if (isPolygon && address && polygonUserStatsData) {
+      if (Array.isArray(polygonUserStatsData) && polygonUserStatsData.length >= 6) {
+        const [totalMessages, totalEarned, lastMessageTime, isBlocked, messagesToday, lastResetDay] = polygonUserStatsData;
+        
+        setUserStats({
+          totalMessages: Number(totalMessages),
+          totalEarned: Number(totalEarned) / 1e18,
+          lastMessageTime: Number(lastMessageTime),
+          isBlocked,
+          messagesToday: Number(messagesToday),
+          lastResetDay: Number(lastResetDay)
+        });
+
+        const polygonSubscriptionInfo = {
+          tier: 0,
+          expiry: 0,
+          whitelisted: false,
+          isActive: true,
+          remainingMessages: Number(polygonRemainingData) || 0,
+          messagesToday: Number(messagesToday),
+          lastResetDay: Number(lastResetDay)
+        };
+        
+        setSubscriptionInfo(polygonSubscriptionInfo);
+      }
     }
-  }, [userSubscriptionInfoData, userBasicStatsData, lineaBasicStatsData, simpleSubscriptionData, lineaRemainingData, isBase, isLinea, address]);
+  }, [userSubscriptionInfoData, userBasicStatsData, lineaBasicStatsData, polygonUserStatsData, simpleSubscriptionData, lineaRemainingData, polygonRemainingData, isBase, isLinea, isPolygon, address]);
 
   const fetchBalanceForNetwork = async (userAddress, network) => {
     try {
       const providerUrls = {
         celo: import.meta.env.VITE_CELO_MAINNET_RPC_URL || 'https://forno.celo.org',
         base: import.meta.env.VITE_BASE_MAINNET_RPC_URL || 'https://mainnet.base.org',
-        linea: import.meta.env.VITE_LINEA_MAINNET_RPC_URL || 'https://rpc.linea.build'
+        linea: import.meta.env.VITE_LINEA_MAINNET_RPC_URL || 'https://rpc.linea.build',
+        polygon: import.meta.env.VITE_POLYGON_MAINNET_RPC_URL || 'https://polygon-rpc.com'
       };
       
       const providerUrl = providerUrls[network];
@@ -231,7 +280,8 @@ export const useWeb3 = (address) => {
       const contractAddresses = {
         celo: HUB_TOKEN_ADDRESS.celo,
         base: HUB_TOKEN_ADDRESS.base,
-        linea: HUB_TOKEN_ADDRESS.linea
+        linea: HUB_TOKEN_ADDRESS.linea,
+        polygon: HUB_TOKEN_ADDRESS.polygon
       };
       
       const contractAddress = contractAddresses[network];
@@ -276,27 +326,29 @@ export const useWeb3 = (address) => {
 
   const getOtherUserBalance = async (userAddress, targetNetwork = null) => {
     if (!userAddress) {
-      return { celo: '0', base: '0', linea: '0' };
+      return { celo: '0', base: '0', linea: '0', polygon: '0' };
     }
     
-    const results = { celo: '0', base: '0', linea: '0' };
+    const results = { celo: '0', base: '0', linea: '0', polygon: '0' };
     
     try {
-      if (targetNetwork === 'celo' || targetNetwork === 'base' || targetNetwork === 'linea') {
+      if (targetNetwork === 'celo' || targetNetwork === 'base' || targetNetwork === 'linea' || targetNetwork === 'polygon') {
         const balance = await fetchBalanceForNetwork(userAddress, targetNetwork);
         results[targetNetwork] = balance;
         return results;
       }
       
-      const [celoBalance, baseBalance, lineaBalance] = await Promise.all([
+      const [celoBalance, baseBalance, lineaBalance, polygonBalance] = await Promise.all([
         fetchBalanceForNetwork(userAddress, 'celo'),
         fetchBalanceForNetwork(userAddress, 'base'),
-        fetchBalanceForNetwork(userAddress, 'linea')
+        fetchBalanceForNetwork(userAddress, 'linea'),
+        fetchBalanceForNetwork(userAddress, 'polygon')
       ]);
       
       results.celo = celoBalance;
       results.base = baseBalance;
       results.linea = lineaBalance;
+      results.polygon = polygonBalance;
       
     } catch (error) {
       console.error('Error getting other user balance:', error);
@@ -316,6 +368,7 @@ export const useWeb3 = (address) => {
     isCelo,
     isBase,
     isLinea,
+    isPolygon,
     supportsDailyRewards: isCelo || isLinea,
     supportsSeasonSystem: isCelo,
     supportsSubscriptions: isBase,

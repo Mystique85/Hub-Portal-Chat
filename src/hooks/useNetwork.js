@@ -5,13 +5,14 @@ export const useNetwork = () => {
   const { chain } = useAccount();
   
   const getCurrentNetwork = () => {
-    if (!chain || !chain.id) return 'celo'; // Zmiana z null na 'celo'
+    if (!chain || !chain.id) return 'celo';
     
     if (chain.id === NETWORK_CONFIG.celo.chainId) return 'celo';
     if (chain.id === NETWORK_CONFIG.base.chainId) return 'base';
     if (chain.id === NETWORK_CONFIG.linea.chainId) return 'linea';
+    if (chain.id === NETWORK_CONFIG.polygon.chainId) return 'polygon';
     
-    return 'celo'; // Zmiana z null na 'celo'
+    return 'celo';
   };
 
   const currentNetwork = getCurrentNetwork();
@@ -25,10 +26,12 @@ export const useNetwork = () => {
     isCelo: currentNetwork === 'celo',
     isBase: currentNetwork === 'base',
     isLinea: currentNetwork === 'linea',
+    isPolygon: currentNetwork === 'polygon',
     tokenSymbol: networkConfig.symbol,
     networkName: networkConfig.name,
     networkIcon: networkDetails.icon,
-    supportsDailyRewards: currentNetwork === 'celo' || currentNetwork === 'linea' || currentNetwork === 'base', // DODANO BASE
+    // POPRAWKA: Dodaj Polygon do warunku
+    supportsDailyRewards: currentNetwork === 'celo' || currentNetwork === 'linea' || currentNetwork === 'base' || currentNetwork === 'polygon',
     supportsSeasonSystem: currentNetwork === 'celo',
     supportsSubscriptions: currentNetwork === 'base',
     supportsTokenTransfers: true,
@@ -45,7 +48,7 @@ export const useNetwork = () => {
       duration: '30 days'
     } : null,
     isNetworkAvailable: (network) => {
-      const availableNetworks = ['celo', 'base', 'linea'];
+      const availableNetworks = ['celo', 'base', 'linea', 'polygon'];
       return availableNetworks.includes(network);
     }
   };
