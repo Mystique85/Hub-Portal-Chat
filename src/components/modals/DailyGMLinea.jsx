@@ -7,7 +7,6 @@ const GM_CONTRACT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"con
 
 const GM_CONTRACT_ADDRESS = "0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8";
 
-// ABI dla mUSD dla approve
 const MUSD_ABI = [
   {
     "constant": false,
@@ -47,14 +46,11 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const [musdAllowance, setMusdAllowance] = useState("0");
   const [isApproving, setIsApproving] = useState(false);
   const [musdTokenAddress, setMusdTokenAddress] = useState(null);
-  const [showHowItWorks, setShowHowItWorks] = useState(false); // Nowy stan dla dropdownu
-  
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
   const { writeContractAsync, isPending: isSending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
   });
-
-  // Pobierz statystyki użytkownika
   const { data: statsData, refetch: refetchStats } = useReadContract({
     address: GM_CONTRACT_ADDRESS,
     abi: GM_CONTRACT_ABI,
@@ -62,32 +58,18 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     args: [address],
     enabled: isOpen && !!address,
   });
-
-  // Pobierz adres mUSD tokena
   const { data: musdTokenData } = useReadContract({
     address: GM_CONTRACT_ADDRESS,
     abi: GM_CONTRACT_ABI,
     functionName: 'MUSD_TOKEN',
     enabled: isOpen,
   });
-
-  // Pobierz opłatę
   const { data: feeData } = useReadContract({
     address: GM_CONTRACT_ADDRESS,
     abi: GM_CONTRACT_ABI,
     functionName: 'GM_FEE',
     enabled: isOpen,
   });
-
-  // Pobierz adres prize pool
-  const { data: prizePoolData } = useReadContract({
-    address: GM_CONTRACT_ADDRESS,
-    abi: GM_CONTRACT_ABI,
-    functionName: 'PRIZE_POOL',
-    enabled: isOpen,
-  });
-
-  // Pobierz balance i allowance mUSD
   const { data: musdData } = useReadContracts({
     contracts: [
       {
@@ -105,27 +87,23 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     ],
     enabled: isOpen && !!address && !!musdTokenData,
   });
-
   useEffect(() => {
     if (musdTokenData) {
       setMusdTokenAddress(musdTokenData);
     }
   }, [musdTokenData]);
-
   useEffect(() => {
     if (feeData) {
-      const feeInMUSD = Number(feeData) / 10**6; // mUSD ma 6 decimals
+      const feeInMUSD = Number(feeData) / 10**6;
       setFeeAmount(feeInMUSD.toFixed(2));
     }
   }, [feeData]);
-
   useEffect(() => {
     if (musdData && musdData[0] && musdData[1]) {
       setMusdBalance((Number(musdData[0].result) / 10**6).toFixed(2));
       setMusdAllowance((Number(musdData[1].result) / 10**6).toFixed(2));
     }
   }, [musdData]);
-
   useEffect(() => {
     if (statsData) {
       const [currentStreak, longestStreak, totalGMs, lastGMTimestamp, totalSpent, canSendNow, timeRemaining] = statsData;
@@ -140,7 +118,6 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       });
     }
   }, [statsData]);
-
   useEffect(() => {
     if (isConfirmed && txHash) {
       refetchStats();
@@ -149,31 +126,24 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       }, 3000);
     }
   }, [isConfirmed, txHash, onClose, refetchStats]);
-
   const checkMUSDApproval = () => {
     const requiredAllowance = parseFloat(feeAmount);
     const currentAllowance = parseFloat(musdAllowance);
     return currentAllowance >= requiredAllowance;
   };
-
   const handleApproveMUSD = async () => {
     if (!address || !musdTokenAddress) return;
-
     setIsApproving(true);
     try {
-      const feeInWei = parseUnits(feeAmount, 6); // mUSD has 6 decimals
-      
+      const feeInWei = parseUnits(feeAmount, 6);
       const hash = await writeContractAsync({
         address: musdTokenAddress,
         abi: MUSD_ABI,
         functionName: 'approve',
         args: [GM_CONTRACT_ADDRESS, feeInWei],
       });
-
       if (hash) {
-        // Wait for approval
         await new Promise(resolve => setTimeout(resolve, 3000));
-        // Refresh allowance
         if (musdData && musdData[1]) {
           setMusdAllowance(feeAmount);
         }
@@ -185,33 +155,25 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       setIsApproving(false);
     }
   };
-
   const handleSendGM = async () => {
     if (!address) {
       alert('❌ Please connect your wallet first');
       return;
     }
-
     if (!userStats?.canSendNow) {
       alert('⏰ You can only send GM once per 24 hours');
       return;
     }
-
-    // Check mUSD balance
     const userBalance = parseFloat(musdBalance);
     const requiredFee = parseFloat(feeAmount);
-    
     if (userBalance < requiredFee) {
       alert(`❌ Insufficient mUSD balance. You need ${feeAmount} mUSD, but you have ${musdBalance} mUSD`);
       return;
     }
-
-    // Check mUSD approval
     if (!checkMUSDApproval()) {
       alert(`❌ Please approve ${feeAmount} mUSD spending first`);
       return;
     }
-
     try {
       const hash = await writeContractAsync({
         address: GM_CONTRACT_ADDRESS,
@@ -219,13 +181,11 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
         functionName: 'sendGM',
         args: [],
       });
-      
       if (hash) {
         setTxHash(hash);
       }
     } catch (error) {
       console.error('❌ GM failed:', error);
-      
       if (error.message?.includes('user rejected')) {
         alert('❌ Transaction was rejected');
       } else if (error.message?.includes('Insufficient mUSD balance')) {
@@ -239,13 +199,11 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       }
     }
   };
-
   const formatTime = (seconds) => {
     if (!seconds || seconds === 0) return 'Now';
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     } else if (minutes > 0) {
@@ -254,15 +212,12 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       return `${secs}s`;
     }
   };
-
   const formatDate = (timestamp) => {
     if (!timestamp || timestamp === 0) return 'Never';
     return new Date(timestamp).toLocaleDateString() + ' ' + new Date(timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   };
-
   const ModalContent = () => {
     if (!isOpen) return null;
-
     if (txHash && !isConfirmed) {
       return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
@@ -270,11 +225,9 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-500 mx-auto mb-4"></div>
             <h2 className="text-2xl font-bold text-cyan-400 mb-2">Sending GM... ⚡</h2>
             <p className="text-gray-400 mb-4">Processing {feeAmount} mUSD transaction to prize pool...</p>
-            
             <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
               <div className="bg-cyan-500 h-2 rounded-full animate-pulse"></div>
             </div>
-            
             {txHash && (
               <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-3 mb-4">
                 <p className="text-cyan-300 break-all text-xs">
@@ -294,7 +247,6 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
         </div>
       );
     }
-
     if (isConfirmed) {
       return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
@@ -307,8 +259,7 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
               <p className="text-green-300 font-semibold">
                 ✅ Transaction confirmed!<br/>
-                🔥 Your streak is now: {userStats ? userStats.currentStreak + 1 : 1} days<br/>
-                💰 Funds sent to prize pool
+                ⚡ Your total GMs are now: {userStats ? userStats.totalGMs + 1 : 1}
               </p>
             </div>
             <button
@@ -321,11 +272,9 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
         </div>
       );
     }
-
     const hasSufficientBalance = parseFloat(musdBalance) >= parseFloat(feeAmount);
     const isApproved = checkMUSDApproval();
     const canSendGM = userStats?.canSendNow && hasSufficientBalance && isApproved;
-
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
         <div className={`bg-gray-800/90 backdrop-blur-xl border border-cyan-500/40 rounded-2xl p-6 max-w-md w-full mx-auto ${
@@ -345,39 +294,23 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               ×
             </button>
           </div>
-
           <div className="space-y-4">
             {userStats && (
               <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600/50">
-                <div className="grid grid-cols-3 gap-4 text-center mb-4">
-                  <div>
-                    <div className="text-2xl font-bold text-orange-400">{userStats.currentStreak}</div>
-                    <div className="text-xs text-gray-400">Current Streak</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-cyan-400">{userStats.longestStreak}</div>
-                    <div className="text-xs text-gray-400">Longest Streak</div>
-                  </div>
+                <div className="grid grid-cols-1 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold text-green-400">{userStats.totalGMs}</div>
                     <div className="text-xs text-gray-400">Total GMs</div>
                   </div>
                 </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-center text-sm">
+                <div className="text-center text-sm mt-4">
                   <div className="text-gray-300">
                     <div className="font-semibold">Last GM:</div>
                     <div>{formatDate(userStats.lastGMTimestamp)}</div>
                   </div>
-                  <div className="text-gray-300">
-                    <div className="font-semibold">Total Spent:</div>
-                    <div className="text-green-400">{(parseInt(userStats.totalSpent) / 10**6).toFixed(2)} mUSD</div>
-                  </div>
                 </div>
               </div>
             )}
-
-            {/* mUSD Status */}
             <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600/50">
               <div className="grid grid-cols-2 gap-4 mb-3">
                 <div className="text-center">
@@ -393,7 +326,6 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   <div className="text-xs text-gray-400">Allowance Status</div>
                 </div>
               </div>
-              
               {!isApproved && (
                 <button
                   onClick={handleApproveMUSD}
@@ -415,13 +347,11 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </button>
               )}
             </div>
-
             <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-xl p-4">
               <div className="text-center mb-3">
                 <div className="text-2xl font-bold text-cyan-400">{feeAmount} mUSD</div>
                 <div className="text-sm text-cyan-300">Daily GM Fee</div>
               </div>
-              
               <div className="text-center">
                 <div className="text-green-400 text-sm mb-1">
                   💰 {feeAmount} mUSD goes directly to prize pool
@@ -430,7 +360,6 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   Pool: 0xd302...F73D6
                 </div>
               </div>
-              
               {userStats && !userStats.canSendNow && userStats.timeRemaining > 0 && (
                 <div className="text-center mt-3 pt-3 border-t border-cyan-500/20">
                   <div className="text-orange-400 text-sm">
@@ -439,8 +368,6 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
               )}
             </div>
-
-            {/* Collapsible How It Works Section */}
             <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl overflow-hidden">
               <button
                 onClick={() => setShowHowItWorks(!showHowItWorks)}
@@ -461,7 +388,6 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   </svg>
                 </div>
               </button>
-              
               {showHowItWorks && (
                 <div className="px-4 pb-3 border-t border-purple-500/20 pt-2">
                   <ul className="space-y-1.5 text-sm">
@@ -489,7 +415,6 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
               )}
             </div>
-
             <button
               onClick={handleSendGM}
               disabled={!canSendGM || isSending || isConfirming}
@@ -528,7 +453,6 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 'Send GM'
               )}
             </button>
-
             <div className="text-center">
               <div className="text-xs text-gray-400">
                 <p>Streaks are recorded on-chain • Contract: 0x4e4F...D4a8</p>
@@ -540,7 +464,6 @@ const DailyGMLinea = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       </div>
     );
   };
-
   return ReactDOM.createPortal(<ModalContent />, document.body);
 };
 
