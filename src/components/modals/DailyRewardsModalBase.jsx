@@ -48,12 +48,10 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const [usdcAllowance, setUsdcAllowance] = useState("0");
   const [isApproving, setIsApproving] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
-  
   const { writeContractAsync, isPending: isSending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
   });
-
   const { data: statsData, refetch: refetchStats } = useReadContract({
     address: GM_CONTRACT_ADDRESS,
     abi: GM_CONTRACT_ABI,
@@ -61,21 +59,12 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     args: [address],
     enabled: isOpen && !!address,
   });
-
   const { data: feeData } = useReadContract({
     address: GM_CONTRACT_ADDRESS,
     abi: GM_CONTRACT_ABI,
     functionName: 'gmFee',
     enabled: isOpen,
   });
-
-  const { data: usdcTokenData } = useReadContract({
-    address: GM_CONTRACT_ADDRESS,
-    abi: GM_CONTRACT_ABI,
-    functionName: 'USDC_TOKEN',
-    enabled: isOpen,
-  });
-
   const { data: usdcData, error: usdcError, isLoading: usdcLoading } = useReadContracts({
     contracts: [
       {
@@ -93,34 +82,20 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     ],
     enabled: isOpen && !!address,
   });
-
   useEffect(() => {
     if (feeData) {
       const feeInUSDC = Number(feeData) / 10**6;
       setFeeAmount(feeInUSDC.toFixed(2));
     }
   }, [feeData]);
-
   useEffect(() => {
-    console.log('USDC Data:', usdcData);
-    console.log('USDC Error:', usdcError);
-    console.log('USDC Loading:', usdcLoading);
-    
     if (usdcData && usdcData[0] && usdcData[1]) {
-      console.log('USDC Balance raw:', usdcData[0].result);
-      console.log('USDC Allowance raw:', usdcData[1].result);
-      
       const balance = Number(usdcData[0].result) / 10**6;
       const allowance = Number(usdcData[1].result) / 10**6;
-      
-      console.log('USDC Balance parsed:', balance);
-      console.log('USDC Allowance parsed:', allowance);
-      
       setUsdcBalance(balance.toFixed(2));
       setUsdcAllowance(allowance.toFixed(2));
     }
   }, [usdcData, usdcError, usdcLoading]);
-
   useEffect(() => {
     if (statsData) {
       const [currentStreak, longestStreak, totalGMs, lastGMTimestamp, totalSpent, canSendNow, timeRemaining, currentFee] = statsData;
@@ -134,7 +109,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       });
     }
   }, [statsData]);
-
   useEffect(() => {
     if (isConfirmed && txHash) {
       refetchStats();
@@ -143,39 +117,25 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       }, 3000);
     }
   }, [isConfirmed, txHash, onClose, refetchStats]);
-
   const checkUSDCApproval = () => {
     const requiredAllowance = parseFloat(feeAmount);
     const currentAllowance = parseFloat(usdcAllowance);
-    console.log('Check approval:', { requiredAllowance, currentAllowance, feeAmount, usdcAllowance });
     return currentAllowance >= requiredAllowance;
   };
-
   const handleApproveUSDC = async () => {
-    console.log('Approving USDC...');
-    if (!address) {
-      console.error('No address');
-      return;
-    }
-
+    if (!address) return;
     setIsApproving(true);
     try {
       const feeInWei = parseUnits(feeAmount, 6);
-      console.log('Approving amount:', feeAmount, 'in wei:', feeInWei);
-      
       const hash = await writeContractAsync({
         address: USDC_TOKEN_ADDRESS,
         abi: USDC_ABI,
         functionName: 'approve',
         args: [GM_CONTRACT_ADDRESS, feeInWei],
       });
-
-      console.log('Approval hash:', hash);
-      
       if (hash) {
         await new Promise(resolve => setTimeout(resolve, 3000));
         setUsdcAllowance(feeAmount);
-        console.log('Approval completed, allowance set to:', feeAmount);
       }
     } catch (error) {
       console.error('❌ Approval failed:', error);
@@ -184,31 +144,25 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       setIsApproving(false);
     }
   };
-
   const handleSendGM = async () => {
     if (!address) {
       alert('❌ Please connect your wallet first');
       return;
     }
-
     if (!userStats?.canSendNow) {
       alert('⏰ You can only send GM once per 24 hours');
       return;
     }
-
     const userBalance = parseFloat(usdcBalance);
     const requiredFee = parseFloat(feeAmount);
-    
     if (userBalance < requiredFee) {
       alert(`❌ Insufficient USDC balance. You need ${feeAmount} USDC, but you have ${usdcBalance} USDC`);
       return;
     }
-
     if (!checkUSDCApproval()) {
       alert(`❌ Please approve ${feeAmount} USDC spending first`);
       return;
     }
-
     try {
       const hash = await writeContractAsync({
         address: GM_CONTRACT_ADDRESS,
@@ -216,13 +170,11 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
         functionName: 'sendGM',
         args: [],
       });
-      
       if (hash) {
         setTxHash(hash);
       }
     } catch (error) {
       console.error('❌ GM failed:', error);
-      
       if (error.message?.includes('user rejected')) {
         alert('❌ Transaction was rejected');
       } else if (error.message?.includes('Insufficient USDC balance')) {
@@ -236,13 +188,11 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       }
     }
   };
-
   const formatTime = (seconds) => {
     if (!seconds || seconds === 0) return 'Now';
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     } else if (minutes > 0) {
@@ -251,15 +201,12 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       return `${secs}s`;
     }
   };
-
   const formatDate = (timestamp) => {
     if (!timestamp || timestamp === 0) return 'Never';
     return new Date(timestamp).toLocaleDateString() + ' ' + new Date(timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   };
-
   const ModalContent = () => {
     if (!isOpen) return null;
-
     if (txHash && !isConfirmed) {
       return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
@@ -267,11 +214,9 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
             <h2 className="text-2xl font-bold text-blue-400 mb-2">Sending GM... ⚡</h2>
             <p className="text-gray-400 mb-4">Processing transaction...</p>
-            
             <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
               <div className="bg-blue-500 h-2 rounded-full animate-pulse"></div>
             </div>
-            
             {txHash && (
               <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 mb-4">
                 <p className="text-blue-300 break-all text-xs">
@@ -291,7 +236,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
         </div>
       );
     }
-
     if (isConfirmed) {
       return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
@@ -304,8 +248,7 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
               <p className="text-green-300 font-semibold">
                 ✅ Transaction confirmed!<br/>
-                🔥 Your streak is now: {userStats ? userStats.currentStreak + 1 : 1} days<br/>
-                ⚡ Longer streak = bigger rewards!
+                ⚡ Your total GMs are now: {userStats ? userStats.totalGMs + 1 : 1}
               </p>
             </div>
             <button
@@ -318,21 +261,9 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
         </div>
       );
     }
-
     const hasSufficientBalance = parseFloat(usdcBalance) >= parseFloat(feeAmount);
     const isApproved = checkUSDCApproval();
     const canSendGM = userStats?.canSendNow && hasSufficientBalance && isApproved;
-
-    console.log('Modal render:', {
-      hasSufficientBalance,
-      isApproved,
-      canSendGM,
-      usdcBalance,
-      feeAmount,
-      usdcAllowance,
-      userStatsCanSendNow: userStats?.canSendNow
-    });
-
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
         <div className={`bg-gray-800/90 backdrop-blur-xl border border-blue-500/40 rounded-2xl p-6 max-w-md w-full mx-auto ${
@@ -352,26 +283,16 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               ×
             </button>
           </div>
-
           <div className="space-y-4">
             {userStats && (
               <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600/50">
-                <div className="grid grid-cols-3 gap-4 text-center mb-6">
-                  <div>
-                    <div className="text-2xl font-bold text-orange-400">{userStats.currentStreak}</div>
-                    <div className="text-xs text-gray-400">Current Streak</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-cyan-400">{userStats.longestStreak}</div>
-                    <div className="text-xs text-gray-400">Longest Streak</div>
-                  </div>
+                <div className="grid grid-cols-1 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold text-green-400">{userStats.totalGMs}</div>
                     <div className="text-xs text-gray-400">Total GMs</div>
                   </div>
                 </div>
-                
-                <div className="text-center text-sm">
+                <div className="text-center text-sm mt-4">
                   <div className="text-gray-300">
                     <div className="font-semibold">Last GM:</div>
                     <div>{formatDate(userStats.lastGMTimestamp)}</div>
@@ -379,13 +300,11 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
               </div>
             )}
-
             <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded-xl p-4">
               <div className="text-center mb-3">
                 <div className="text-2xl font-bold text-blue-400">Daily GM</div>
                 <div className="text-sm text-blue-300">Send your daily GM</div>
               </div>
-              
               {userStats && !userStats.canSendNow && userStats.timeRemaining > 0 && (
                 <div className="text-center mt-3 pt-3 border-t border-blue-500/20">
                   <div className="text-orange-400 text-sm">
@@ -394,7 +313,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
               )}
             </div>
-
             <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600/50">
               <div className="text-center mb-3">
                 <div className={`text-lg font-bold ${hasSufficientBalance ? 'text-green-400' : 'text-red-400'}`}>
@@ -404,7 +322,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   Allowance: {usdcAllowance} USDC {isApproved ? '✅' : '❌'}
                 </div>
               </div>
-              
               {!isApproved && (
                 <button
                   onClick={handleApproveUSDC}
@@ -426,7 +343,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </button>
               )}
             </div>
-
             <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl overflow-hidden">
               <button
                 onClick={() => setShowHowItWorks(!showHowItWorks)}
@@ -447,7 +363,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   </svg>
                 </div>
               </button>
-              
               {showHowItWorks && (
                 <div className="px-4 pb-3 border-t border-purple-500/20 pt-2">
                   <ul className="space-y-1.5 text-sm">
@@ -471,7 +386,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
               )}
             </div>
-
             <button
               onClick={handleSendGM}
               disabled={!canSendGM || isSending || isConfirming}
@@ -510,7 +424,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 'Send GM'
               )}
             </button>
-
             <div className="text-center">
               <div className="text-xs text-gray-400">
                 <p>Streaks are recorded on-chain • Contract: 0x2201...D9Ca</p>
@@ -522,7 +435,6 @@ const DailyGMBase = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       </div>
     );
   };
-
   return ReactDOM.createPortal(<ModalContent />, document.body);
 };
 

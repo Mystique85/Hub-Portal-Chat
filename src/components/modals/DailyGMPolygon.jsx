@@ -13,12 +13,10 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const [txHash, setTxHash] = useState(null);
   const [feeAmount, setFeeAmount] = useState("0.1");
   const [showHowItWorks, setShowHowItWorks] = useState(false);
-  
   const { writeContractAsync, isPending: isSending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
   });
-
   const { data: statsData, refetch: refetchStats } = useReadContract({
     address: GM_CONTRACT_ADDRESS,
     abi: GM_CONTRACT_ABI,
@@ -26,21 +24,18 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
     args: [address],
     enabled: isOpen && !!address,
   });
-
   const { data: feeData } = useReadContract({
     address: GM_CONTRACT_ADDRESS,
     abi: GM_CONTRACT_ABI,
     functionName: 'gmFee',
     enabled: isOpen,
   });
-
   useEffect(() => {
     if (feeData) {
       const feeInPOL = Number(feeData) / 1e18;
       setFeeAmount(feeInPOL.toFixed(1));
     }
   }, [feeData]);
-
   useEffect(() => {
     if (statsData) {
       const [currentStreak, longestStreak, totalGMs, lastGMTimestamp, totalSpent, canSendNow, timeRemaining, currentFee] = statsData;
@@ -54,7 +49,6 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       });
     }
   }, [statsData]);
-
   useEffect(() => {
     if (isConfirmed && txHash) {
       refetchStats();
@@ -63,18 +57,15 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       }, 3000);
     }
   }, [isConfirmed, txHash, onClose, refetchStats]);
-
   const handleSendGM = async () => {
     if (!address) {
       alert('❌ Please connect your wallet first');
       return;
     }
-
     if (!userStats?.canSendNow) {
       alert('⏰ You can only send GM once per 24 hours');
       return;
     }
-
     try {
       const hash = await writeContractAsync({
         address: GM_CONTRACT_ADDRESS,
@@ -83,13 +74,11 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
         args: [],
         value: parseEther(feeAmount),
       });
-      
       if (hash) {
         setTxHash(hash);
       }
     } catch (error) {
       console.error('❌ GM failed:', error);
-      
       if (error.message?.includes('user rejected')) {
         alert('❌ Transaction was rejected');
       } else if (error.message?.includes('insufficient funds')) {
@@ -103,13 +92,11 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       }
     }
   };
-
   const formatTime = (seconds) => {
     if (!seconds || seconds === 0) return 'Now';
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     } else if (minutes > 0) {
@@ -118,15 +105,12 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       return `${secs}s`;
     }
   };
-
   const formatDate = (timestamp) => {
     if (!timestamp || timestamp === 0) return 'Never';
     return new Date(timestamp).toLocaleDateString() + ' ' + new Date(timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   };
-
   const ModalContent = () => {
     if (!isOpen) return null;
-
     if (txHash && !isConfirmed) {
       return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
@@ -134,11 +118,9 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-500 mx-auto mb-4"></div>
             <h2 className="text-2xl font-bold text-purple-400 mb-2">Sending GM... ⚡</h2>
             <p className="text-gray-400 mb-4">Processing transaction on Polygon...</p>
-            
             <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
               <div className="bg-purple-500 h-2 rounded-full animate-pulse"></div>
             </div>
-            
             {txHash && (
               <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-3 mb-4">
                 <p className="text-purple-300 break-all text-xs">
@@ -158,7 +140,6 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
         </div>
       );
     }
-
     if (isConfirmed) {
       return (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
@@ -171,8 +152,7 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
             <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 mb-6">
               <p className="text-green-300 font-semibold">
                 ✅ Transaction confirmed!<br/>
-                🔥 Your streak is now: {userStats ? userStats.currentStreak + 1 : 1} days<br/>
-                ⚡ Longer streak = bigger rewards!
+                ⚡ Your total GMs are now: {userStats ? userStats.totalGMs + 1 : 1}
               </p>
             </div>
             <button
@@ -185,7 +165,6 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
         </div>
       );
     }
-
     return (
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
         <div className={`bg-gray-800/90 backdrop-blur-xl border border-purple-500/40 rounded-2xl p-6 max-w-md w-full mx-auto ${
@@ -205,26 +184,16 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
               ×
             </button>
           </div>
-
           <div className="space-y-4">
             {userStats && (
               <div className="bg-gray-700/50 rounded-xl p-4 border border-gray-600/50">
-                <div className="grid grid-cols-3 gap-4 text-center mb-6">
-                  <div>
-                    <div className="text-2xl font-bold text-orange-400">{userStats.currentStreak}</div>
-                    <div className="text-xs text-gray-400">Current Streak</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-cyan-400">{userStats.longestStreak}</div>
-                    <div className="text-xs text-gray-400">Longest Streak</div>
-                  </div>
+                <div className="grid grid-cols-1 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold text-green-400">{userStats.totalGMs}</div>
                     <div className="text-xs text-gray-400">Total GMs</div>
                   </div>
                 </div>
-                
-                <div className="text-center text-sm">
+                <div className="text-center text-sm mt-4">
                   <div className="text-gray-300">
                     <div className="font-semibold">Last GM:</div>
                     <div>{formatDate(userStats.lastGMTimestamp)}</div>
@@ -232,13 +201,11 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
               </div>
             )}
-
             <div className="bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border border-purple-500/30 rounded-xl p-4">
               <div className="text-center mb-3">
                 <div className="text-2xl font-bold text-purple-400">Daily GM</div>
                 <div className="text-sm text-purple-300">Send your daily GM</div>
               </div>
-              
               {userStats && !userStats.canSendNow && userStats.timeRemaining > 0 && (
                 <div className="text-center mt-3 pt-3 border-t border-purple-500/20">
                   <div className="text-orange-400 text-sm">
@@ -247,7 +214,6 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
               )}
             </div>
-
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl overflow-hidden">
               <button
                 onClick={() => setShowHowItWorks(!showHowItWorks)}
@@ -268,7 +234,6 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                   </svg>
                 </div>
               </button>
-              
               {showHowItWorks && (
                 <div className="px-4 pb-3 border-t border-blue-500/20 pt-2">
                   <ul className="space-y-1.5 text-sm">
@@ -292,7 +257,6 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </div>
               )}
             </div>
-
             <button
               onClick={handleSendGM}
               disabled={!userStats?.canSendNow || isSending || isConfirming}
@@ -319,7 +283,6 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
                 </span>
               )}
             </button>
-
             <div className="text-center">
               <div className="text-xs text-gray-400">
                 <p>Streaks are recorded on-chain • Contract: 0x12F9...8444</p>
@@ -331,8 +294,7 @@ const DailyGMPolygon = ({ isOpen, onClose, currentUser, isMobile = false }) => {
       </div>
     );
   };
-
   return ReactDOM.createPortal(<ModalContent />, document.body);
 };
 
-export default DailyGMPolygon
+export default DailyGMPolygon;
