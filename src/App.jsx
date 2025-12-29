@@ -18,6 +18,7 @@ import BaseLeaderboardModal from './components/modals/BaseLeaderboardModal';
 import SubscriptionModal from './components/modals/SubscriptionModal';
 import StakingModal from './components/modals/StakingModal';
 import DailyGMLinea from './components/modals/DailyGMLinea';
+import DailyGMPolygon from './components/modals/DailyGMPolygon'; 
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
@@ -38,10 +39,11 @@ function App() {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [showStakingModal, setShowStakingModal] = useState(false);
   const [showDailyStreakLinea, setShowDailyStreakLinea] = useState(false);
+  const [showDailyStreakPolygon, setShowDailyStreakPolygon] = useState(false);
   
   const [activeChat, setActiveChat] = useState('public');
   
-  const { isCelo, isBase, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
+  const { isCelo, isBase, isLinea, isPolygon, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
   useEffect(() => {
     (async () => {
@@ -147,40 +149,92 @@ function App() {
             HUB Portal
           </h1>
           <p className="text-gray-400 mb-1">Multi-Chain Social Chat</p>
-          <p className="text-gray-400 text-sm mb-6">Celo • Base • Linea Networks</p>
           
           <div className="flex justify-center mb-6">
             <appkit-button />
           </div>
           
           <div className="mb-4">
-            <div className="text-cyan-400 font-semibold text-sm mb-3">🔥 TRIPLE REWARD SYSTEM</div>
+            <div className="text-cyan-400 font-semibold text-sm mb-3">🚀 QUAD ECOSYSTEM</div>
             
             <div className="flex justify-center gap-3 text-xs">
-              <div className="bg-gray-700/50 border border-cyan-500/20 rounded-lg p-3 flex-1">
-                <div className="text-cyan-300 font-medium mb-1">🌉 BASE</div>
-                <div className="text-gray-300">• HUB Token Rewards</div>
+              <div className="bg-gray-700/50 border border-blue-500/20 rounded-lg p-3 flex-1">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <img 
+                    src="/Base.logo.jpg" 
+                    alt="Base" 
+                    className="w-4 h-4 object-cover rounded"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<span class="text-blue-400 text-sm">🌉</span>`;
+                    }}
+                  />
+                  <div className="text-blue-300 font-medium">BASE</div>
+                </div>
+                <div className="text-gray-300">• HUB Token Mining</div>
                 <div className="text-gray-300">• Subscription System</div>
                 <div className="text-gray-300">• Staking</div>
               </div>
               
               <div className="bg-gray-700/50 border border-yellow-500/20 rounded-lg p-3 flex-1">
-                <div className="text-yellow-300 font-medium mb-1">📱 CELO</div>
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <img 
+                    src="/Celo.logo.jpg" 
+                    alt="Celo" 
+                    className="w-4 h-4 object-cover rounded"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<span class="text-yellow-400 text-sm">📱</span>`;
+                    }}
+                  />
+                  <div className="text-yellow-300 font-medium">CELO</div>
+                </div>
                 <div className="text-gray-300">• HC Token Mining</div>
-                <div className="text-gray-300">• Daily CELO Rewards</div>
                 <div className="text-gray-300">• Season System</div>
+                <div className="text-gray-300">• Daily GM Rewards</div>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-3 text-xs mt-3">
+              <div className="bg-gray-700/50 border border-cyan-500/20 rounded-lg p-3 flex-1">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <img 
+                    src="/Linea.logo.png" 
+                    alt="Linea" 
+                    className="w-4 h-4 object-cover rounded"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<span class="text-cyan-400 text-sm">🚀</span>`;
+                    }}
+                  />
+                  <div className="text-cyan-300 font-medium">LINEA</div>
+                </div>
+                <div className="text-gray-300">• LPX Token Mining</div>
+                <div className="text-gray-300">• 100 messages daily</div>
+                <div className="text-gray-300">• Daily GM Rewards</div>
               </div>
 
-              <div className="bg-gray-700/50 border border-cyan-500/20 rounded-lg p-3 flex-1">
-                <div className="text-cyan-300 font-medium mb-1">🚀 LINEA</div>
-                <div className="text-gray-300">• LINA Token Rewards</div>
-                <div className="text-gray-300">• Daily ETH Rewards</div>
-                <div className="text-gray-300">• Coming Soon!</div>
+              <div className="bg-gray-700/50 border border-purple-500/20 rounded-lg p-3 flex-1">
+                <div className="flex items-center justify-center gap-1 mb-1">
+                  <img 
+                    src="/Polygon.logo.jpg" 
+                    alt="Polygon" 
+                    className="w-4 h-4 object-cover rounded"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<span class="text-purple-400 text-sm">🔶</span>`;
+                    }}
+                  />
+                  <div className="text-purple-300 font-medium">POLYGON</div>
+                </div>
+                <div className="text-gray-300">• MSG Token Mining</div>
+                <div className="text-gray-300">• Message Protocol</div>
+                <div className="text-gray-300">• Daily GM Rewards</div>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-center">
+          <div className="flex justify-center mt-4">
             <LoginHelpTooltip />
           </div>
         </div>
@@ -411,6 +465,15 @@ function App() {
         <DailyGMLinea 
           isOpen={showDailyStreakLinea}
           onClose={() => setShowDailyStreakLinea(false)}
+          currentUser={userWithBalance}
+          isMobile={isMobile}
+        />
+      )}
+
+      {showDailyStreakPolygon && (
+        <DailyGMPolygon 
+          isOpen={showDailyStreakPolygon}
+          onClose={() => setShowDailyStreakPolygon(false)}
           currentUser={userWithBalance}
           isMobile={isMobile}
         />

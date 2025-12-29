@@ -153,6 +153,12 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         textColor: 'text-cyan-400',
         logo: '/Linea.logo.png',
         fallbackIcon: '🚀' 
+      },
+      polygon: { 
+        text: 'POLYGON', 
+        textColor: 'text-purple-400',
+        logo: '/Polygon.logo.jpg',
+        fallbackIcon: '🔷' 
       }
     };
     

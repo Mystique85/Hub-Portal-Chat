@@ -20,7 +20,7 @@ const DONATION_CONFIG = {
     color: 'text-yellow-400',
     bgColor: 'bg-yellow-500/10',
     borderColor: 'border-yellow-500/30',
-    icon: '📱'
+    icon: '/Celo.logo.jpg'
   },
   base: {
     symbol: 'USDC',
@@ -31,7 +31,7 @@ const DONATION_CONFIG = {
     color: 'text-blue-400',
     bgColor: 'bg-blue-500/10',
     borderColor: 'border-blue-500/30',
-    icon: '🌉'
+    icon: '/Base.logo.jpg'
   },
   linea: {
     symbol: 'mUSD',
@@ -42,7 +42,17 @@ const DONATION_CONFIG = {
     color: 'text-cyan-400',
     bgColor: 'bg-cyan-500/10',
     borderColor: 'border-cyan-500/30',
-    icon: '🚀'
+    icon: '/Linea.logo.png'
+  },
+  polygon: {
+    symbol: 'POL',
+    decimals: 18,
+    explorer: 'https://polygonscan.com',
+    isNative: true,
+    color: 'text-purple-400',
+    bgColor: 'bg-purple-500/10',
+    borderColor: 'border-purple-500/30',
+    icon: '/Polygon.logo.jpg'
   }
 };
 
@@ -68,7 +78,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
   const [txHash, setTxHash] = useState(null);
   const [currentStep, setCurrentStep] = useState('select');
 
-  const { currentNetwork, isCelo, isBase, isLinea, networkConfig } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, networkConfig } = useNetwork();
 
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
 
@@ -83,11 +93,13 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
       if (isCelo) return ['0.1', '0.5', '1', '5'];
       if (isBase) return ['1', '5', '10', '20'];
       if (isLinea) return ['1', '5', '10', '20'];
+      if (isPolygon) return ['0.1', '0.5', '1', '5'];
       return ['0.1', '0.5', '1', '5'];
     } else {
       if (isCelo) return ['0.1', '0.5', '1', '5', '10'];
       if (isBase) return ['1', '5', '10', '20', '50'];
       if (isLinea) return ['1', '5', '10', '20', '50'];
+      if (isPolygon) return ['0.1', '0.5', '1', '5', '10'];
       return ['0.1', '0.5', '1', '5', '10'];
     }
   };
@@ -141,7 +153,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
       let hash;
 
       if (donationConfig.isNative) {
-        // Dla native tokenów (CELO) - prosty transfer
+        // Dla native tokenów (CELO, POL) - prosty transfer
         hash = await writeContractAsync({
           address: DONATION_ADDRESS,
           abi: [{
@@ -192,6 +204,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     if (isCelo) return 'Donate in CELO';
     if (isBase) return 'Donate in USDC';
     if (isLinea) return 'Donate in mUSD';
+    if (isPolygon) return 'Donate in POL';
     return 'Donate';
   };
 
@@ -203,6 +216,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     if (isCelo) return 'CeloScan';
     if (isBase) return 'BaseScan';
     if (isLinea) return 'LineaScan';
+    if (isPolygon) return 'PolygonScan';
     return 'Explorer';
   };
 
@@ -210,6 +224,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     if (isCelo) return 'CELO is the native token of Celo network';
     if (isBase) return 'USDC is the stablecoin on Base network';
     if (isLinea) return 'mUSD is the stablecoin on Linea network';
+    if (isPolygon) return 'POL (MATIC) is the native token of Polygon network';
     return '';
   };
 
@@ -302,9 +317,24 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
           }`}>
             <div className={`flex items-center justify-between ${isMobile ? 'mb-4' : 'mb-6'}`}>
               <div className="flex items-center gap-2">
-                <span className={`${donationConfig.color} ${isMobile ? 'text-lg' : 'text-xl'}`}>
-                  {donationConfig.icon}
-                </span>
+                <div className={`w-${isMobile ? '5' : '6'} h-${isMobile ? '5' : '6'} flex items-center justify-center`}>
+                  <img 
+                    src={donationConfig.icon}
+                    alt={networkConfig.name}
+                    className="w-full h-full object-cover rounded"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<span class="${donationConfig.color} ${
+                        isMobile ? 'text-lg' : 'text-xl'
+                      }">${
+                        isCelo ? '📱' :
+                        isBase ? '🌉' :
+                        isLinea ? '🚀' :
+                        isPolygon ? '🔶' : '💝'
+                      }</span>`;
+                    }}
+                  />
+                </div>
                 <h2 className={`font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent ${
                   isMobile ? 'text-lg' : 'text-2xl'
                 }`}>
@@ -330,9 +360,22 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
               
               <div className={`${donationConfig.bgColor} border ${donationConfig.borderColor} rounded-xl p-4 mb-4`}>
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className={`${donationConfig.color} ${isMobile ? 'text-sm' : 'text-base'}`}>
-                    {donationConfig.icon}
-                  </span>
+                  <div className="w-5 h-5 flex items-center justify-center">
+                    <img 
+                      src={donationConfig.icon}
+                      alt={donationConfig.symbol}
+                      className="w-full h-full object-cover rounded"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = `<span class="${donationConfig.color} text-sm">${
+                          isCelo ? '📱' :
+                          isBase ? '🌉' :
+                          isLinea ? '🚀' :
+                          isPolygon ? '🔶' : '💝'
+                        }</span>`;
+                      }}
+                    />
+                  </div>
                   <p className={`${donationConfig.color} text-center ${
                     isMobile ? 'text-xs' : 'text-sm'
                   }`}>

@@ -19,13 +19,15 @@ const UserProfileModal = ({
   const [celoBalance, setCeloBalance] = useState('0');
   const [baseBalance, setBaseBalance] = useState('0');
   const [lineaBalance, setLineaBalance] = useState('0');
+  const [polygonBalance, setPolygonBalance] = useState('0');
   const [loading, setLoading] = useState(true);
   const [showSendModal, setShowSendModal] = useState(false);
   const [seasonStats, setSeasonStats] = useState(null);
   const [networkStatus, setNetworkStatus] = useState({
     celo: 'loading',
     base: 'loading',
-    linea: 'loading'
+    linea: 'loading',
+    polygon: 'loading'
   });
   const [dailyUsage, setDailyUsage] = useState({
     used: 0,
@@ -38,7 +40,7 @@ const UserProfileModal = ({
   const [stakeBadgeInfo, setStakeBadgeInfo] = useState(null);
 
   const network = useNetwork();
-  const { currentNetwork, isCelo, isBase, isLinea, tokenSymbol } = network;
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, tokenSymbol } = network;
   const season = getCurrentSeason();
   
   const isCurrentUserProfile = currentUser?.walletAddress?.toLowerCase() === user?.walletAddress?.toLowerCase();
@@ -192,7 +194,7 @@ const UserProfileModal = ({
       if (!user || !user.walletAddress) return;
       
       setLoading(true);
-      setNetworkStatus({ celo: 'loading', base: 'loading', linea: 'loading' });
+      setNetworkStatus({ celo: 'loading', base: 'loading', linea: 'loading', polygon: 'loading' });
       
       try {
         const userDoc = await getDoc(doc(db, 'users', user.walletAddress.toLowerCase()));
@@ -217,7 +219,6 @@ const UserProfileModal = ({
         
         if (getOtherUserBalance) {
           if (currentUser && user.walletAddress === currentUser.walletAddress) {
-            // Dla aktualnego użytkownika
             if (currentNetwork === 'celo') {
               setCeloBalance(currentUser.balance || '0');
               setNetworkStatus(prev => ({ ...prev, celo: 'live' }));
@@ -227,6 +228,9 @@ const UserProfileModal = ({
             } else if (currentNetwork === 'linea') {
               setLineaBalance(currentUser.balance || '0');
               setNetworkStatus(prev => ({ ...prev, linea: 'live' }));
+            } else if (currentNetwork === 'polygon') {
+              setPolygonBalance(currentUser.balance || '0');
+              setNetworkStatus(prev => ({ ...prev, polygon: 'live' }));
             }
             
             try {
@@ -234,50 +238,82 @@ const UserProfileModal = ({
               if (currentNetwork === 'celo') {
                 setBaseBalance(balances.base || '0');
                 setLineaBalance(balances.linea || '0');
+                setPolygonBalance(balances.polygon || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   base: 'fetched',
-                  linea: 'fetched'
+                  linea: 'fetched',
+                  polygon: 'fetched'
                 }));
               } else if (currentNetwork === 'base') {
                 setCeloBalance(balances.celo || '0');
                 setLineaBalance(balances.linea || '0');
+                setPolygonBalance(balances.polygon || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   celo: 'fetched',
-                  linea: 'fetched'
+                  linea: 'fetched',
+                  polygon: 'fetched'
                 }));
               } else if (currentNetwork === 'linea') {
                 setBaseBalance(balances.base || '0');
                 setCeloBalance(balances.celo || '0');
+                setPolygonBalance(balances.polygon || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   base: 'fetched',
-                  celo: 'fetched'
+                  celo: 'fetched',
+                  polygon: 'fetched'
+                }));
+              } else if (currentNetwork === 'polygon') {
+                setBaseBalance(balances.base || '0');
+                setCeloBalance(balances.celo || '0');
+                setLineaBalance(balances.linea || '0');
+                setNetworkStatus(prev => ({ 
+                  ...prev, 
+                  base: 'fetched',
+                  celo: 'fetched',
+                  linea: 'fetched'
                 }));
               }
             } catch (error) {
-              if (currentNetwork === 'celo') setBaseBalance('0');
-              if (currentNetwork === 'base') setCeloBalance('0');
-              if (currentNetwork === 'linea') setLineaBalance('0');
+              if (currentNetwork === 'celo') {
+                setBaseBalance('0');
+                setLineaBalance('0');
+                setPolygonBalance('0');
+              } else if (currentNetwork === 'base') {
+                setCeloBalance('0');
+                setLineaBalance('0');
+                setPolygonBalance('0');
+              } else if (currentNetwork === 'linea') {
+                setBaseBalance('0');
+                setCeloBalance('0');
+                setPolygonBalance('0');
+              } else if (currentNetwork === 'polygon') {
+                setBaseBalance('0');
+                setCeloBalance('0');
+                setLineaBalance('0');
+              }
             }
           } else {
-            // Dla innych użytkowników
             try {
               const balances = await getOtherUserBalance(user.walletAddress);
               setCeloBalance(balances.celo || '0');
               setBaseBalance(balances.base || '0');
               setLineaBalance(balances.linea || '0');
+              setPolygonBalance(balances.polygon || '0');
               setNetworkStatus({
                 celo: balances.celo !== '0' ? 'fetched' : 'zero',
                 base: balances.base !== '0' ? 'fetched' : 'zero',
-                linea: balances.linea !== '0' ? 'fetched' : 'zero'
+                linea: balances.linea !== '0' ? 'fetched' : 'zero',
+                polygon: balances.polygon !== '0' ? 'fetched' : 'zero'
               });
             } catch (error) {
               setCeloBalance('0');
               setBaseBalance('0');
               setLineaBalance('0');
-              setNetworkStatus({ celo: 'error', base: 'error', linea: 'error' });
+              setPolygonBalance('0');
+              setNetworkStatus({ celo: 'error', base: 'error', linea: 'error', polygon: 'error' });
             }
           }
         }
@@ -321,6 +357,7 @@ const UserProfileModal = ({
     if (network === 'celo' && currentNetwork === 'celo') return 'Live';
     if (network === 'base' && currentNetwork === 'base') return 'Live';
     if (network === 'linea' && currentNetwork === 'linea') return 'Live';
+    if (network === 'polygon' && currentNetwork === 'polygon') return 'Live';
     
     switch(status) {
       case 'live': return 'Live';
@@ -578,16 +615,22 @@ const UserProfileModal = ({
                   isMobile ? 'text-[10px]' : 'text-xs'
                 }`}>Token Balance</div>
                 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {/* HUB Balance - Base */}
                   <div className={`bg-blue-500/10 border rounded-xl p-2 text-center ${
                     currentNetwork === 'base' ? 'border-blue-500/40' : 'border-blue-500/20'
                   }`}>
                     <div className="flex items-center justify-between mb-0.5">
                       <div className="flex items-center gap-1">
-                        <span className={`text-blue-400 ${
-                          isMobile ? 'text-[10px]' : 'text-xs'
-                        }`}>🌉</span>
+                        <img 
+                          src="/Base.logo.jpg" 
+                          alt="Base" 
+                          className="w-4 h-4 object-cover rounded"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = `<span class="text-blue-400">🌉</span>`;
+                          }}
+                        />
                         <span className={`text-blue-300 ${
                           isMobile ? 'text-[9px]' : 'text-[10px]'
                         }`}>Base</span>
@@ -616,9 +659,15 @@ const UserProfileModal = ({
                   }`}>
                     <div className="flex items-center justify-between mb-0.5">
                       <div className="flex items-center gap-1">
-                        <span className={`text-amber-400 ${
-                          isMobile ? 'text-[10px]' : 'text-xs'
-                        }`}>📱</span>
+                        <img 
+                          src="/Celo.logo.jpg" 
+                          alt="Celo" 
+                          className="w-4 h-4 object-cover rounded"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = `<span class="text-amber-400">📱</span>`;
+                          }}
+                        />
                         <span className={`text-amber-300 ${
                           isMobile ? 'text-[9px]' : 'text-[10px]'
                         }`}>Celo</span>
@@ -647,9 +696,15 @@ const UserProfileModal = ({
                   }`}>
                     <div className="flex items-center justify-between mb-0.5">
                       <div className="flex items-center gap-1">
-                        <span className={`text-cyan-400 ${
-                          isMobile ? 'text-[10px]' : 'text-xs'
-                        }`}>🚀</span>
+                        <img 
+                          src="/Linea.logo.png" 
+                          alt="Linea" 
+                          className="w-4 h-4 object-cover rounded"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = `<span class="text-cyan-400">🚀</span>`;
+                          }}
+                        />
                         <span className={`text-cyan-300 ${
                           isMobile ? 'text-[9px]' : 'text-[10px]'
                         }`}>Linea</span>
@@ -670,6 +725,43 @@ const UserProfileModal = ({
                     <div className={`text-cyan-300 ${
                       isMobile ? 'text-[9px]' : 'text-[10px]'
                     }`}>$LPX</div>
+                  </div>
+                  
+                  {/* MSG Balance - Polygon */}
+                  <div className={`bg-purple-500/10 border rounded-xl p-2 text-center ${
+                    currentNetwork === 'polygon' ? 'border-purple-500/40' : 'border-purple-500/20'
+                  }`}>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <div className="flex items-center gap-1">
+                        <img 
+                          src="/Polygon.logo.jpg" 
+                          alt="Polygon" 
+                          className="w-4 h-4 object-cover rounded"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = `<span class="text-purple-400">🔶</span>`;
+                          }}
+                        />
+                        <span className={`text-purple-300 ${
+                          isMobile ? 'text-[9px]' : 'text-[10px]'
+                        }`}>Polygon</span>
+                      </div>
+                      <div className={`px-0.5 py-0.5 rounded ${
+                        networkStatus.polygon === 'live' ? 'bg-purple-500/30 text-purple-300' :
+                        networkStatus.polygon === 'fetched' ? 'bg-purple-500/20 text-purple-400' :
+                        'bg-gray-700/50 text-gray-400'
+                      } ${isMobile ? 'text-[8px]' : 'text-[9px]'}`}>
+                        {getNetworkStatusText('polygon', networkStatus.polygon)}
+                      </div>
+                    </div>
+                    <div className={`text-purple-400 font-bold truncate ${
+                      isMobile ? 'text-sm' : 'text-base'
+                    }`} title={polygonBalance}>
+                      {formatLargeNumber(polygonBalance)}
+                    </div>
+                    <div className={`text-purple-300 ${
+                      isMobile ? 'text-[9px]' : 'text-[10px]'
+                    }`}>$MSG</div>
                   </div>
                 </div>
               </div>

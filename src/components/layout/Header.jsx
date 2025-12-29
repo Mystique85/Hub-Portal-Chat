@@ -5,11 +5,12 @@ import { ADMIN_ADDRESSES, NETWORK_DETAILS } from '../../utils/constants';
 import { useState, useRef, useEffect } from 'react';
 import DailyRewardsModal from '../modals/DailyRewardsModal';
 import DailyRewardsModalBase from '../modals/DailyRewardsModalBase';
-import DailyGMLinea from '../modals/DailyGMLinea'; // DODANY IMPORT
+import DailyGMLinea from '../modals/DailyGMLinea';
+import DailyGMPolygon from '../modals/DailyGMPolygon'; 
 import ReactDOM from 'react-dom';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useSwitchChain } from 'wagmi';
-import { base, celo, linea } from '@reown/appkit/networks';
+import { base, celo, linea, polygon } from '@reown/appkit/networks';
 
 const Header = ({ 
   currentUser, 
@@ -24,6 +25,7 @@ const Header = ({
   const [showDailyStreak, setShowDailyStreak] = useState(false);
   const [showDailyStreakBase, setShowDailyStreakBase] = useState(false);
   const [showDailyStreakLinea, setShowDailyStreakLinea] = useState(false);
+  const [showDailyStreakPolygon, setShowDailyStreakPolygon] = useState(false); // DODAJ
   const [showQuickAccessMenu, setShowQuickAccessMenu] = useState(false);
   const [showNFTInfo, setShowNFTInfo] = useState(false);
   const [showNetworkDropdown, setShowNetworkDropdown] = useState(false);
@@ -41,7 +43,8 @@ const Header = ({
   const { 
     isCelo, 
     isBase, 
-    isLinea, 
+    isLinea,
+    isPolygon,
     tokenSymbol, 
     networkName, 
     networkIcon,
@@ -55,7 +58,6 @@ const Header = ({
   const [showCeloHub, setShowCeloHub] = useState(false);
   const [showDonation, setShowDonation] = useState(false);
 
-  // Obsługa dropdown Quick Access
   useEffect(() => {
     if (showQuickAccessMenu && quickAccessButtonRef.current) {
       const rect = quickAccessButtonRef.current.getBoundingClientRect();
@@ -66,7 +68,6 @@ const Header = ({
     }
   }, [showQuickAccessMenu]);
 
-  // Obsługa dropdown Network Selector
   useEffect(() => {
     if (showNetworkDropdown && networkButtonRef.current) {
       const rect = networkButtonRef.current.getBoundingClientRect();
@@ -77,16 +78,13 @@ const Header = ({
     }
   }, [showNetworkDropdown]);
 
-  // Zamknij dropdowny po kliknięciu na zewnątrz
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Quick Access dropdown
       if (dropdownRef.current && !dropdownRef.current.contains(event.target) &&
           quickAccessButtonRef.current && !quickAccessButtonRef.current.contains(event.target)) {
         setShowQuickAccessMenu(false);
       }
       
-      // Network dropdown
       if (networkDropdownRef.current && !networkDropdownRef.current.contains(event.target) &&
           networkButtonRef.current && !networkButtonRef.current.contains(event.target)) {
         setShowNetworkDropdown(false);
@@ -112,6 +110,8 @@ const Header = ({
         await switchChain({ chainId: base.id });
       } else if (targetNetwork === 'linea') {
         await switchChain({ chainId: linea.id });
+      } else if (targetNetwork === 'polygon') {
+        await switchChain({ chainId: polygon.id });
       }
     } catch (error) {
       console.error('Error switching network:', error);
@@ -243,6 +243,8 @@ const Header = ({
                 setShowDailyStreakBase(true);
               } else if (isLinea) {
                 setShowDailyStreakLinea(true);
+              } else if (isPolygon) {
+                setShowDailyStreakPolygon(true);
               }
               setShowQuickAccessMenu(false);
             }}
@@ -331,6 +333,17 @@ const Header = ({
         bg: 'bg-cyan-500/10',
         isCurrent: isLinea,
         description: 'LPX Token Rewards'
+      },
+      {
+        id: 'polygon',
+        name: 'Polygon',
+        icon: '/Polygon.logo.jpg',
+        symbol: 'MSG',
+        color: 'text-purple-400',
+        border: 'border-purple-500/30',
+        bg: 'bg-purple-500/10',
+        isCurrent: isPolygon,
+        description: 'MSG Token Rewards'
       }
     ];
 
@@ -446,6 +459,19 @@ const Header = ({
         />
       );
     }
+    if (isPolygon) {
+      return (
+        <img 
+          src="/Polygon.logo.jpg" 
+          alt="Polygon" 
+          className="w-5 h-5 object-cover rounded"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<span class="text-lg">🔶</span>`;
+          }}
+        />
+      );
+    }
     return <span className="text-lg">🌐</span>;
   };
 
@@ -521,6 +547,8 @@ const Header = ({
                     setShowDailyStreakBase(true);
                   } else if (isLinea) {
                     setShowDailyStreakLinea(true);
+                  } else if (isPolygon) {
+                    setShowDailyStreakPolygon(true);
                   }
                 }}
                 className="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
@@ -557,6 +585,15 @@ const Header = ({
           <DailyGMLinea 
             isOpen={showDailyStreakLinea}
             onClose={() => setShowDailyStreakLinea(false)}
+            currentUser={currentUser}
+            isMobile={true}
+          />
+        )}
+
+        {showDailyStreakPolygon && isPolygon && (
+          <DailyGMPolygon 
+            isOpen={showDailyStreakPolygon}
+            onClose={() => setShowDailyStreakPolygon(false)}
             currentUser={currentUser}
             isMobile={true}
           />
@@ -703,6 +740,15 @@ const Header = ({
         <DailyGMLinea 
           isOpen={showDailyStreakLinea}
           onClose={() => setShowDailyStreakLinea(false)}
+          currentUser={currentUser}
+          isMobile={false}
+        />
+      )}
+
+      {showDailyStreakPolygon && isPolygon && (
+        <DailyGMPolygon 
+          isOpen={showDailyStreakPolygon}
+          onClose={() => setShowDailyStreakPolygon(false)}
           currentUser={currentUser}
           isMobile={false}
         />
