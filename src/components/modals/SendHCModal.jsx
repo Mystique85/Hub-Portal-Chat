@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { useNetwork } from '../../hooks/useNetwork';
-import { CONTRACT_ADDRESSES, CONTRACT_ABIS, NETWORK_CONFIG, HUB_TOKEN_ADDRESS, MSG_TOKEN_ADDRESS } from '../../utils/constants';
+// POPRAWIONY IMPORT - usunięto MSG_TOKEN_ADDRESS
+import { CONTRACT_ADDRESSES, CONTRACT_ABIS, NETWORK_CONFIG, HUB_TOKEN_ADDRESS } from '../../utils/constants';
 
 const SendHCModal = ({ user, onClose, isMobile = false }) => {
   const [sendAmount, setSendAmount] = useState('');
@@ -82,7 +83,8 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
         contractAddress = CONTRACT_ADDRESSES.linea;
         contractAbi = CONTRACT_ABIS.linea;
       } else if (isPolygon) {
-        contractAddress = MSG_TOKEN_ADDRESS.polygon;
+        // POPRAWIONE - używamy HUB_TOKEN_ADDRESS.polygon zamiast MSG_TOKEN_ADDRESS
+        contractAddress = HUB_TOKEN_ADDRESS.polygon;
         contractAbi = ERC20_ABI;
       }
 
