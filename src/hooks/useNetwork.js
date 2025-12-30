@@ -11,6 +11,7 @@ export const useNetwork = () => {
     if (chain.id === NETWORK_CONFIG.base.chainId) return 'base';
     if (chain.id === NETWORK_CONFIG.linea.chainId) return 'linea';
     if (chain.id === NETWORK_CONFIG.polygon.chainId) return 'polygon';
+    if (chain.id === NETWORK_CONFIG.soneium.chainId) return 'soneium';
     
     return 'celo';
   };
@@ -27,11 +28,11 @@ export const useNetwork = () => {
     isBase: currentNetwork === 'base',
     isLinea: currentNetwork === 'linea',
     isPolygon: currentNetwork === 'polygon',
+    isSoneium: currentNetwork === 'soneium',
     tokenSymbol: networkConfig.symbol,
     networkName: networkConfig.name,
     networkIcon: networkDetails.icon,
-    // POPRAWKA: Dodaj Polygon do warunku
-    supportsDailyRewards: currentNetwork === 'celo' || currentNetwork === 'linea' || currentNetwork === 'base' || currentNetwork === 'polygon',
+    supportsDailyRewards: currentNetwork === 'celo' || currentNetwork === 'linea' || currentNetwork === 'base' || currentNetwork === 'polygon' || currentNetwork === 'soneium',
     supportsSeasonSystem: currentNetwork === 'celo',
     supportsSubscriptions: currentNetwork === 'base',
     supportsTokenTransfers: true,
@@ -48,7 +49,7 @@ export const useNetwork = () => {
       duration: '30 days'
     } : null,
     isNetworkAvailable: (network) => {
-      const availableNetworks = ['celo', 'base', 'linea', 'polygon'];
+      const availableNetworks = ['celo', 'base', 'linea', 'polygon', 'soneium'];
       return availableNetworks.includes(network);
     }
   };

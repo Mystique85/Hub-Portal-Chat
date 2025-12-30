@@ -18,7 +18,8 @@ import BaseLeaderboardModal from './components/modals/BaseLeaderboardModal';
 import SubscriptionModal from './components/modals/SubscriptionModal';
 import StakingModal from './components/modals/StakingModal';
 import DailyGMLinea from './components/modals/DailyGMLinea';
-import DailyGMPolygon from './components/modals/DailyGMPolygon'; 
+import DailyGMPolygon from './components/modals/DailyGMPolygon';
+import DailyGMSoneium from './components/modals/DailyGMSoneium';
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
@@ -27,6 +28,45 @@ import { useSeasons } from './hooks/useSeasons';
 import { useNetwork } from './hooks/useNetwork';
 
 import { AVAILABLE_AVATARS } from './utils/constants';
+
+// Tablica z informacjami o sieciach
+const NETWORKS = [
+  {
+    id: 'base',
+    name: 'BASE',
+    logo: '/Base.logo.jpg',
+    fallbackEmoji: '🌉',
+    color: 'blue'
+  },
+  {
+    id: 'celo',
+    name: 'CELO',
+    logo: '/Celo.logo.jpg',
+    fallbackEmoji: '📱',
+    color: 'yellow'
+  },
+  {
+    id: 'linea',
+    name: 'LINEA',
+    logo: '/Linea.logo.png',
+    fallbackEmoji: '🚀',
+    color: 'cyan'
+  },
+  {
+    id: 'polygon',
+    name: 'POLYGON',
+    logo: '/Polygon.logo.jpg',
+    fallbackEmoji: '🔶',
+    color: 'purple'
+  },
+  {
+    id: 'soneium',
+    name: 'SONEIUM',
+    logo: '/Soneium.logo.jpg',
+    fallbackEmoji: '🌟',
+    color: 'pink'
+  }
+];
 
 function App() {
   const { isConnected, address } = useAccount();
@@ -40,10 +80,11 @@ function App() {
   const [showStakingModal, setShowStakingModal] = useState(false);
   const [showDailyStreakLinea, setShowDailyStreakLinea] = useState(false);
   const [showDailyStreakPolygon, setShowDailyStreakPolygon] = useState(false);
+  const [showDailyStreakSoneium, setShowDailyStreakSoneium] = useState(false);
   
   const [activeChat, setActiveChat] = useState('public');
   
-  const { isCelo, isBase, isLinea, isPolygon, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
+  const { isCelo, isBase, isLinea, isPolygon, isSoneium, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
   useEffect(() => {
     (async () => {
@@ -157,80 +198,59 @@ function App() {
           <div className="mb-4">
             <div className="text-cyan-400 font-semibold text-sm mb-3">🚀 QUAD ECOSYSTEM</div>
             
-            <div className="flex justify-center gap-3 text-xs">
-              <div className="bg-gray-700/50 border border-blue-500/20 rounded-lg p-3 flex-1">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <img 
-                    src="/Base.logo.jpg" 
-                    alt="Base" 
-                    className="w-4 h-4 object-cover rounded"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = `<span class="text-blue-400 text-sm">🌉</span>`;
-                    }}
-                  />
-                  <div className="text-blue-300 font-medium">BASE</div>
+            {/* Zmodyfikowany kontener sieci */}
+            <div className="flex flex-wrap justify-center gap-2">
+              {NETWORKS.map((network) => (
+                <div 
+                  key={network.id}
+                  className={`
+                    bg-gray-700/50 border rounded-lg p-2 flex items-center justify-center gap-2 min-w-[100px]
+                    ${network.color === 'blue' ? 'border-blue-500/20' : ''}
+                    ${network.color === 'yellow' ? 'border-yellow-500/20' : ''}
+                    ${network.color === 'cyan' ? 'border-cyan-500/20' : ''}
+                    ${network.color === 'purple' ? 'border-purple-500/20' : ''}
+                    ${network.color === 'pink' ? 'border-pink-500/20' : ''}
+                  `}
+                >
+                  <div className="flex items-center gap-1">
+                    <img 
+                      src={network.logo} 
+                      alt={network.name} 
+                      className="w-5 h-5 object-cover rounded"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        const fallbackSpan = document.createElement('span');
+                        fallbackSpan.className = `
+                          text-sm
+                          ${network.color === 'blue' ? 'text-blue-400' : ''}
+                          ${network.color === 'yellow' ? 'text-yellow-400' : ''}
+                          ${network.color === 'cyan' ? 'text-cyan-400' : ''}
+                          ${network.color === 'purple' ? 'text-purple-400' : ''}
+                          ${network.color === 'pink' ? 'text-pink-400' : ''}
+                        `;
+                        fallbackSpan.textContent = network.fallbackEmoji;
+                        e.target.parentElement.appendChild(fallbackSpan);
+                      }}
+                    />
+                    <div className={`
+                      font-medium text-xs
+                      ${network.color === 'blue' ? 'text-blue-300' : ''}
+                      ${network.color === 'yellow' ? 'text-yellow-300' : ''}
+                      ${network.color === 'cyan' ? 'text-cyan-300' : ''}
+                      ${network.color === 'purple' ? 'text-purple-300' : ''}
+                      ${network.color === 'pink' ? 'text-pink-300' : ''}
+                    `}>
+                      {network.name}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-gray-300">• HUB Token Mining</div>
-                <div className="text-gray-300">• Subscription System</div>
-                <div className="text-gray-300">• Staking</div>
-              </div>
-              
-              <div className="bg-gray-700/50 border border-yellow-500/20 rounded-lg p-3 flex-1">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <img 
-                    src="/Celo.logo.jpg" 
-                    alt="Celo" 
-                    className="w-4 h-4 object-cover rounded"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = `<span class="text-yellow-400 text-sm">📱</span>`;
-                    }}
-                  />
-                  <div className="text-yellow-300 font-medium">CELO</div>
-                </div>
-                <div className="text-gray-300">• HC Token Mining</div>
-                <div className="text-gray-300">• Season System</div>
-                <div className="text-gray-300">• Daily GM Rewards</div>
-              </div>
+              ))}
             </div>
 
-            <div className="flex justify-center gap-3 text-xs mt-3">
-              <div className="bg-gray-700/50 border border-cyan-500/20 rounded-lg p-3 flex-1">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <img 
-                    src="/Linea.logo.png" 
-                    alt="Linea" 
-                    className="w-4 h-4 object-cover rounded"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = `<span class="text-cyan-400 text-sm">🚀</span>`;
-                    }}
-                  />
-                  <div className="text-cyan-300 font-medium">LINEA</div>
-                </div>
-                <div className="text-gray-300">• LPX Token Mining</div>
-                <div className="text-gray-300">• 100 messages daily</div>
-                <div className="text-gray-300">• Daily GM Rewards</div>
-              </div>
-
-              <div className="bg-gray-700/50 border border-purple-500/20 rounded-lg p-3 flex-1">
-                <div className="flex items-center justify-center gap-1 mb-1">
-                  <img 
-                    src="/Polygon.logo.jpg" 
-                    alt="Polygon" 
-                    className="w-4 h-4 object-cover rounded"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = `<span class="text-purple-400 text-sm">🔶</span>`;
-                    }}
-                  />
-                  <div className="text-purple-300 font-medium">POLYGON</div>
-                </div>
-                <div className="text-gray-300">• MSG Token Mining</div>
-                <div className="text-gray-300">• Message Protocol</div>
-                <div className="text-gray-300">• Daily GM Rewards</div>
-              </div>
+            {/* Dodatkowy tekst informacyjny */}
+            <div className="mt-4 text-xs text-gray-400">
+              <p>Each network offers unique features:</p>
+              <p>Token Mining • Daily Rewards • and more!</p>
             </div>
           </div>
 
@@ -474,6 +494,15 @@ function App() {
         <DailyGMPolygon 
           isOpen={showDailyStreakPolygon}
           onClose={() => setShowDailyStreakPolygon(false)}
+          currentUser={userWithBalance}
+          isMobile={isMobile}
+        />
+      )}
+
+      {showDailyStreakSoneium && (
+        <DailyGMSoneium 
+          isOpen={showDailyStreakSoneium}
+          onClose={() => setShowDailyStreakSoneium(false)}
           currentUser={userWithBalance}
           isMobile={isMobile}
         />

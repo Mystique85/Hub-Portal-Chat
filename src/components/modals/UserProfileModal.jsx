@@ -20,6 +20,7 @@ const UserProfileModal = ({
   const [baseBalance, setBaseBalance] = useState('0');
   const [lineaBalance, setLineaBalance] = useState('0');
   const [polygonBalance, setPolygonBalance] = useState('0');
+  const [soneiumBalance, setSoneiumBalance] = useState('0');
   const [loading, setLoading] = useState(true);
   const [showSendModal, setShowSendModal] = useState(false);
   const [seasonStats, setSeasonStats] = useState(null);
@@ -27,7 +28,8 @@ const UserProfileModal = ({
     celo: 'loading',
     base: 'loading',
     linea: 'loading',
-    polygon: 'loading'
+    polygon: 'loading',
+    soneium: 'loading'
   });
   const [dailyUsage, setDailyUsage] = useState({
     used: 0,
@@ -40,7 +42,7 @@ const UserProfileModal = ({
   const [stakeBadgeInfo, setStakeBadgeInfo] = useState(null);
 
   const network = useNetwork();
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, tokenSymbol } = network;
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, tokenSymbol } = network;
   const season = getCurrentSeason();
   
   const isCurrentUserProfile = currentUser?.walletAddress?.toLowerCase() === user?.walletAddress?.toLowerCase();
@@ -62,6 +64,26 @@ const UserProfileModal = ({
     args: [user?.walletAddress],
     query: {
       enabled: !!user?.walletAddress && currentNetwork === 'base' && !isCurrentUserProfile,
+    }
+  });
+
+  const { data: soneiumUserStatsData } = useReadContract({
+    address: CONTRACT_ADDRESSES.soneium,
+    abi: CONTRACT_ABIS.soneium,
+    functionName: 'getUserStats',
+    args: [user?.walletAddress],
+    query: {
+      enabled: !!user?.walletAddress && isSoneium,
+    }
+  });
+
+  const { data: soneiumRemainingData } = useReadContract({
+    address: CONTRACT_ADDRESSES.soneium,
+    abi: CONTRACT_ABIS.soneium,
+    functionName: 'remainingRewards',
+    args: [user?.walletAddress],
+    query: {
+      enabled: !!user?.walletAddress && isSoneium,
     }
   });
 
@@ -194,7 +216,7 @@ const UserProfileModal = ({
       if (!user || !user.walletAddress) return;
       
       setLoading(true);
-      setNetworkStatus({ celo: 'loading', base: 'loading', linea: 'loading', polygon: 'loading' });
+      setNetworkStatus({ celo: 'loading', base: 'loading', linea: 'loading', polygon: 'loading', soneium: 'loading' });
       
       try {
         const userDoc = await getDoc(doc(db, 'users', user.walletAddress.toLowerCase()));
@@ -231,6 +253,9 @@ const UserProfileModal = ({
             } else if (currentNetwork === 'polygon') {
               setPolygonBalance(currentUser.balance || '0');
               setNetworkStatus(prev => ({ ...prev, polygon: 'live' }));
+            } else if (currentNetwork === 'soneium') {
+              setSoneiumBalance(currentUser.balance || '0');
+              setNetworkStatus(prev => ({ ...prev, soneium: 'live' }));
             }
             
             try {
@@ -239,41 +264,61 @@ const UserProfileModal = ({
                 setBaseBalance(balances.base || '0');
                 setLineaBalance(balances.linea || '0');
                 setPolygonBalance(balances.polygon || '0');
+                setSoneiumBalance(balances.soneium || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   base: 'fetched',
                   linea: 'fetched',
-                  polygon: 'fetched'
+                  polygon: 'fetched',
+                  soneium: 'fetched'
                 }));
               } else if (currentNetwork === 'base') {
                 setCeloBalance(balances.celo || '0');
                 setLineaBalance(balances.linea || '0');
                 setPolygonBalance(balances.polygon || '0');
+                setSoneiumBalance(balances.soneium || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   celo: 'fetched',
                   linea: 'fetched',
-                  polygon: 'fetched'
+                  polygon: 'fetched',
+                  soneium: 'fetched'
                 }));
               } else if (currentNetwork === 'linea') {
                 setBaseBalance(balances.base || '0');
                 setCeloBalance(balances.celo || '0');
                 setPolygonBalance(balances.polygon || '0');
+                setSoneiumBalance(balances.soneium || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   base: 'fetched',
                   celo: 'fetched',
-                  polygon: 'fetched'
+                  polygon: 'fetched',
+                  soneium: 'fetched'
                 }));
               } else if (currentNetwork === 'polygon') {
                 setBaseBalance(balances.base || '0');
                 setCeloBalance(balances.celo || '0');
                 setLineaBalance(balances.linea || '0');
+                setSoneiumBalance(balances.soneium || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   base: 'fetched',
                   celo: 'fetched',
-                  linea: 'fetched'
+                  linea: 'fetched',
+                  soneium: 'fetched'
+                }));
+              } else if (currentNetwork === 'soneium') {
+                setBaseBalance(balances.base || '0');
+                setCeloBalance(balances.celo || '0');
+                setLineaBalance(balances.linea || '0');
+                setPolygonBalance(balances.polygon || '0');
+                setNetworkStatus(prev => ({ 
+                  ...prev, 
+                  base: 'fetched',
+                  celo: 'fetched',
+                  linea: 'fetched',
+                  polygon: 'fetched'
                 }));
               }
             } catch (error) {
@@ -281,18 +326,27 @@ const UserProfileModal = ({
                 setBaseBalance('0');
                 setLineaBalance('0');
                 setPolygonBalance('0');
+                setSoneiumBalance('0');
               } else if (currentNetwork === 'base') {
                 setCeloBalance('0');
                 setLineaBalance('0');
                 setPolygonBalance('0');
+                setSoneiumBalance('0');
               } else if (currentNetwork === 'linea') {
                 setBaseBalance('0');
                 setCeloBalance('0');
                 setPolygonBalance('0');
+                setSoneiumBalance('0');
               } else if (currentNetwork === 'polygon') {
                 setBaseBalance('0');
                 setCeloBalance('0');
                 setLineaBalance('0');
+                setSoneiumBalance('0');
+              } else if (currentNetwork === 'soneium') {
+                setBaseBalance('0');
+                setCeloBalance('0');
+                setLineaBalance('0');
+                setPolygonBalance('0');
               }
             }
           } else {
@@ -302,18 +356,21 @@ const UserProfileModal = ({
               setBaseBalance(balances.base || '0');
               setLineaBalance(balances.linea || '0');
               setPolygonBalance(balances.polygon || '0');
+              setSoneiumBalance(balances.soneium || '0');
               setNetworkStatus({
                 celo: balances.celo !== '0' ? 'fetched' : 'zero',
                 base: balances.base !== '0' ? 'fetched' : 'zero',
                 linea: balances.linea !== '0' ? 'fetched' : 'zero',
-                polygon: balances.polygon !== '0' ? 'fetched' : 'zero'
+                polygon: balances.polygon !== '0' ? 'fetched' : 'zero',
+                soneium: balances.soneium !== '0' ? 'fetched' : 'zero'
               });
             } catch (error) {
               setCeloBalance('0');
               setBaseBalance('0');
               setLineaBalance('0');
               setPolygonBalance('0');
-              setNetworkStatus({ celo: 'error', base: 'error', linea: 'error', polygon: 'error' });
+              setSoneiumBalance('0');
+              setNetworkStatus({ celo: 'error', base: 'error', linea: 'error', polygon: 'error', soneium: 'error' });
             }
           }
         }
@@ -358,6 +415,7 @@ const UserProfileModal = ({
     if (network === 'base' && currentNetwork === 'base') return 'Live';
     if (network === 'linea' && currentNetwork === 'linea') return 'Live';
     if (network === 'polygon' && currentNetwork === 'polygon') return 'Live';
+    if (network === 'soneium' && currentNetwork === 'soneium') return 'Live';
     
     switch(status) {
       case 'live': return 'Live';
@@ -762,6 +820,43 @@ const UserProfileModal = ({
                     <div className={`text-purple-300 ${
                       isMobile ? 'text-[9px]' : 'text-[10px]'
                     }`}>$MSG</div>
+                  </div>
+                  
+                  {/* LUM Balance - Soneium */}
+                  <div className={`bg-pink-500/10 border rounded-xl p-2 text-center ${
+                    currentNetwork === 'soneium' ? 'border-pink-500/40' : 'border-pink-500/20'
+                  }`}>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <div className="flex items-center gap-1">
+                        <img 
+                          src="/Soneium.logo.jpg" 
+                          alt="Soneium" 
+                          className="w-4 h-4 object-cover rounded"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = `<span class="text-pink-400">🌟</span>`;
+                          }}
+                        />
+                        <span className={`text-pink-300 ${
+                          isMobile ? 'text-[9px]' : 'text-[10px]'
+                        }`}>Soneium</span>
+                      </div>
+                      <div className={`px-0.5 py-0.5 rounded ${
+                        networkStatus.soneium === 'live' ? 'bg-pink-500/30 text-pink-300' :
+                        networkStatus.soneium === 'fetched' ? 'bg-pink-500/20 text-pink-400' :
+                        'bg-gray-700/50 text-gray-400'
+                      } ${isMobile ? 'text-[8px]' : 'text-[9px]'}`}>
+                        {getNetworkStatusText('soneium', networkStatus.soneium)}
+                      </div>
+                    </div>
+                    <div className={`text-pink-400 font-bold truncate ${
+                      isMobile ? 'text-sm' : 'text-base'
+                    }`} title={soneiumBalance}>
+                      {formatLargeNumber(soneiumBalance)}
+                    </div>
+                    <div className={`text-pink-300 ${
+                      isMobile ? 'text-[9px]' : 'text-[10px]'
+                    }`}>$LUM</div>
                   </div>
                 </div>
               </div>
