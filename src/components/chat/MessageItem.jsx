@@ -159,6 +159,12 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         textColor: 'text-purple-400',
         logo: '/Polygon.logo.jpg',
         fallbackIcon: '🔷' 
+      },
+      soneium: { 
+        text: 'SONEIUM', 
+        textColor: 'text-pink-400',
+        logo: '/Soneium.logo.jpg',
+        fallbackIcon: '🌟' 
       }
     };
     

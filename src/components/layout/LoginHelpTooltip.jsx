@@ -21,7 +21,7 @@ const LoginHelpTooltip = () => {
   }, [showTooltip]);
 
   const nextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, 4));
+    setCurrentStep(prev => Math.min(prev + 1, 5));
   };
 
   const prevStep = () => {
@@ -45,68 +45,36 @@ const LoginHelpTooltip = () => {
       type: 'vision',
       content: language === 'pl' 
         ? `<div class="space-y-4 text-white">
-            <p><span class="text-cyan-300 font-semibold">HUB Chat</span> to Twój pierwszy krok w przyszłość społeczności internetowych - miejscu, gdzie Twoja aktywność ma realną wartość, a nie tylko pozostaje cyfrowym śladem.</p>
+            <p><span class="text-cyan-300 font-semibold">HUB Chat</span> to Twój pierwszy krok w przyszłość społeczności internetowych - miejscu, gdzie Twoja aktywność ma realną wartość.</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon</p>
-            <p>Działamy na czterech sieciach blockchain! Na <span class="text-yellow-300">Celo</span> zdobywasz tokeny <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span>, na <span class="text-blue-300">Base</span> zarabiasz główne tokeny <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span> ekosystemu, na <span class="text-blue-400">Linea</span> zdobywasz tokeny <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent font-semibold">LPX</span>, a na <span class="text-purple-300">Polygon</span> zdobywasz tokeny <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">MSG</span>.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium</p>
+            <p>Działamy na pięciu sieciach blockchain! Na <span class="text-yellow-300">Celo</span> zdobywasz tokeny <span class="text-cyan-300">HC</span>, na <span class="text-blue-300">Base</span> tokeny <span class="text-purple-300">HUB</span>, na <span class="text-cyan-300">Linea</span> tokeny <span class="text-blue-300">LPX</span>, na <span class="text-purple-300">Polygon</span> tokeny <span class="text-purple-300">MSG</span>, a na <span class="text-pink-300">Soneium</span> tokeny <span class="text-pink-300">LUM</span>.</p>
 
-            <p class="text-cyan-300 font-semibold">🚀 Potrójny System Nagród</p>
-            <p><span class="text-yellow-300">📱 CELO NETWORK:</span><br/>
-            • Mintujesz <span class="text-cyan-300">HC tokeny</span> za wiadomości<br/>
-            • Limit 10 nagród dziennie<br/>
-            • System sezonów i leaderboard</p>
+            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mt-4">
+              <p class="text-cyan-300 font-semibold text-center mb-2">💰 Opłaty Sieciowe</p>
+              <p class="text-sm">Każda wysłana wiadomość wymaga standardowej opłaty transakcyjnej (gas fee) na odpowiedniej sieci blockchain. To naturalny koszt używania zdecentralizowanej infrastruktury.</p>
+            </div>
 
-            <p><span class="text-blue-300">🌉 BASE NETWORK:</span><br/>
-            • Zdobywasz główne <span class="text-purple-300">HUB tokeny</span><br/>
-            • <strong>System subskrypcji</strong> - bez limitów dla PREMIUM<br/>
-            • Staking i dodatkowe nagrody</p>
-
-            <p><span class="text-cyan-300">🔷 LINEA NETWORK:</span><br/>
-            • Zdobywasz <span class="text-cyan-300">LPX tokeny</span><br/>
-            • Generous limit: <span class="text-cyan-300">100 nagród dziennie</span><br/>
-            • Daily GM Challenge z on-chain streakami</p>
-
-            <p><span class="text-purple-300">🔶 POLYGON NETWORK:</span><br/>
-            • Zdobywasz <span class="text-purple-300">MSG tokeny</span><br/>
-            • Message Protocol z nagrodami za aktywność<br/>
-            • Daily GM Challenge z on-chain streakami</p>
-
-            <p class="text-cyan-300 font-semibold">💎 Zbuduj Swoją Web3 Tożsamość</p>
-            <p>Tutaj nie jesteś anonimowym użytkownikiem - jesteś pionierem nowej ery społeczności internetowych. Twoja reputacja rośnie z każdą wiadomością, a zgromadzone tokeny to nie tylko wartość - to Twój głos w przyszłości zdecentralizowanej przestrzeni.</p>
-
-            <p class="text-center text-white italic border-t border-gray-600/30 pt-4">Dołącz do społeczności, która nie tylko obserwuje rewolucję Web3 - ale aktywnie ją tworzy. Tutaj Twoja aktywność ma znaczenie.</p>
+            <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
+              <p class="text-purple-300 font-semibold text-center mb-2">🚀 Buduj z Nami HUB Ecosystem</p>
+              <p class="text-sm">Im więcej tokenów zdobywasz i im bardziej angażujesz się w społeczność, tym lepszą pozycję zdobywasz dla przyszłych airdropów w HUB Ecosystem.</p>
+            </div>
           </div>`
         : `<div class="space-y-4 text-white">
-            <p><span class="text-cyan-300 font-semibold">HUB Chat</span> is your first step into the future of online communities - a place where your activity holds real value, not just digital footprints.</p>
+            <p><span class="text-cyan-300 font-semibold">HUB Chat</span> is your first step into the future of online communities - a place where your activity holds real value.</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon</p>
-            <p>We operate on four blockchain networks! On <span class="text-yellow-300">Celo</span> you earn <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span> tokens, on <span class="text-blue-300">Base</span> you collect main <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span> ecosystem tokens, on <span class="text-blue-400">Linea</span> you earn <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent font-semibold">LPX</span> tokens, and on <span class="text-purple-300">Polygon</span> you earn <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">MSG</span> tokens.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium</p>
+            <p>We operate on five blockchain networks! On <span class="text-yellow-300">Celo</span> you earn <span class="text-cyan-300">HC</span> tokens, on <span class="text-blue-300">Base</span> you collect <span class="text-purple-300">HUB</span> tokens, on <span class="text-cyan-300">Linea</span> you earn <span class="text-blue-300">LPX</span> tokens, on <span class="text-purple-300">Polygon</span> you earn <span class="text-purple-300">MSG</span> tokens, and on <span class="text-pink-300">Soneium</span> you earn <span class="text-pink-300">LUM</span> tokens.</p>
 
-            <p class="text-cyan-300 font-semibold">🚀 Quad Reward System</p>
-            <p><span class="text-yellow-300">📱 CELO NETWORK:</span><br/>
-            • Mint <span class="text-cyan-300">HC tokens</span> for messages<br/>
-            • 10 rewards daily limit<br/>
-            • Season system and leaderboard</p>
+            <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mt-4">
+              <p class="text-cyan-300 font-semibold text-center mb-2">💰 Network Fees</p>
+              <p class="text-sm">Every sent message requires a standard transaction fee (gas fee) on the respective blockchain network. This is a natural cost of using decentralized infrastructure.</p>
+            </div>
 
-            <p><span class="text-blue-300">🌉 BASE NETWORK:</span><br/>
-            • Earn main <span class="text-purple-300">HUB tokens</span><br/>
-            • <strong>Subscription system</strong> - unlimited for PREMIUM<br/>
-            • Staking and additional rewards</p>
-
-            <p><span class="text-cyan-300">🔷 LINEA NETWORK:</span><br/>
-            • Earn <span class="text-cyan-300">LPX tokens</span><br/>
-            • Generous limit: <span class="text-cyan-300">100 rewards daily</span><br/>
-            • Daily GM Challenge with on-chain streaks</p>
-
-            <p><span class="text-purple-300">🔶 POLYGON NETWORK:</span><br/>
-            • Earn <span class="text-purple-300">MSG tokens</span><br/>
-            • Message Protocol with activity rewards<br/>
-            • Daily GM Challenge with on-chain streaks</p>
-
-            <p class="text-cyan-300 font-semibold">💎 Build Your Web3 Identity</p>
-            <p>Here you're not an anonymous user - you're a pioneer of new internet community era. Your reputation grows with every message, and accumulated tokens aren't just value - they're your voice in decentralized space future.</p>
-
-            <p class="text-center text-white italic border-t border-gray-600/30 pt-4">Join the community that doesn't just watch Web3 revolution - but actively builds it. Here your activity matters.</p>
+            <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
+              <p class="text-purple-300 font-semibold text-center mb-2">🚀 Build HUB Ecosystem With Us</p>
+              <p class="text-sm">The more tokens you earn and the more engaged you are in the community, the better position you secure for future airdrops in HUB Ecosystem.</p>
+            </div>
           </div>`,
       buttonText: language === 'pl' ? 'Rozpocznij Podróż →' : 'Start Journey →'
     },
@@ -122,9 +90,8 @@ const LoginHelpTooltip = () => {
               <p>• Kliknij <span class="text-cyan-300">"Connect Wallet"</span></p>
               <p>• Wybierz kompatybilny portfel EVM</p>
               <p>• Portfel automatycznie przełączy się na odpowiednią sieć</p>
-              <p>• <span class="text-green-400">Wspierane sieci:</span> Celo, Base, Linea i Polygon</p>
+              <p>• <span class="text-green-400">Wspierane sieci:</span> Celo, Base, Linea, Polygon, Soneium</p>
               <p>• Połączenie jest w <span class="text-green-400">100% bezpieczne</span></p>
-              <p class="text-yellow-300 text-sm">💡 Możesz zmieniać sieci w aplikacji!</p>
             </div>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
@@ -133,9 +100,8 @@ const LoginHelpTooltip = () => {
               <p>• Click <span class="text-cyan-300">"Connect Wallet"</span></p>
               <p>• Choose compatible EVM wallet</p>
               <p>• Wallet will auto-switch to correct network</p>
-              <p>• <span class="text-green-400">Supported networks:</span> Celo, Base, Linea and Polygon</p>
+              <p>• <span class="text-green-400">Supported networks:</span> Celo, Base, Linea, Polygon, Soneium</p>
               <p>• Connection is <span class="text-green-400">100% secure</span></p>
-              <p class="text-yellow-300 text-sm">💡 You can switch networks in the app!</p>
             </div>
           </div>`,
       buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
@@ -154,7 +120,7 @@ const LoginHelpTooltip = () => {
               <p>• Wybierz avatar z dostępnych emoji</p>
               <p>• Profil powiązany z adresem portfela <span class="text-cyan-300">na zawsze</span></p>
               <p>• Dane widoczne dla całej społeczności</p>
-              <p>• Jeden profil działa na wszystkich czterech sieciach!</p>
+              <p>• Jeden profil działa na wszystkich pięciu sieciach!</p>
             </div>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
@@ -165,14 +131,14 @@ const LoginHelpTooltip = () => {
               <p>• Select avatar from available emojis</p>
               <p>• Profile linked to wallet address <span class="text-cyan-300">forever</span></p>
               <p>• Data visible to entire community</p>
-              <p>• One profile works on all four networks!</p>
+              <p>• One profile works on all five networks!</p>
             </div>
           </div>`,
       buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
     },
     {
       id: 3,
-      title: language === 'pl' ? "💎 Wybierz Sieć i Zdobywaj Tokeny" : "💎 Choose Network & Earn Tokens",
+      title: language === 'pl' ? "💎 Zdobywaj Tokeny" : "💎 Earn Tokens",
       icon: "💎",
       type: 'step',
       content: language === 'pl'
@@ -185,7 +151,6 @@ const LoginHelpTooltip = () => {
                 <p>• <span class="text-cyan-300">1 HC token</span> za każdą wiadomość</p>
                 <p>• Limit: <span class="text-cyan-300">10 HC dziennie</span></p>
                 <p>• System sezonów i leaderboard</p>
-                <p>• Tokeny mintowane bezpośrednio na blockchain</p>
               </div>
             </div>
 
@@ -193,10 +158,7 @@ const LoginHelpTooltip = () => {
               <p class="text-blue-300 font-semibold text-center mb-2">🌉 BASE NETWORK</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-purple-300">1 HUB token</span> za każdą wiadomość</p>
-                <p>• <strong class="text-cyan-300">System subskrypcji:</strong></p>
-                <p class="ml-4">🎯 <span class="text-green-400">FREE</span>: 10 wiadomości/dzień</p>
-                <p class="ml-4">🚀 <span class="text-blue-400">BASIC</span>: 50 wiadomości/dzień</p>
-                <p class="ml-4">👑 <span class="text-purple-400">PREMIUM</span>: Nielimitowane</p>
+                <p>• System subskrypcji: FREE (10/dzień), BASIC (50/dzień), PREMIUM (nielimitowane)</p>
                 <p>• Staking i dodatkowe nagrody</p>
               </div>
             </div>
@@ -206,22 +168,30 @@ const LoginHelpTooltip = () => {
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-cyan-300">1 LPX token</span> za każdą wiadomość</p>
                 <p>• Limit: <span class="text-cyan-300">100 LPX dziennie</span></p>
-                <p>• Daily GM Challenge z on-chain streakami</p>
-                <p>• Advanced anti-spam features</p>
               </div>
             </div>
 
-            <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
+            <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
               <p class="text-purple-300 font-semibold text-center mb-2">🔶 POLYGON NETWORK</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-purple-300">1 MSG token</span> za każdą wiadomość</p>
                 <p>• Message Protocol z nagrodami za aktywność</p>
-                <p>• Daily GM Challenge z on-chain streakami</p>
                 <p>• Token mining za każdą wiadomość</p>
               </div>
             </div>
 
-            <p class="text-yellow-300 text-sm text-center mt-4">💡 Przełączaj sieci w aplikacji aby maksymalizować zarobki!</p>
+            <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-4 mb-3">
+              <p class="text-pink-300 font-semibold text-center mb-2">🌟 SONEIUM NETWORK</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-pink-300">1 LUM token</span> za każdą wiadomość</p>
+                <p>• Limit: <span class="text-pink-300">100 LUM dziennie</span></p>
+                <p>• Soneium Score system z leaderboard</p>
+              </div>
+            </div>
+
+            <div class="bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 mt-4">
+              <p class="text-gray-300 text-sm text-center">💰 Każda wysłana wiadomość wymaga standardowej opłaty sieciowej (gas fee).</p>
+            </div>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
             <p class="text-cyan-300 font-semibold text-center">Step 3: Multi-Chain Token Rewards</p>
@@ -232,7 +202,6 @@ const LoginHelpTooltip = () => {
                 <p>• <span class="text-cyan-300">1 HC token</span> per message</p>
                 <p>• Limit: <span class="text-cyan-300">10 HC daily</span></p>
                 <p>• Season system and leaderboard</p>
-                <p>• Tokens minted directly on blockchain</p>
               </div>
             </div>
 
@@ -240,10 +209,7 @@ const LoginHelpTooltip = () => {
               <p class="text-blue-300 font-semibold text-center mb-2">🌉 BASE NETWORK</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-purple-300">1 HUB token</span> per message</p>
-                <p>• <strong class="text-cyan-300">Subscription System:</strong></p>
-                <p class="ml-4">🎯 <span class="text-green-400">FREE</span>: 10 messages/day</p>
-                <p class="ml-4">🚀 <span class="text-blue-400">BASIC</span>: 50 messages/day</p>
-                <p class="ml-4">👑 <span class="text-purple-400">PREMIUM</span>: Unlimited</p>
+                <p>• Subscription system: FREE (10/day), BASIC (50/day), PREMIUM (unlimited)</p>
                 <p>• Staking and additional rewards</p>
               </div>
             </div>
@@ -253,54 +219,142 @@ const LoginHelpTooltip = () => {
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-cyan-300">1 LPX token</span> per message</p>
                 <p>• Limit: <span class="text-cyan-300">100 LPX daily</span></p>
-                <p>• Daily GM Challenge with on-chain streaks</p>
-                <p>• Advanced anti-spam features</p>
               </div>
             </div>
 
-            <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
+            <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
               <p class="text-purple-300 font-semibold text-center mb-2">🔶 POLYGON NETWORK</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-purple-300">1 MSG token</span> per message</p>
                 <p>• Message Protocol with activity rewards</p>
-                <p>• Daily GM Challenge with on-chain streaks</p>
                 <p>• Token mining for every message</p>
               </div>
             </div>
 
-            <p class="text-yellow-300 text-sm text-center mt-4">💡 Switch networks in the app to maximize your earnings!</p>
+            <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-4 mb-3">
+              <p class="text-pink-300 font-semibold text-center mb-2">🌟 SONEIUM NETWORK</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-pink-300">1 LUM token</span> per message</p>
+                <p>• Limit: <span class="text-pink-300">100 LUM daily</span></p>
+                <p>• Soneium Score system with leaderboard</p>
+              </div>
+            </div>
+
+            <div class="bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 mt-4">
+              <p class="text-gray-300 text-sm text-center">💰 Every sent message requires a standard network fee (gas fee).</p>
+            </div>
           </div>`,
       buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
     },
     {
       id: 4,
+      title: language === 'pl' ? "🔥 Daily GM Challenge" : "🔥 Daily GM Challenge",
+      icon: "🔥",
+      type: 'step',
+      content: language === 'pl'
+        ? `<div class="space-y-4 text-white mx-auto max-w-md">
+            <p class="text-cyan-300 font-semibold text-center">Daily GM Challenge na 5 Sieciach</p>
+            
+            <div class="space-y-3">
+              <p>• <span class="text-yellow-300">Celo:</span> Daily GM Challenge</p>
+              <p>• <span class="text-blue-300">Base:</span> Daily GM Challenge</p>
+              <p>• <span class="text-cyan-300">Linea:</span> Daily GM Challenge</p>
+              <p>• <span class="text-purple-300">Polygon:</span> Daily GM Challenge</p>
+              <p>• <span class="text-pink-300">Soneium:</span> Daily GM Challenge</p>
+            </div>
+
+            <div class="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-xl p-4 mt-4">
+              <p class="text-orange-300 font-semibold text-center mb-2">🎯 Jak Działa Daily GM?</p>
+              <div class="space-y-2 text-sm">
+                <p>1. <strong>Wyślij swoją codzienną GM</strong> aby utrzymać streak</p>
+                <p>2. <strong>Streak kontynuuje się</strong> jeśli GM w ciągu 24h</p>
+                <p>3. <strong>Miniesz 24h?</strong> Twój streak resetuje się do 1</p>
+                <p>4. <strong>Dłuższy streak = więcej aktywności!</strong></p>
+              </div>
+            </div>
+
+            <div class="bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 mt-4">
+              <p class="text-gray-300 text-sm text-center">💡 Pamiętaj: Każda transakcja GM wymaga opłaty sieciowej (gas fee).</p>
+            </div>
+          </div>`
+        : `<div class="space-y-4 text-white mx-auto max-w-md">
+            <p class="text-cyan-300 font-semibold text-center">Daily Challenge on 5 Networks</p>
+            
+            <div class="space-y-3">
+              <p>• <span class="text-yellow-300">Celo:</span> Daily GM Challenge</p>
+              <p>• <span class="text-blue-300">Base:</span> Daily GM Challenge</p>
+              <p>• <span class="text-cyan-300">Linea:</span> Daily GM Challenge</p>
+              <p>• <span class="text-purple-300">Polygon:</span> Daily GM Challenge</p>
+              <p>• <span class="text-pink-300">Soneium:</span> Daily GM Challenge</p>
+            </div>
+
+            <div class="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-xl p-4 mt-4">
+              <p class="text-orange-300 font-semibold text-center mb-2">🎯 How Daily GM Works?</p>
+              <div class="space-y-2 text-sm">
+                <p>1. <strong>Send your daily GM</strong> to keep your streak alive</p>
+                <p>2. <strong>Streak continues</strong> if you GM within 24h window</p>
+                <p>3. <strong>Miss 24h?</strong> Your streak resets to 1</p>
+                <p>4. <strong>Longer streak = more activity!</strong></p>
+              </div>
+            </div>
+
+            <div class="bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 mt-4">
+              <p class="text-gray-300 text-sm text-center">💡 Remember: Every GM transaction requires network fee (gas fee).</p>
+            </div>
+          </div>`,
+      buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
+    },
+    {
+      id: 5,
       title: language === 'pl' ? "💬 Rozpocznij Czatowanie" : "💬 Start Chatting",
       icon: "💬",
       type: 'step',
       content: language === 'pl'
         ? `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Krok 4: Rozpocznij Czatowanie</p>
+            <p class="text-cyan-300 font-semibold text-center">Krok 5: Rozpocznij Czatowanie</p>
             <div class="space-y-3 text-left">
               <p>• <span class="text-cyan-300">Czat publiczny</span> - rozmowy ze wszystkimi</p>
-              <p>• <span class="text-cyan-300">Czaty prywatne</span> - bezpieczne 1-na-1</p>
-              <p>• <span class="text-cyan-300">Reakcje emoji</span> - wyrażaj emocje</p>
               <p>• <span class="text-cyan-300">System online</span> - zobacz aktywnych</p>
               <p>• <span class="text-cyan-300">Enter</span> - szybkie wysyłanie</p>
-              <p class="text-yellow-300">💡 Zmieniaj sieci (Celo/Base/Linea/Polygon) by maksymalizować zarobki!</p>
             </div>
-            <p class="text-green-400 font-semibold text-center mt-4">Gotowy by dołączyć? Twoja podróż w <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB Ecosystem</span> właśnie się zaczyna!</p>
+
+            <div class="bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 mt-4">
+              <p class="text-gray-300 text-sm text-center">💰 Pamiętaj: Każda wysłana wiadomość wymaga standardowej opłaty transakcyjnej (gas fee).</p>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
+              <p class="text-purple-300 font-semibold text-center mb-2">🚀 Twoja Działalność Buduje HUB Ecosystem</p>
+              <div class="space-y-2 text-sm">
+                <p>• <strong>Im więcej tokenów zdobywasz</strong> - tym lepszą pozycję masz</p>
+                <p>• <strong>Aktywność w społeczności</strong> - buduje reputację</p>
+                <p>• <strong>Każda wiadomość ma znaczenie</strong> dla przyszłych airdropów</p>
+              </div>
+            </div>
+
+            <p class="text-green-400 font-semibold text-center mt-4">Gotowy by dołączyć? Twoja podróż w <span class="text-purple-400 font-semibold">HUB Ecosystem</span> właśnie się zaczyna!</p>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Step 4: Start Chatting</p>
+            <p class="text-cyan-300 font-semibold text-center">Step 5: Start Chatting</p>
             <div class="space-y-3 text-left">
               <p>• <span class="text-cyan-300">Public chat</span> - talk with everyone</p>
-              <p>• <span class="text-cyan-300">Private chats</span> - secure 1-on-1</p>
-              <p>• <span class="text-cyan-300">Emoji reactions</span> - express emotions</p>
               <p>• <span class="text-cyan-300">Online system</span> - see active users</p>
               <p>• <span class="text-cyan-300">Enter</span> - quick sending</p>
-              <p class="text-yellow-300">💡 Switch networks (Celo/Base/Linea/Polygon) to maximize your earnings!</p>
             </div>
-            <p class="text-green-400 font-semibold text-center mt-4">Ready to join? Your <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB Ecosystem</span> journey starts now!</p>
+
+            <div class="bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 mt-4">
+              <p class="text-gray-300 text-sm text-center">💰 Remember: Every sent message requires a standard transaction fee (gas fee).</p>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
+              <p class="text-purple-300 font-semibold text-center mb-2">🚀 Your Activity Builds HUB Ecosystem</p>
+              <div class="space-y-2 text-sm">
+                <p>• <strong>The more tokens you earn</strong> - the better position you have</p>
+                <p>• <strong>Community engagement</strong> - builds reputation</p>
+                <p>• <strong>Every message matters</strong> for future airdrops</p>
+              </div>
+            </div>
+
+            <p class="text-green-400 font-semibold text-center mt-4">Ready to join? Your <span class="text-purple-400 font-semibold">HUB Ecosystem</span> journey starts now!</p>
           </div>`,
       buttonText: language === 'pl' ? 'Rozpocznij Czatowanie!' : 'Start Chatting!'
     }
@@ -407,13 +461,13 @@ const LoginHelpTooltip = () => {
                 className="flex-1 px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-xl text-gray-300 hover:text-white hover:border-gray-500 transition-all"
               >
                 ← {language === 'pl' ? 'Wstecz' : 'Back'}
-            </button>
+              </button>
             )}
             
             <button
-              onClick={currentStep === 4 ? handleClose : nextStep}
+              onClick={currentStep === 5 ? handleClose : nextStep}
               className={`px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 border border-cyan-500/50 rounded-xl text-white font-semibold hover:from-cyan-600 hover:to-blue-600 transition-all transform hover:scale-105 ${
-                currentStep === 0 ? 'flex-1' : currentStep > 0 ? 'flex-1' : ''
+                currentStep === 0 ? 'flex-1' : 'flex-1'
               }`}
             >
               {currentStepData.buttonText}

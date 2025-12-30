@@ -12,21 +12,41 @@ const metadata = {
   icons: ['https://hub-portal-chat.vercel.app/hublogo.svg']
 }
 
+const soneiumNetwork = {
+  id: 1868,
+  name: 'Soneium',
+  network: 'soneium',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ethereum',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: { http: ['https://rpc.soneium.org'] },
+    public: { http: ['https://rpc.soneium.org'] },
+  },
+  blockExplorers: {
+    default: { name: 'Blockscout', url: 'https://soneium.blockscout.com' },
+  },
+  testnet: false,
+}
+
 const wagmiAdapter = new WagmiAdapter({
   projectId,
-  networks: [celo, base, linea, polygon],
+  networks: [celo, base, linea, polygon, soneiumNetwork],
   transports: {
     [celo.id]: http(),
     [base.id]: http(),
     [linea.id]: http(),
-    [polygon.id]: http()
+    [polygon.id]: http(),
+    [soneiumNetwork.id]: http('https://rpc.soneium.org'),
   },
   ssr: false
 })
 
 export const appKit = createAppKit({
   adapters: [wagmiAdapter],
-  networks: [celo, base, linea, polygon],
+  networks: [celo, base, linea, polygon, soneiumNetwork],
   projectId,
   metadata,
   enableMobileWalletLink: true,

@@ -12,7 +12,7 @@ export const useWeb3 = (address) => {
   const [remaining, setRemaining] = useState('0');
   const [subscriptionInfo, setSubscriptionInfo] = useState(null);
   const [userStats, setUserStats] = useState(null);
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, networkConfig } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, networkConfig } = useNetwork();
   const { chain } = useAccount();
 
   const ERC20_ABI = [
@@ -65,6 +65,16 @@ export const useWeb3 = (address) => {
     }
   });
 
+  const { data: soneiumRemainingData } = useReadContract({
+    address: CONTRACT_ADDRESSES.soneium,
+    abi: CONTRACT_ABIS.soneium,
+    functionName: 'remainingRewards',
+    args: [address],
+    query: {
+      enabled: !!address && isSoneium,
+    }
+  });
+
   const { data: userSubscriptionInfoData } = useReadContract({
     address: CONTRACT_ADDRESSES.base,
     abi: CONTRACT_ABIS.base,
@@ -102,6 +112,16 @@ export const useWeb3 = (address) => {
     args: [address],
     query: {
       enabled: !!address && isPolygon,
+    }
+  });
+
+  const { data: soneiumUserStatsData } = useReadContract({
+    address: CONTRACT_ADDRESSES.soneium,
+    abi: CONTRACT_ABIS.soneium,
+    functionName: 'getUserStats',
+    args: [address],
+    query: {
+      enabled: !!address && isSoneium,
     }
   });
 
@@ -144,8 +164,12 @@ export const useWeb3 = (address) => {
       setRemaining(polygonRemainingData.toString());
     } else if (isPolygon) {
       setRemaining('0');
+    } else if (isSoneium && soneiumRemainingData) {
+      setRemaining(soneiumRemainingData.toString());
+    } else if (isSoneium) {
+      setRemaining('0');
     }
-  }, [celoRemainingData, lineaRemainingData, polygonRemainingData, userSubscriptionInfoData, isCelo, isBase, isLinea, isPolygon]);
+  }, [celoRemainingData, lineaRemainingData, polygonRemainingData, soneiumRemainingData, userSubscriptionInfoData, isCelo, isBase, isLinea, isPolygon, isSoneium]);
 
   useEffect(() => {
     if (isBase && address) {
@@ -259,8 +283,33 @@ export const useWeb3 = (address) => {
         
         setSubscriptionInfo(polygonSubscriptionInfo);
       }
+    } else if (isSoneium && address && soneiumUserStatsData) {
+      if (Array.isArray(soneiumUserStatsData) && soneiumUserStatsData.length >= 6) {
+        const [totalMessages, totalEarned, lastMessageTime, isBlocked, messagesToday, lastResetDay] = soneiumUserStatsData;
+        
+        setUserStats({
+          totalMessages: Number(totalMessages),
+          totalEarned: Number(totalEarned) / 1e18,
+          lastMessageTime: Number(lastMessageTime),
+          isBlocked,
+          messagesToday: Number(messagesToday),
+          lastResetDay: Number(lastResetDay)
+        });
+
+        const soneiumSubscriptionInfo = {
+          tier: 0,
+          expiry: 0,
+          whitelisted: false,
+          isActive: true,
+          remainingMessages: Number(soneiumRemainingData) || 0,
+          messagesToday: Number(messagesToday),
+          lastResetDay: Number(lastResetDay)
+        };
+        
+        setSubscriptionInfo(soneiumSubscriptionInfo);
+      }
     }
-  }, [userSubscriptionInfoData, userBasicStatsData, lineaBasicStatsData, polygonUserStatsData, simpleSubscriptionData, lineaRemainingData, polygonRemainingData, isBase, isLinea, isPolygon, address]);
+  }, [userSubscriptionInfoData, userBasicStatsData, lineaBasicStatsData, polygonUserStatsData, soneiumUserStatsData, simpleSubscriptionData, lineaRemainingData, polygonRemainingData, soneiumRemainingData, isBase, isLinea, isPolygon, isSoneium, address]);
 
   const fetchBalanceForNetwork = async (userAddress, network) => {
     try {
@@ -268,7 +317,8 @@ export const useWeb3 = (address) => {
         celo: import.meta.env.VITE_CELO_MAINNET_RPC_URL || 'https://forno.celo.org',
         base: import.meta.env.VITE_BASE_MAINNET_RPC_URL || 'https://mainnet.base.org',
         linea: import.meta.env.VITE_LINEA_MAINNET_RPC_URL || 'https://rpc.linea.build',
-        polygon: import.meta.env.VITE_POLYGON_MAINNET_RPC_URL || 'https://polygon-rpc.com'
+        polygon: import.meta.env.VITE_POLYGON_MAINNET_RPC_URL || 'https://polygon-rpc.com',
+        soneium: import.meta.env.VITE_SONEIUM_RPC_URL || 'https://rpc.soneium.org'
       };
       
       const providerUrl = providerUrls[network];
@@ -281,7 +331,8 @@ export const useWeb3 = (address) => {
         celo: HUB_TOKEN_ADDRESS.celo,
         base: HUB_TOKEN_ADDRESS.base,
         linea: HUB_TOKEN_ADDRESS.linea,
-        polygon: HUB_TOKEN_ADDRESS.polygon
+        polygon: HUB_TOKEN_ADDRESS.polygon,
+        soneium: HUB_TOKEN_ADDRESS.soneium
       };
       
       const contractAddress = contractAddresses[network];
@@ -326,29 +377,31 @@ export const useWeb3 = (address) => {
 
   const getOtherUserBalance = async (userAddress, targetNetwork = null) => {
     if (!userAddress) {
-      return { celo: '0', base: '0', linea: '0', polygon: '0' };
+      return { celo: '0', base: '0', linea: '0', polygon: '0', soneium: '0' };
     }
     
-    const results = { celo: '0', base: '0', linea: '0', polygon: '0' };
+    const results = { celo: '0', base: '0', linea: '0', polygon: '0', soneium: '0' };
     
     try {
-      if (targetNetwork === 'celo' || targetNetwork === 'base' || targetNetwork === 'linea' || targetNetwork === 'polygon') {
+      if (targetNetwork === 'celo' || targetNetwork === 'base' || targetNetwork === 'linea' || targetNetwork === 'polygon' || targetNetwork === 'soneium') {
         const balance = await fetchBalanceForNetwork(userAddress, targetNetwork);
         results[targetNetwork] = balance;
         return results;
       }
       
-      const [celoBalance, baseBalance, lineaBalance, polygonBalance] = await Promise.all([
+      const [celoBalance, baseBalance, lineaBalance, polygonBalance, soneiumBalance] = await Promise.all([
         fetchBalanceForNetwork(userAddress, 'celo'),
         fetchBalanceForNetwork(userAddress, 'base'),
         fetchBalanceForNetwork(userAddress, 'linea'),
-        fetchBalanceForNetwork(userAddress, 'polygon')
+        fetchBalanceForNetwork(userAddress, 'polygon'),
+        fetchBalanceForNetwork(userAddress, 'soneium')
       ]);
       
       results.celo = celoBalance;
       results.base = baseBalance;
       results.linea = lineaBalance;
       results.polygon = polygonBalance;
+      results.soneium = soneiumBalance;
       
     } catch (error) {
       console.error('Error getting other user balance:', error);
@@ -369,7 +422,8 @@ export const useWeb3 = (address) => {
     isBase,
     isLinea,
     isPolygon,
-    supportsDailyRewards: isCelo || isLinea,
+    isSoneium,
+    supportsDailyRewards: isCelo || isLinea || isSoneium,
     supportsSeasonSystem: isCelo,
     supportsSubscriptions: isBase,
     supportsTokenTransfers: true,

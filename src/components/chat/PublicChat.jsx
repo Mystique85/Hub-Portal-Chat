@@ -35,7 +35,7 @@ const PublicChat = ({
     hash: transactionHash,
   });
 
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, tokenSymbol } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, tokenSymbol } = useNetwork();
 
   useEffect(() => {
     if (!db) return;
@@ -205,6 +205,7 @@ const PublicChat = ({
       if (isBase) return "Type message and earn HUB...";
       if (isLinea) return "Type message and earn LPX...";
       if (isPolygon) return "Type message and earn MSG...";
+      if (isSoneium) return "Type message and earn LUM...";
       return "Type message...";
     }
     
@@ -220,6 +221,9 @@ const PublicChat = ({
     if (isPolygon) {
       return "Type your message in public chat and earn MSG tokens (max 100 msg daily, 2-560 chars) - Enter to send";
     }
+    if (isSoneium) {
+      return "Type your message in public chat and earn LUM tokens (max 100 msg daily, 2-560 chars) - Enter to send";
+    }
     
     return "Type your message in public chat... (Enter to send)";
   };
@@ -229,6 +233,7 @@ const PublicChat = ({
     if (isBase) return "from-blue-500/10 to-blue-500/5 border-blue-500/30 text-blue-400";
     if (isLinea) return "from-cyan-500/10 to-cyan-500/5 border-cyan-500/30 text-cyan-400";
     if (isPolygon) return "from-purple-500/10 to-purple-500/5 border-purple-500/30 text-purple-400";
+    if (isSoneium) return "from-pink-500/10 to-pink-500/5 border-pink-500/30 text-pink-400";
     return "from-cyan-500/10 to-blue-500/10 border-cyan-500/30 text-cyan-400";
   };
 
@@ -237,6 +242,7 @@ const PublicChat = ({
     if (isBase) return "from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600";
     if (isLinea) return "from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600";
     if (isPolygon) return "from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600";
+    if (isSoneium) return "from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600";
     return "from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600";
   };
 

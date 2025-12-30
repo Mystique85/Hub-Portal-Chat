@@ -22,16 +22,16 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
       type: 'vision',
       content: language === 'pl' 
         ? `<div class="space-y-4 text-white">
-            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> to pierwsza na świecie społeczność Web3, która łączy realne zarobki z komunikacją w czasie rzeczywistym na trzech sieciach blockchain!</p>
+            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> to pierwsza na świecie społeczność Web3, która łączy realne zarobki z komunikacją w czasie rzeczywistym na <span class="text-yellow-300 font-semibold">pięciu sieciach blockchain</span>!</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea</p>
-            <p>Działamy na trzech sieciach blockchain! Na <span class="text-yellow-300">Celo</span> zdobywasz tokeny <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span>, na <span class="text-blue-300">Base</span> zarabiasz główne tokeny <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span>, a na <span class="text-blue-400">Linea</span> zdobywasz tokeny <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent font-semibold">LPX</span>.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium</p>
+            <p>Działamy na pięciu sieciach blockchain! Na <span class="text-yellow-300">Celo</span> zdobywasz tokeny <span class="bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent font-semibold">HC</span>, na <span class="text-blue-300">Base</span> zarabiasz główne tokeny <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-semibold">HUB</span>, na <span class="text-cyan-300">Linea</span> zdobywasz tokeny <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">LPX</span>, na <span class="text-purple-300">Polygon</span> minujesz tokeny <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">MSG</span>, a na <span class="text-pink-300">Soneium</span> tokeny <span class="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent font-semibold">LUM</span>.</p>
 
             <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
               <p class="text-purple-300 font-semibold text-center mb-2">💎 Co nas wyróżnia?</p>
               <div class="space-y-2">
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Szybkie nagrody</span> - tokeny trafiają bezpośrednio do portfela</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Trzy ekosystemy</span> - zarabiaj na Celo, Base i Linea jednocześnie</p>
+                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Pięć ekosystemów</span> - zarabiaj na Celo, Base, Linea, Polygon i Soneium jednocześnie</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Prawdziwa własność</span> - Twoje tokeny, Twoja kontrola</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Bezpieczeństwo</span> - audytowane smart kontrakty</p>
               </div>
@@ -40,16 +40,16 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
             <p class="text-center text-white italic border-t border-gray-600/30 pt-4 mt-4">Dołącz do społeczności, która nie tylko obserwuje rewolucję Web3 - ale aktywnie ją tworzy.</p>
           </div>`
         : `<div class="space-y-4 text-white">
-            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> is the world's first Web3 community combining real earnings with real-time communication on three blockchain networks!</p>
+            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> is the world's first Web3 community combining real earnings with real-time communication on <span class="text-yellow-300 font-semibold">five blockchain networks</span>!</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea</p>
-            <p>We operate on three blockchain networks! On <span class="text-yellow-300">Celo</span> you earn <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">HC</span> tokens, on <span class="text-blue-300">Base</span> you collect main <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB</span> ecosystem tokens, and on <span class="text-blue-400">Linea</span> you earn <span class="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent font-semibold">LPX</span> tokens.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium</p>
+            <p>We operate on five blockchain networks! On <span class="text-yellow-300">Celo</span> you earn <span class="bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent font-semibold">HC</span> tokens, on <span class="text-blue-300">Base</span> you collect main <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-semibold">HUB</span> ecosystem tokens, on <span class="text-cyan-300">Linea</span> you earn <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">LPX</span> tokens, on <span class="text-purple-300">Polygon</span> you mine <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">MSG</span> tokens, and on <span class="text-pink-300">Soneium</span> you earn <span class="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent font-semibold">LUM</span> tokens.</p>
 
             <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
               <p class="text-purple-300 font-semibold text-center mb-2">💎 What Makes Us Unique?</p>
               <div class="space-y-2">
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Fast Rewards</span> - tokens go directly to your wallet</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Triple Ecosystems</span> - earn on Celo, Base and Linea simultaneously</p>
+                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Five Ecosystems</span> - earn on Celo, Base, Linea, Polygon and Soneium simultaneously</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">True Ownership</span> - your tokens, your control</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Security</span> - audited smart contracts</p>
               </div>
@@ -71,7 +71,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">1.</span> Kliknij <span class="text-cyan-300 font-semibold">"Connect Wallet"</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">2.</span> Wybierz kompatybilny portfel EVM</p>
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Portfel automatycznie przełączy się na odpowiednią sieć</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Wspierane sieci:</span> Celo, Base i Linea</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Wspierane sieci:</span> Celo, Base, Linea, Polygon i Soneium</p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Połączenie jest w <span class="text-green-400 font-semibold">100% bezpieczne</span></p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 Możesz zmieniać sieci w aplikacji jednym kliknięciem!</p>
@@ -82,7 +82,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">1.</span> Click <span class="text-cyan-300 font-semibold">"Connect Wallet"</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">2.</span> Choose compatible EVM wallet</p>
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Wallet will auto-switch to correct network</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Supported networks:</span> Celo, Base and Linea</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Supported networks:</span> Celo, Base, Linea, Polygon and Soneium</p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Connection is <span class="text-green-400 font-semibold">100% secure</span></p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 You can switch networks in the app with one click!</p>
@@ -103,7 +103,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Wybierz avatar z dostępnych emoji</p>
               <p class="flex items-center gap-2"><span class="text-green-400">4.</span> Profil powiązany z adresem portfela <span class="text-cyan-300 font-semibold">na zawsze</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Dane widoczne dla całej społeczności</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> Jeden profil działa na wszystkich trzech sieciach!</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> Jeden profil działa na wszystkich pięciu sieciach!</p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 Twój profil to Twoja cyfrowa tożsamość w Web3!</p>
           </div>`
@@ -115,7 +115,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Select avatar from available emojis</p>
               <p class="flex items-center gap-2"><span class="text-green-400">4.</span> Profile linked to wallet address <span class="text-cyan-300 font-semibold">forever</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Data visible to entire community</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> One profile works on all three networks!</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> One profile works on all five networks!</p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 Your profile is your digital identity in Web3!</p>
           </div>`,
@@ -163,6 +163,28 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               </div>
             </div>
 
+            <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
+              <p class="text-purple-300 font-semibold text-center mb-2">🔶 POLYGON NETWORK (Nowość!)</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-purple-300">Mining tokena MSG</span> za aktywność</p>
+                <p>• Limit: <span class="text-purple-300">100 MSG dziennie</span></p>
+                <p>• Natychmiastowe dostarczanie tokenów</p>
+                <p>• Niska opłata gas (PoS consensus)</p>
+                <p>• Wsparcie dla szerokiej gamy portfeli</p>
+              </div>
+            </div>
+
+            <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-4 mb-3">
+              <p class="text-pink-300 font-semibold text-center mb-2">✨ SONEIUM NETWORK (Nowość!)</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-pink-300">Mining tokena LUM</span> za aktywność</p>
+                <p>• Limit: <span class="text-pink-300">100 LUM dziennie</span></p>
+                <p>• Ekskluzywne środowisko blockchain</p>
+                <p>• Wczesny dostęp do nowej sieci</p>
+                <p>• Unikalne możliwości sieci Soneium</p>
+              </div>
+            </div>
+
             <p class="text-yellow-300 text-sm text-center">💡 Wybierz sieć w aplikacji by przełączać między systemami!</p>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
@@ -201,63 +223,151 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               </div>
             </div>
 
+            <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
+              <p class="text-purple-300 font-semibold text-center mb-2">🔶 POLYGON NETWORK (New!)</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-purple-300">MSG token mining</span> for activity</p>
+                <p>• Limit: <span class="text-purple-300">100 MSG daily</span></p>
+                <p>• Instant token delivery</p>
+                <p>• Low gas fees (PoS consensus)</p>
+                <p>• Support for wide range of wallets</p>
+              </div>
+            </div>
+
+            <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-4 mb-3">
+              <p class="text-pink-300 font-semibold text-center mb-2">✨ SONEIUM NETWORK (New!)</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-pink-300">LUM token mining</span> for activity</p>
+                <p>• Limit: <span class="text-pink-300">100 LUM daily</span></p>
+                <p>• Exclusive blockchain environment</p>
+                <p>• Early access to new network</p>
+                <p>• Unique Soneium network opportunities</p>
+              </div>
+            </div>
+
             <p class="text-yellow-300 text-sm text-center">💡 Choose network in app to switch between systems!</p>
           </div>`,
       buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
     },
     {
       id: 4,
+      title: language === 'pl' ? "🔮 Sekrety Pozycjonowania" : "🔮 Positioning Secrets",
+      icon: "🔮",
+      type: 'mystery',
+      content: language === 'pl'
+        ? `<div class="space-y-4 text-white mx-auto max-w-md">
+            <p class="text-cyan-300 font-semibold text-center">Ukryte Mechanizmy i Pozycjonowanie</p>
+            
+            <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
+              <p class="text-purple-300 font-semibold text-center mb-2">🗝️ Tajemnica Aktywności</p>
+              <div class="space-y-2">
+                <p class="text-gray-300 text-sm">Każda Twoja wiadomość to nie tylko token - to także <span class="text-cyan-300 font-semibold">cyfrowy odcisk</span> w społeczności.</p>
+                <p class="text-gray-300 text-sm">Im więcej angażujesz się w rozmowy, tym bardziej Twoja obecność <span class="text-green-400 font-semibold">rezonuje</span> w ekosystemie.</p>
+                <p class="text-gray-300 text-sm">Pozycjonuj się nie poprzez hałas, ale przez <span class="text-yellow-300 font-semibold">wartościową komunikację</span>.</p>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-xl p-4 mb-3">
+              <p class="text-cyan-300 font-semibold text-center mb-2">🎭 Nieoczywiste Wskazówki</p>
+              <div class="space-y-2">
+                <p class="text-gray-300 text-sm">• <span class="text-cyan-300">Liczby mają znaczenie</span>, ale nie te, o których myślisz</p>
+                <p class="text-gray-300 text-sm">• <span class="text-cyan-300">Jakość > Ilość</span> - choć obie są śledzone</p>
+                <p class="text-gray-300 text-sm">• <span class="text-cyan-300">Cierpliwość</span> jest kluczową cnotą w Web3</p>
+                <p class="text-gray-300 text-sm">• <span class="text-cyan-300">Wielosieciowość</span> otwiera więcej drzwi niż Ci się wydaje</p>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-xl p-4 mb-3">
+              <p class="text-yellow-300 font-semibold text-center mb-2">🌠 Co Oczekuje Aktywnych?</p>
+              <div class="space-y-2">
+                <p class="text-gray-300 text-sm">Ci, którzy traktują tę społeczność jako swój <span class="text-yellow-300">cyfrowy dom</span>, a nie tylko źródło tokenów...</p>
+                <p class="text-gray-300 text-sm">Ci, którzy budują <span class="text-green-400">autentyczne relacje</span> i dzielą się wiedzą...</p>
+                <p class="text-gray-300 text-sm">Ci, którzy rozumieją, że <span class="text-purple-300">Web3 to maraton, nie sprint</span>...</p>
+                <p class="text-gray-300 text-sm font-semibold italic text-center pt-2">...odkrywają, że czas spędzony tutaj zawsze zwraca się w nieoczekiwany sposób.</p>
+              </div>
+            </div>
+
+            <p class="text-center text-sm text-gray-400 italic mt-4">"Nie pytaj co ekosystem może zrobić dla Ciebie, ale co Ty możesz zbudować w ekosystemie"</p>
+          </div>`
+        : `<div class="space-y-4 text-white mx-auto max-w-md">
+            <p class="text-cyan-300 font-semibold text-center">Hidden Mechanisms & Positioning</p>
+            
+            <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
+              <p class="text-purple-300 font-semibold text-center mb-2">🗝️ The Activity Secret</p>
+              <div class="space-y-2">
+                <p class="text-gray-300 text-sm">Every message you send is not just a token - it's a <span class="text-cyan-300 font-semibold">digital fingerprint</span> in the community.</p>
+                <p class="text-gray-300 text-sm">The more you engage in conversations, the more your presence <span class="text-green-400 font-semibold">resonates</span> throughout the ecosystem.</p>
+                <p class="text-gray-300 text-sm">Position yourself not through noise, but through <span class="text-yellow-300 font-semibold">valuable communication</span>.</p>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-xl p-4 mb-3">
+              <p class="text-cyan-300 font-semibold text-center mb-2">🎭 Unobvious Clues</p>
+              <div class="space-y-2">
+                <p class="text-gray-300 text-sm">• <span class="text-cyan-300">Numbers matter</span>, but not the ones you're thinking of</p>
+                <p class="text-gray-300 text-sm">• <span class="text-cyan-300">Quality > Quantity</span> - though both are tracked</p>
+                <p class="text-gray-300 text-sm">• <span class="text-cyan-300">Patience</span> is a key virtue in Web3</p>
+                <p class="text-gray-300 text-sm">• <span class="text-cyan-300">Multi-chain engagement</span> opens more doors than you realize</p>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-xl p-4 mb-3">
+              <p class="text-yellow-300 font-semibold text-center mb-2">🌠 What Awaits the Active?</p>
+              <div class="space-y-2">
+                <p class="text-gray-300 text-sm">Those who treat this community as their <span class="text-yellow-300">digital home</span>, not just a token source...</p>
+                <p class="text-gray-300 text-sm">Those who build <span class="text-green-400">authentic relationships</span> and share knowledge...</p>
+                <p class="text-gray-300 text-sm">Those who understand that <span class="text-purple-300">Web3 is a marathon, not a sprint</span>...</p>
+                <p class="text-gray-300 text-sm font-semibold italic text-center pt-2">...discover that time spent here always returns in unexpected ways.</p>
+              </div>
+            </div>
+
+            <p class="text-center text-sm text-gray-400 italic mt-4">"Ask not what the ecosystem can do for you, but what you can build within the ecosystem"</p>
+          </div>`,
+      buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
+    },
+    {
+      id: 5,
       title: language === 'pl' ? "💬 Rozpocznij Czatowanie" : "💬 Start Chatting",
       icon: "💬",
       type: 'step',
       content: language === 'pl'
         ? `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Krok 4: Funkcje Czatu i Wskazówki</p>
+            <p class="text-cyan-300 font-semibold text-center">Krok 5: Funkcje Czatu</p>
             <div class="space-y-3 text-left bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
-              <p class="flex items-center gap-2"><span class="text-cyan-300">💬</span> <span class="font-semibold">Czat publiczny</span> - rozmawiaj ze społecznością</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🔒</span> <span class="font-semibold">Czaty prywatne</span> - bezpieczne rozmowy 1-na-1</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">💬</span> <span class="font-semibold">Jedyny kanał publiczny</span> - rozmawiaj z całą społecznością</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">⚡</span> <span class="font-semibold">Real-time sync</span> - wiadomości na wszystkich urządzeniach</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Przełączanie sieci</span> - zarabiaj na Celo, Base i Linea</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Przełączanie sieci</span> - zarabiaj na 5 sieciach jednocześnie</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">👥</span> <span class="font-semibold">Lista użytkowników</span> - zobacz kto jest online</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🎯</span> <span class="font-semibold">Limit dzienny</span> - śledź swoje postępy</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🎯</span> <span class="font-semibold">Limity dzienne</span> - śledź swoje postępy na każdej sieci</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">📊</span> <span class="font-semibold">Leaderboardy</span> - sprawdź ranking aktywnych użytkowników</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🔥</span> <span class="font-semibold">Daily Streak</span> - codzienne nagrody za aktywność</p>
             </div>
 
-            ${isAdmin ? `
-            <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
-              <p class="text-purple-300 font-semibold text-center mb-2">👑 Funkcje Admina (Tylko dla Ciebie)</p>
-              <div class="space-y-2">
-                <p class="flex items-center gap-2"><span class="text-purple-400">🔗</span> <span class="font-semibold">Formatowanie linków:</span></p>
-                <p class="ml-4 text-xs">[tweet|Tekst|https://x.com] → 📢 Tekst</p>
-                <p class="ml-4 text-xs">[video|Tekst|https://youtube.com] → 🎥 Tekst</p>
-                <p class="ml-4 text-xs">[doc|Tekst|https://docs.com] → 📄 Tekst</p>
-              </div>
+            <div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-4 mt-4">
+              <p class="text-green-300 font-semibold text-center mb-2">🚀 Ostatnia Wskazówka</p>
+              <p class="text-gray-300 text-sm text-center">Rozpocznij od małych kroków. Znajdź swoją przestrzeń. Bądź autentyczny. Reszta przyjdzie naturalnie.</p>
+              <p class="text-cyan-400 text-xs text-center mt-2 italic">Pamiętaj: najwięksi w Web3 nie są tam, gdzie byli wczoraj, ale tam, gdzie będą jutro.</p>
             </div>
-            ` : ''}
 
             <p class="text-green-400 font-semibold text-center mt-4">Gotowy by dołączyć? Twoja podróż w <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB Ecosystem</span> właśnie się zaczyna!</p>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Step 4: Chat Features & Tips</p>
+            <p class="text-cyan-300 font-semibold text-center">Step 5: Chat Features</p>
             <div class="space-y-3 text-left bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
-              <p class="flex items-center gap-2"><span class="text-cyan-300">💬</span> <span class="font-semibold">Public chat</span> - talk with community</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🔒</span> <span class="font-semibold">Private chats</span> - secure 1-on-1 conversations</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">💬</span> <span class="font-semibold">Single public channel</span> - talk with entire community</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">⚡</span> <span class="font-semibold">Real-time sync</span> - messages on all devices</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Network switching</span> - earn on Celo, Base and Linea</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Network switching</span> - earn on 5 networks simultaneously</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">👥</span> <span class="font-semibold">User list</span> - see who's online</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🎯</span> <span class="font-semibold">Daily limit</span> - track your progress</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🎯</span> <span class="font-semibold">Daily limits</span> - track your progress on each network</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">📊</span> <span class="font-semibold">Leaderboards</span> - check ranking of active users</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🔥</span> <span class="font-semibold">Daily Streak</span> - daily rewards for activity</p>
             </div>
 
-            ${isAdmin ? `
-            <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
-              <p class="text-purple-300 font-semibold text-center mb-2">👑 Admin Features (Only for You)</p>
-              <div class="space-y-2">
-                <p class="flex items-center gap-2"><span class="text-purple-400">🔗</span> <span class="font-semibold">Link Formatting:</span></p>
-                <p class="ml-4 text-xs">[tweet|Text|https://x.com] → 📢 Text</p>
-                <p class="ml-4 text-xs">[video|Text|https://youtube.com] → 🎥 Text</p>
-                <p class="ml-4 text-xs">[doc|Text|https://docs.com] → 📄 Text</p>
-              </div>
+            <div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-4 mt-4">
+              <p class="text-green-300 font-semibold text-center mb-2">🚀 Final Tip</p>
+              <p class="text-gray-300 text-sm text-center">Start with small steps. Find your space. Be authentic. The rest will come naturally.</p>
+              <p class="text-cyan-400 text-xs text-center mt-2 italic">Remember: the biggest in Web3 aren't where they were yesterday, but where they'll be tomorrow.</p>
             </div>
-            ` : ''}
 
             <p class="text-green-400 font-semibold text-center mt-4">Ready to join? Your <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">HUB Ecosystem</span> journey starts now!</p>
           </div>`,
@@ -265,10 +375,111 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
     }
   ];
 
-  const currentStepData = steps[currentStep];
+  // Dodajemy sekcję admina tylko dla adminów na koniec
+  const adminStep = {
+    id: 6,
+    title: language === 'pl' ? "👑 Funkcje Admina" : "👑 Admin Features",
+    icon: "👑",
+    type: 'admin',
+    content: language === 'pl'
+      ? `<div class="space-y-4 text-white mx-auto max-w-md">
+          <p class="text-purple-300 font-semibold text-center">Wyłączne Funkcje Administracyjne</p>
+          
+          <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
+            <p class="text-purple-300 font-semibold text-center mb-2">🔗 Formatowanie Linków</p>
+            <div class="space-y-2 text-sm">
+              <p class="text-gray-300">Jako admin możesz używać specjalnego formatowania:</p>
+              <div class="bg-gray-800/50 p-3 rounded-lg border border-gray-700">
+                <p class="text-cyan-300">[tweet|Twój tekst|https://x.com] → <span class="text-green-400">📢 Twój tekst</span></p>
+                <p class="text-gray-400 text-xs mt-1">Tworzy link z ikoną tweet i podanym tekstem</p>
+              </div>
+              <div class="bg-gray-800/50 p-3 rounded-lg border border-gray-700 mt-2">
+                <p class="text-cyan-300">[video|Tytuł wideo|https://youtube.com] → <span class="text-green-400">🎥 Tytuł wideo</span></p>
+                <p class="text-gray-400 text-xs mt-1">Tworzy link z ikoną wideo</p>
+              </div>
+              <div class="bg-gray-800/50 p-3 rounded-lg border border-gray-700 mt-2">
+                <p class="text-cyan-300">[doc|Nazwa dokumentu|https://docs.com] → <span class="text-green-400">📄 Nazwa dokumentu</span></p>
+                <p class="text-gray-400 text-xs mt-1">Tworzy link z ikoną dokumentu</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/30 rounded-xl p-4 mb-3">
+            <p class="text-yellow-300 font-semibold text-center mb-2">🛡️ Odpowiedzialność Admina</p>
+            <div class="space-y-2 text-sm">
+              <p class="text-gray-300">Twoje uprawnienia przynoszą odpowiedzialność:</p>
+              <p class="flex items-start gap-2"><span class="text-green-400 mt-1">✓</span> <span>Wspieraj nowych użytkowników</span></p>
+              <p class="flex items-start gap-2"><span class="text-green-400 mt-1">✓</span> <span>Utrzymuj pozytywną atmosferę</span></p>
+              <p class="flex items-start gap-2"><span class="text-green-400 mt-1">✓</span> <span>Dziel się wiedzą o Web3</span></p>
+              <p class="flex items-start gap-2"><span class="text-green-400 mt-1">✓</span> <span>Promuj wartościowe treści</span></p>
+              <p class="flex items-start gap-2"><span class="text-green-400 mt-1">✓</span> <span>Pomagaj w rozwiązywaniu problemów</span></p>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-xl p-4 mb-3">
+            <p class="text-blue-300 font-semibold text-center mb-2">🎯 Wskazówki Dla Admina</p>
+            <div class="space-y-2 text-sm">
+              <p class="text-gray-300">Używaj swoich uprawnień mądrze:</p>
+              <p class="text-gray-300 italic text-center">"Najlepsi liderzy nie pokazują swojej mocy, ale inspirują innych do odkrycia ich własnej siły."</p>
+            </div>
+          </div>
+
+          <p class="text-center text-sm text-gray-400 mt-4">Dziękujemy za byście częścią zespołu który buduje przyszłość HUB Ecosystem! 🚀</p>
+        </div>`
+      : `<div class="space-y-4 text-white mx-auto max-w-md">
+          <p class="text-purple-300 font-semibold text-center">Exclusive Administrative Features</p>
+          
+          <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
+            <p class="text-purple-300 font-semibold text-center mb-2">🔗 Link Formatting</p>
+            <div class="space-y-2 text-sm">
+              <p class="text-gray-300">As admin you can use special formatting:</p>
+              <div class="bg-gray-800/50 p-3 rounded-lg border border-gray-700">
+                <p class="text-cyan-300">[tweet|Your text|https://x.com] → <span class="text-green-400">📢 Your text</span></p>
+                <p class="text-gray-400 text-xs mt-1">Creates link with tweet icon and custom text</p>
+              </div>
+              <div class="bg-gray-800/50 p-3 rounded-lg border border-gray-700 mt-2">
+                <p class="text-cyan-300">[video|Video title|https://youtube.com] → <span class="text-green-400">🎥 Video title</span></p>
+                <p class="text-gray-400 text-xs mt-1">Creates link with video icon</p>
+              </div>
+              <div class="bg-gray-800/50 p-3 rounded-lg border border-gray-700 mt-2">
+                <p class="text-cyan-300">[doc|Document name|https://docs.com] → <span class="text-green-400">📄 Document name</span></p>
+                <p class="text-gray-400 text-xs mt-1">Creates link with document icon</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/30 rounded-xl p-4 mb-3">
+            <p class="text-yellow-300 font-semibold text-center mb-2">🛡️ Admin Responsibility</p>
+            <div class="space-y-2 text-sm">
+              <p class="text-gray-300">Your privileges come with responsibility:</p>
+              <p class="flex items-start gap-2"><span class="text-green-400 mt-1">✓</span> <span>Support new users</span></p>
+              <p class="flex items-start gap-2"><span class="text-green-400 mt-1">✓</span> <span>Maintain positive atmosphere</span></p>
+              <p class="flex items-start gap-2"><span class="text-green-400 mt-1">✓</span> <span>Share Web3 knowledge</span></p>
+              <p class="flex items-start gap-2"><span class="text-green-400 mt-1">✓</span> <span>Promote valuable content</span></p>
+              <p class="flex items-start gap-2"><span class="text-green-400 mt-1">✓</span> <span>Help solve problems</span></p>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-xl p-4 mb-3">
+            <p class="text-blue-300 font-semibold text-center mb-2">🎯 Admin Tips</p>
+            <div class="space-y-2 text-sm">
+              <p class="text-gray-300">Use your powers wisely:</p>
+              <p class="text-gray-300 italic text-center">"The best leaders don't show their power, but inspire others to discover their own strength."</p>
+            </div>
+          </div>
+
+          <p class="text-center text-sm text-gray-400 mt-4">Thank you for being part of the team building the future of HUB Ecosystem! 🚀</p>
+        </div>`,
+    buttonText: language === 'pl' ? 'Zakończ Przewodnik' : 'Finish Guide'
+  };
+
+  // Jeśli użytkownik jest adminem, dodajemy krok admina
+  const allSteps = isAdmin ? [...steps, adminStep] : steps;
+
+  const currentStepData = allSteps[currentStep];
 
   const nextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
+    setCurrentStep(prev => Math.min(prev + 1, allSteps.length - 1));
   };
 
   const prevStep = () => {
@@ -391,15 +602,15 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
             </div>
 
             <div className="flex items-center gap-1">
-              {steps.map((step, index) => (
+              {allSteps.map((step, index) => (
                 <button
                   key={step.id}
                   onClick={() => goToStep(index)}
                   className={`flex-1 h-1 rounded-full transition-all ${
                     index === currentStep 
-                      ? 'bg-cyan-500' 
+                      ? step.type === 'admin' ? 'bg-purple-500' : step.type === 'mystery' ? 'bg-purple-500' : 'bg-cyan-500'
                       : index < currentStep 
-                        ? 'bg-cyan-500/50' 
+                        ? step.type === 'admin' ? 'bg-purple-500/50' : step.type === 'mystery' ? 'bg-purple-500/50' : 'bg-cyan-500/50'
                         : 'bg-gray-600'
                   }`}
                 />
@@ -414,17 +625,24 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               } ${
                 currentStepData.type === 'vision' 
                   ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20' 
+                  : currentStepData.type === 'mystery'
+                  ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20'
+                  : currentStepData.type === 'admin'
+                  ? 'bg-gradient-to-r from-purple-500/20 to-yellow-500/20'
                   : 'bg-cyan-500/20'
               } flex items-center justify-center mx-auto ${isMobile ? 'mb-3' : 'mb-4'}`}>
                 {currentStepData.icon}
               </div>
-              <h2 className={`font-bold text-cyan-300 ${
+              <h2 className={`font-bold ${
+                currentStepData.type === 'mystery' ? 'text-purple-300' : 
+                currentStepData.type === 'admin' ? 'text-yellow-300' : 'text-cyan-300'
+              } ${
                 isMobile ? 'text-lg mb-1' : 'text-2xl mb-2'
               }`}>
                 {currentStepData.title}
               </h2>
               <p className={`text-gray-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                {language === 'pl' ? `Krok ${currentStep + 1} z ${steps.length}` : `Step ${currentStep + 1} of ${steps.length}`}
+                {language === 'pl' ? `Krok ${currentStep + 1} z ${allSteps.length}` : `Step ${currentStep + 1} of ${allSteps.length}`}
               </p>
             </div>
 
@@ -449,12 +667,18 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
             )}
             
             <button
-              onClick={currentStep === steps.length - 1 ? handleClose : nextStep}
+              onClick={currentStep === allSteps.length - 1 ? handleClose : nextStep}
               className={`${
                 isMobile ? 'px-4 py-2 text-sm' : 'px-6 py-3'
               } ${
                 currentStep === 0 ? 'flex-1' : 'flex-1'
-              } bg-gradient-to-r from-cyan-500 to-blue-500 border border-cyan-500/50 rounded-xl text-white font-semibold hover:from-cyan-600 hover:to-blue-600 transition-all transform hover:scale-105`}
+              } ${
+                currentStepData.type === 'mystery'
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 border border-purple-500/50 hover:from-purple-600 hover:to-pink-600'
+                  : currentStepData.type === 'admin'
+                  ? 'bg-gradient-to-r from-purple-500 to-yellow-500 border border-purple-500/50 hover:from-purple-600 hover:to-yellow-600'
+                  : 'bg-gradient-to-r from-cyan-500 to-blue-500 border border-cyan-500/50 hover:from-cyan-600 hover:to-blue-600'
+              } rounded-xl text-white font-semibold transition-all transform hover:scale-105`}
             >
               {currentStepData.buttonText}
             </button>
