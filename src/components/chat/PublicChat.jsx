@@ -26,9 +26,13 @@ const PublicChat = ({
   const [isSending, setIsSending] = useState(false);
   const [pendingTransaction, setPendingTransaction] = useState(null);
   const [replyingTo, setReplyingTo] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   
   const messagesEndRef = useRef(null);
   const messageInputRef = useRef(null);
+  const fileInputRef = useRef(null);
   const { writeContract, data: transactionHash } = useWriteContract();
   
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
@@ -36,6 +40,9 @@ const PublicChat = ({
   });
 
   const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, tokenSymbol } = useNetwork();
+
+  // Twój klucz API ImgBB
+  const IMGBB_API_KEY = '333afaf638c5fba6128627e19948c80c';
 
   useEffect(() => {
     if (!db) return;
@@ -91,6 +98,70 @@ const PublicChat = ({
     }
   }, [isConfirmed, pendingTransaction]);
 
+  const uploadImageToImgBB = async (imageFile) => {
+    if (!imageFile) return null;
+    
+    setIsUploading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('image', imageFile);
+      
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        return result.data.url; // URL obrazu
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Błąd przesyłania obrazu:', error);
+      alert('Nie udało się przesłać obrazu. Spróbuj ponownie.');
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileSelect = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Sprawdź rozmiar pliku (max 32 MB dla ImgBB)
+    if (file.size > 32 * 1024 * 1024) {
+      alert('Plik jest za duży. Maksymalny rozmiar to 32 MB.');
+      return;
+    }
+    
+    // Sprawdź typ pliku
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      alert('Nieprawidłowy typ pliku. Dopuszczalne: JPEG, PNG, GIF, WebP.');
+      return;
+    }
+    
+    // Utwórz podgląd
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+      setSelectedImage(file);
+    };
+    reader.readAsDataURL(file);
+    
+    // Wyczyść input pliku
+    event.target.value = '';
+  };
+
+  const removeSelectedImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
+
   const addMessageToFirestore = async (messageData) => {
     try {
       await addDoc(collection(db, 'messages'), {
@@ -139,13 +210,50 @@ const PublicChat = ({
   };
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !currentUser || !db || isSending) return;
+    // KLUCZOWA ZMIANA: Dla Base - zawsze wymagaj tekstu, dla innych - tekst LUB obrazek
+    let canSend = false;
+    
+    if (isBase) {
+      // BASE: Wymaga zawsze tekstu (jak w oryginale)
+      canSend = newMessage.trim() && currentUser && db && !isSending;
+    } else {
+      // INNE SIECI: Tekst LUB obrazek
+      canSend = (newMessage.trim() || selectedImage) && currentUser && db && !isSending;
+    }
+    
+    if (!canSend) return;
 
     setIsSending(true);
     
     try {
+      let finalContent = newMessage.trim();
+      
+      // Jeśli jest wybrany obraz, prześlij go
+      if (selectedImage) {
+        const imageUrl = await uploadImageToImgBB(selectedImage);
+        if (imageUrl) {
+          // Dodaj URL obrazka do treści
+          finalContent = finalContent 
+            ? `${finalContent} ${imageUrl}`
+            : imageUrl;
+        } else if (!finalContent && !isBase) {
+          // Jeśli tylko obrazek (nie Base) i upload się nie udał - STOP
+          alert('Nie udało się przesłać obrazu.');
+          setIsSending(false);
+          return;
+        }
+        // Dla Base: jeśli upload się nie uda, wysyłamy tylko tekst
+      }
+      
+      // Dla Base: jeśli po uploadzie nie ma treści (tylko obrazek który się nie udał)
+      if (isBase && !finalContent) {
+        alert('Base wymaga tekstu w wiadomości. Dodaj tekst przed wysłaniem.');
+        setIsSending(false);
+        return;
+      }
+      
       const messageData = {
-        content: newMessage,
+        content: finalContent,
         nickname: currentUser.nickname,
         avatar: currentUser.avatar,
         avatarType: currentUser.avatarType,
@@ -164,12 +272,14 @@ const PublicChat = ({
         address: CONTRACT_ADDRESSES[currentNetwork],
         abi: CONTRACT_ABIS[currentNetwork],
         functionName: 'sendMessage',
-        args: [newMessage],
+        args: [finalContent],
       };
       
       writeContract(contractConfig);
       
       setNewMessage('');
+      setSelectedImage(null);
+      setImagePreview(null);
       setReplyingTo(null);
       
     } catch (error) {
@@ -202,7 +312,7 @@ const PublicChat = ({
     
     if (isMobile) {
       if (isCelo) return "Type message and earn HC...";
-      if (isBase) return "Type message and earn HUB...";
+      if (isBase) return "Type message and earn HUB... (Text required)";
       if (isLinea) return "Type message and earn LPX...";
       if (isPolygon) return "Type message and earn MSG...";
       if (isSoneium) return "Type message and earn LUM...";
@@ -213,7 +323,7 @@ const PublicChat = ({
       return "Type your message in public chat and earn HC tokens (10 msg daily) - Enter to send";
     }
     if (isBase) {
-      return "Type your message in public chat and earn HUB tokens (Free tier: 10 msg, Basic: 50, Premium: Unlimited) - Enter to send";
+      return "Type your message in public chat and earn HUB tokens (Free: 10 msg, Basic: 50, Premium: Unlimited) - Text required";
     }
     if (isLinea) {
       return "Type your message in public chat and earn LPX tokens (max 100 msg daily) - Enter to send";
@@ -253,6 +363,7 @@ const PublicChat = ({
           <h2 className="text-base font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
             Public Chat - All Networks
           </h2>
+          <span className="text-xs text-gray-300">(📎 Send images)</span>
         </div>
       </div>
 
@@ -301,7 +412,54 @@ const PublicChat = ({
         </div>
       )}
 
+      {imagePreview && (
+        <div className="mb-3 p-3 bg-gray-800/50 border border-gray-700 rounded-xl flex items-start gap-3">
+          <div className="relative">
+            <img 
+              src={imagePreview} 
+              alt="Preview" 
+              className="w-16 h-16 object-cover rounded-lg"
+            />
+            <button 
+              onClick={removeSelectedImage}
+              className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+            >
+              ×
+            </button>
+          </div>
+          <div className="flex-1">
+            <p className="text-sm text-gray-300">Image ready to send</p>
+            <p className="text-xs text-gray-400">Will be uploaded and sent with your message</p>
+            {isBase && (
+              <p className="text-xs text-yellow-400 mt-1">⚠️ Base requires text with image</p>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className={`flex gap-2 bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl flex-shrink-0 ${isMobile ? 'mt-auto p-2' : 'p-4 rounded-2xl'}`}>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          className="hidden"
+        />
+        
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading || isSending}
+          className={`flex items-center justify-center ${isMobile ? 'w-8 h-8 rounded-lg' : 'w-10 h-10 rounded-xl'} ${isUploading ? 'bg-cyan-500/20 text-cyan-400' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'} transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+          title="Add image"
+        >
+          {isUploading ? (
+            <div className={`animate-spin rounded-full border-2 border-t-transparent ${isMobile ? 'w-5 h-5 border-cyan-400' : 'w-6 h-6 border-cyan-400'}`}></div>
+          ) : (
+            <span className={isMobile ? 'text-base' : 'text-lg'}>📎</span>
+          )}
+        </button>
+        
         <input 
           ref={messageInputRef}
           type="text" 
@@ -309,19 +467,19 @@ const PublicChat = ({
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder={getPlaceholderText()}
-          disabled={isSending}
-          className={`flex-1 bg-transparent border-none text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 disabled:opacity-50 ${
-            isMobile ? 'text-sm px-2' : 'px-3'
-          }`}
+          disabled={isSending || isUploading}
+          className={`flex-1 bg-transparent border-none text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 disabled:opacity-50 ${isMobile ? 'text-sm px-2' : 'px-3'}`}
         />
+        
         <button 
           onClick={sendMessage}
-          disabled={!newMessage.trim() || isSending}
-          className={`bg-gradient-to-r ${getButtonGradient()} text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0 ${
-            isMobile 
-              ? 'px-3 py-2 rounded-lg text-xs min-h-[36px]' 
-              : 'px-6 py-3 rounded-xl'
-          }`}
+          // RÓŻNE WARUNKI DLA RÓŻNYCH SIECI
+          disabled={
+            isBase 
+              ? !newMessage.trim() || isSending || isUploading  // Base: tylko tekst
+              : (!newMessage.trim() && !selectedImage) || isSending || isUploading // Inne: tekst LUB obrazek
+          }
+          className={`bg-gradient-to-r ${getButtonGradient()} text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0 ${isMobile ? 'px-3 py-2 rounded-lg text-xs min-h-[36px]' : 'px-6 py-3 rounded-xl'}`}
         >
           {isSending ? (
             <div className="flex items-center">
@@ -332,6 +490,11 @@ const PublicChat = ({
             <div className="flex items-center">
               <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
               {isMobile ? '' : 'Confirming...'}
+            </div>
+          ) : isUploading ? (
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+              {isMobile ? '' : 'Uploading...'}
             </div>
           ) : (
             isMobile ? '⬆️' : 'Send'
