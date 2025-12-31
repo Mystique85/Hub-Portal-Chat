@@ -1,3 +1,6 @@
+// constants.js - Kompletna konfiguracja dla wszystkich sieci aplikacji chatowej
+
+// ===== GŁÓWNE ADRESY KONTRAKTÓW I KONFIGURACJE =====
 export const CONTRACT_ADDRESSES = {
   celo: "0x12b6e1f30cb714e8129F6101a7825a910a9982F2",
   base: "0x8ea3818294887376673e4e64fBd518598e3a2306",
@@ -14,8 +17,10 @@ export const ADMIN_ADDRESSES = [
   "0xe507d32e736cc858d15b15372ac53f5592f84d97"
 ];
 
+// ===== DOSTĘPNE AWATARY =====
 export const AVAILABLE_AVATARS = ['🐶', '🐱', '🦊', '🐯', '🐻', '🐼', '🐨', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🦆', '🦅'];
 
+// ===== KONFIGURACJE SIECI =====
 export const NETWORK_CONFIG = {
   celo: {
     name: "Celo",
@@ -64,6 +69,7 @@ export const NETWORK_CONFIG = {
   }
 };
 
+// ===== DETALE SIECI DLA UI =====
 export const NETWORK_DETAILS = {
   celo: {
     color: "rgb(251, 255, 82)",
@@ -107,6 +113,7 @@ export const NETWORK_DETAILS = {
   }
 };
 
+// ===== PEŁNE ABI DLA KONTRAKTU BASE (HUBChatRewards) =====
 export const HUB_CHAT_REWARDS_ABI = [
   {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
   {"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"cooldown","type":"uint256"}],"name":"CooldownUpdated","type":"event"},
@@ -137,9 +144,38 @@ export const HUB_CHAT_REWARDS_ABI = [
   {"inputs":[],"name":"cooldownSeconds","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
   {"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"depositHUBTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},
   {"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"emergencyWithdrawHUB","outputs":[],"stateMutability":"nonpayable","type":"function"},
-  {"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"withdrawUSDC","outputs":[],"stateMutability":"nonpayable","type":"function"}
+  {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"forceResetUserLimit","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[],"name":"freeDailyLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"getContractStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"hubBalance","type":"uint256"},{"internalType":"uint256","name":"usdcBalance","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"getCurrentUTCDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"getNextResetTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getRemainingDailyMessages","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getSubscriptionInfo","outputs":[{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"},{"internalType":"uint256","name":"expiry","type":"uint256"},{"internalType":"bool","name":"whitelisted","type":"bool"},{"internalType":"bool","name":"isActive","type":"bool"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserBasicStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"uint256","name":"lastMessageTime","type":"uint256"},{"internalType":"bool","name":"isBlocked","type":"bool"},{"internalType":"uint256","name":"messagesToday","type":"uint256"},{"internalType":"uint256","name":"lastResetDay","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserSubscriptionInfo","outputs":[{"internalType":"uint256","name":"remainingMessages","type":"uint256"},{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"},{"internalType":"bool","name":"whitelisted","type":"bool"},{"internalType":"uint256","name":"subscriptionExpiry","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"getWhitelistedAddresses","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"paidSubscriptions","outputs":[{"internalType":"uint256","name":"expiry","type":"uint256"},{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"pause","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[],"name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"premiumPriceUSDC","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"removeFromWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"string","name":"_content","type":"string"}],"name":"sendMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"_seconds","type":"uint256"}],"name":"setCooldown","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"_free","type":"uint256"},{"internalType":"uint256","name":"_basic","type":"uint256"}],"name":"setLimits","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"_basic","type":"uint256"},{"internalType":"uint256","name":"_premium","type":"uint256"}],"name":"setPrices","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"_seconds","type":"uint256"}],"name":"setSubscriptionDuration","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[],"name":"subscriptionDuration","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"unblockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[],"name":"unpause","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"uint256","name":"lastMessageTime","type":"uint256"},{"internalType":"bool","name":"isBlocked","type":"bool"},{"internalType":"uint256","name":"messagesToday","type":"uint256"},{"internalType":"uint256","name":"lastResetDay","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"whitelist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"withdrawUSDC","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"stateMutability":"payable","type":"receive"}
 ];
 
+// ===== ABI DLA WSZYSTKICH SIECI =====
 export const CONTRACT_ABIS = {
   celo: [
     {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
@@ -368,9 +404,11 @@ export const CONTRACT_ABIS = {
   ]
 };
 
+// ===== Domyślne ustawienia (dla Celo, można zmienić w aplikacji)
 export const CONTRACT_ADDRESS = CONTRACT_ADDRESSES.celo;
 export const CONTRACT_ABI = CONTRACT_ABIS.celo;
 
+// ===== ADRESY TOKENÓW HUB =====
 export const HUB_TOKEN_ADDRESS = {
   celo: "0x12b6e1f30cb714e8129F6101a7825a910a9982F2",
   base: "0x58EFDe38eF2B12392BFB3dc4E503493C46636B3E",
@@ -379,25 +417,30 @@ export const HUB_TOKEN_ADDRESS = {
   soneium: "0x775AD8230648CA3E9C02687A21C69BECC54868Ad"
 };
 
+// ===== ADRESY TOKENÓW MSG =====
 export const MSG_TOKEN_ADDRESS = {
   polygon: "0x139E53FC21f5B95e88dA8Ef9Da57cA5d143f2163"
 };
 
+// ===== ADRESY USDC (WAŻNE DLA BASE) =====
 export const USDC_TOKEN_ADDRESS = {
   base: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
 };
 
+// ===== CENY SUBSCRIPTIONS =====
 export const SUBSCRIPTION_PRICES = {
   basic: 10,
   premium: 50
 };
 
+// ===== TIERY SUBSCRIPTIONS =====
 export const SUBSCRIPTION_TIERS = {
   FREE: 0,
   BASIC: 1,
   PREMIUM: 2
 };
 
+// ===== DZIENNE LIMITY =====
 export const DAILY_LIMITS = {
   FREE: 10,
   BASIC: 50,

@@ -45,21 +45,18 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
 
   const processedText = processMessageForEmbeds(msg.content, isAdmin);
   
-  const renderMessageWithEmbeds = (processedText) => {
+  const renderMessageWithImages = (text) => {
     const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-    
-    return processedText.split(markdownLinkRegex).map((part, index) => {
+    const withMarkdown = text.split(markdownLinkRegex).map((part, index) => {
       if (index % 3 === 1) {
-        const url = processedText.split(markdownLinkRegex)[index + 1];
+        const url = text.split(markdownLinkRegex)[index + 1];
         return (
           <a 
             key={index}
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`text-cyan-400 hover:text-cyan-300 underline font-medium break-words ${
-              isMobile ? 'text-xs' : ''
-            }`}
+            className={`text-cyan-400 hover:text-cyan-300 underline font-medium break-words ${isMobile ? 'text-xs' : ''}`}
             onClick={(e) => e.stopPropagation()}
             style={{ wordBreak: 'break-word' }}
           >
@@ -70,9 +67,66 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
       if (index % 3 === 2) return null;
       return part;
     }).filter(Boolean);
+    
+    const finalResult = [];
+    withMarkdown.forEach((element, index) => {
+      if (typeof element === 'string') {
+        const parts = element.split(/(https?:\/\/[^\s]+)/g);
+        
+        parts.forEach((part, partIndex) => {
+          const key = `${index}-${partIndex}`;
+          
+          if (part.match(/^https?:\/\//)) {
+            if (part.match(/\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i) || part.includes('i.ibb.co')) {
+              finalResult.push(
+                <div key={key} className="my-2 max-w-full">
+                  <img 
+                    src={part} 
+                    alt="Uploaded content" 
+                    className="max-w-full max-h-64 rounded-lg border border-gray-600 cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => window.open(part, '_blank')}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      const link = document.createElement('a');
+                      link.href = part;
+                      link.textContent = '🔗 Open image';
+                      link.className = 'text-cyan-400 hover:text-cyan-300 underline text-sm';
+                      link.target = '_blank';
+                      e.target.parentElement.appendChild(link);
+                    }}
+                    onLoad={(e) => {
+                      e.target.style.opacity = '1';
+                    }}
+                    style={{ opacity: 0, transition: 'opacity 0.3s' }}
+                  />
+                </div>
+              );
+            } else {
+              finalResult.push(
+                <a 
+                  key={key}
+                  href={part}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-400 hover:text-cyan-300 underline break-words"
+                >
+                  {part}
+                </a>
+              );
+            }
+          } else if (part.trim() !== '') {
+            finalResult.push(part);
+          }
+        });
+      } else {
+        finalResult.push(element);
+      }
+    });
+    
+    return finalResult;
   };
 
-  const renderedContent = renderMessageWithEmbeds(processedText);
+  const renderedContent = renderMessageWithImages(processedText);
 
   const handleMouseEnter = () => {
     if (!isMobile) setIsHovered(true);
@@ -190,38 +244,22 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
   };
 
   return (
-    <div className={`
-      bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 hover:border-cyan-500/50 transition-all group relative
-      ${isMobile 
-        ? 'rounded-lg p-2.5 max-w-full'
-        : 'rounded-2xl p-4'
-      }
-    `}>
+    <div className={`bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 hover:border-cyan-500/50 transition-all group relative ${isMobile ? 'rounded-lg p-2.5 max-w-full' : 'rounded-2xl p-4'}`}>
       {canDelete && (
-        <div className={`absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 ${
-          isMobile ? '-top-0.5 -right-0.5' : '-top-2 -right-2'
-        }`}>
+        <div className={`absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 ${isMobile ? '-top-0.5 -right-0.5' : '-top-2 -right-2'}`}>
           {showDeleteConfirm ? (
-            <div className={`bg-red-500/90 backdrop-blur-sm border border-red-400 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-top duration-200 ${
-              isMobile ? 'p-1.5' : 'p-2 rounded-xl'
-            }`}>
-              <span className={`text-white font-medium ${
-                isMobile ? 'text-[10px]' : 'text-xs'
-              }`}>Delete?</span>
+            <div className={`bg-red-500/90 backdrop-blur-sm border border-red-400 rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-top duration-200 ${isMobile ? 'p-1.5' : 'p-2 rounded-xl'}`}>
+              <span className={`text-white font-medium ${isMobile ? 'text-[10px]' : 'text-xs'}`}>Delete?</span>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className={`bg-white text-red-600 hover:bg-gray-100 disabled:opacity-50 transition-all ${
-                  isMobile ? 'text-[10px] px-1.5 py-0.5 rounded' : 'text-xs px-2 py-1 rounded'
-                }`}
+                className={`bg-white text-red-600 hover:bg-gray-100 disabled:opacity-50 transition-all ${isMobile ? 'text-[10px] px-1.5 py-0.5 rounded' : 'text-xs px-2 py-1 rounded'}`}
               >
                 {isDeleting ? '...' : 'Yes'}
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className={`bg-gray-600 text-white hover:bg-gray-500 transition-all ${
-                  isMobile ? 'text-[10px] px-1.5 py-0.5 rounded' : 'text-xs px-2 py-1 rounded'
-                }`}
+                className={`bg-gray-600 text-white hover:bg-gray-500 transition-all ${isMobile ? 'text-[10px] px-1.5 py-0.5 rounded' : 'text-xs px-2 py-1 rounded'}`}
               >
                 No
               </button>
@@ -229,9 +267,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
           ) : (
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className={`bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all ${
-                isMobile ? 'w-4 h-4 text-[10px]' : 'w-6 h-6 text-xs'
-              }`}
+              className={`bg-red-500/80 hover:bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all ${isMobile ? 'w-4 h-4 text-[10px]' : 'w-6 h-6 text-xs'}`}
               title="Delete message"
             >
               ×
@@ -242,13 +278,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
 
       <div className="flex items-center gap-3 mb-2">
         <div 
-          className={`
-            rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center font-bold cursor-pointer transition-all relative
-            ${isMobile 
-              ? 'w-5 h-5 text-[10px] hover:scale-110'
-              : `w-8 h-8 text-sm ${isHovered ? 'scale-110 shadow-lg ring-2 ring-cyan-400/50' : 'hover:scale-110'}`
-            }
-          `}
+          className={`rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center font-bold cursor-pointer transition-all relative ${isMobile ? 'w-5 h-5 text-[10px] hover:scale-110' : `w-8 h-8 text-sm ${isHovered ? 'scale-110 shadow-lg ring-2 ring-cyan-400/50' : 'hover:scale-110'}`}`}
           onClick={handleUserClick}
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
@@ -263,26 +293,14 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         <div className="flex-1 min-w-0 flex items-center gap-3">
           <div className="flex items-center gap-2 flex-wrap">
             <strong 
-              className={`
-                cursor-pointer transition-all duration-200 relative
-                ${isMobile 
-                  ? 'text-white text-xs hover:text-cyan-300' 
-                  : `text-white ${isHovered ? 'text-cyan-300 underline' : 'hover:text-cyan-300 hover:underline'}`
-                }
-              `}
+              className={`cursor-pointer transition-all duration-200 relative ${isMobile ? 'text-white text-xs hover:text-cyan-300' : `text-white ${isHovered ? 'text-cyan-300 underline' : 'hover:text-cyan-300 hover:underline'}`}`}
               onClick={handleUserClick}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
               title={isMobile ? "Tap for options" : "Click for options"}
             >
               {msg.nickname}
-              <span className={`
-                transition-opacity duration-200
-                ${isMobile 
-                  ? 'opacity-60' 
-                  : isHovered ? 'opacity-100' : 'opacity-40'
-                }
-              `}> ›</span>
+              <span className={`transition-opacity duration-200 ${isMobile ? 'opacity-60' : isHovered ? 'opacity-100' : 'opacity-40'}`}> ›</span>
             </strong>
             
             {isAdmin && (
@@ -302,32 +320,22 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
 
       {msg.replyTo && (
         <div 
-          className={`bg-gray-700/30 border-l-2 border-cyan-500 rounded-r-lg cursor-pointer hover:bg-gray-700/50 transition-all group/quote mb-3 ${
-            isMobile ? 'pl-2 py-1.5' : 'pl-3 py-2'
-          }`}
+          className={`bg-gray-700/30 border-l-2 border-cyan-500 rounded-r-lg cursor-pointer hover:bg-gray-700/50 transition-all group/quote mb-3 ${isMobile ? 'pl-2 py-1.5' : 'pl-3 py-2'}`}
           onClick={handleQuoteClick}
         >
           <div className="flex items-center gap-2 mb-1">
-            <span className={`text-cyan-400 ${
-              isMobile ? 'text-xs' : 'text-sm'
-            }`}>↶</span>
-            <span className={`text-cyan-400 font-medium group-hover/quote:text-cyan-300 transition-colors ${
-              isMobile ? 'text-xs' : 'text-sm'
-            }`}>
+            <span className={`text-cyan-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>↶</span>
+            <span className={`text-cyan-400 font-medium group-hover/quote:text-cyan-300 transition-colors ${isMobile ? 'text-xs' : 'text-sm'}`}>
               Replying to @{msg.replyTo.nickname}
             </span>
           </div>
-          <div className={`text-gray-300 group-hover/quote:text-white transition-colors ${
-            isMobile ? 'text-xs' : 'text-sm'
-          }`}>
+          <div className={`text-gray-300 group-hover/quote:text-white transition-colors ${isMobile ? 'text-xs' : 'text-sm'}`}>
             {msg.replyTo.content}
           </div>
         </div>
       )}
       
-      <div className={`text-white break-words overflow-x-hidden mb-2 max-w-full ${
-        isMobile ? 'text-xs' : 'text-sm'
-      }`}>
+      <div className={`text-white break-words overflow-x-hidden mb-2 max-w-full ${isMobile ? 'text-xs' : 'text-sm'}`}>
         {renderedContent}
       </div>
 
@@ -338,11 +346,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
             onClick={() => setShowSimpleMenu(false)}
           />
           <div 
-            className={`fixed bg-white border border-gray-200 rounded-lg shadow-2xl z-[9999] ${
-              isMobile 
-                ? 'min-w-[160px] p-1.5' 
-                : 'min-w-[180px] p-2 rounded-xl'
-            }`}
+            className={`fixed bg-white border border-gray-200 rounded-lg shadow-2xl z-[9999] ${isMobile ? 'min-w-[160px] p-1.5' : 'min-w-[180px] p-2 rounded-xl'}`}
             style={{
               left: menuPosition.x + 'px',
               top: menuPosition.y + 'px',
@@ -351,16 +355,10 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
           >
             <button 
               onClick={() => { setShowSimpleMenu(false); onReply(msg); }}
-              className={`w-full text-left rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-green-50 hover:text-green-700 group/button ${
-                isMobile ? 'px-3 py-2' : 'px-4 py-3'
-              }`}
+              className={`w-full text-left rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-green-50 hover:text-green-700 group/button ${isMobile ? 'px-3 py-2' : 'px-4 py-3'}`}
             >
-              <span className={`text-green-500 transition-transform duration-150 group-hover/button:scale-110 ${
-                isMobile ? 'text-base' : 'text-lg'
-              }`}>↶</span>
-              <span className={`font-medium ${
-                isMobile ? 'text-xs' : ''
-              }`}>Reply</span>
+              <span className={`text-green-500 transition-transform duration-150 group-hover/button:scale-110 ${isMobile ? 'text-base' : 'text-lg'}`}>↶</span>
+              <span className={`font-medium ${isMobile ? 'text-xs' : ''}`}>Reply</span>
             </button>
             
             <button 
@@ -370,16 +368,10 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
                   onViewProfile(msg);
                 }
               }}
-              className={`w-full text-left rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-purple-50 hover:text-purple-700 group/button ${
-                isMobile ? 'px-3 py-2' : 'px-4 py-3'
-              }`}
+              className={`w-full text-left rounded-lg flex items-center gap-3 transition-colors duration-150 text-gray-800 hover:bg-purple-50 hover:text-purple-700 group/button ${isMobile ? 'px-3 py-2' : 'px-4 py-3'}`}
             >
-              <span className={`text-purple-500 transition-transform duration-150 group-hover/button:scale-110 ${
-                isMobile ? 'text-base' : 'text-lg'
-              }`}>👁️</span>
-              <span className={`font-medium ${
-                isMobile ? 'text-xs' : ''
-              }`}>View Profile</span>
+              <span className={`text-purple-500 transition-transform duration-150 group-hover/button:scale-110 ${isMobile ? 'text-base' : 'text-lg'}`}>👁️</span>
+              <span className={`font-medium ${isMobile ? 'text-xs' : ''}`}>View Profile</span>
             </button>
           </div>
         </>,
