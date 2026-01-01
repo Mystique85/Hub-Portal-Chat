@@ -14,7 +14,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     hash: txHash,
   });
 
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, tokenSymbol, networkConfig } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, tokenSymbol, networkConfig } = useNetwork();
 
   const ERC20_ABI = [
     {
@@ -36,6 +36,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isLinea) return ['1', '5', '10', '50']; // LPX
     if (isPolygon) return ['1', '5', '10', '50']; // MSG
     if (isSoneium) return ['1', '5', '10', '50']; // LUM
+    if (isArbitrum) return ['1', '5', '10', '50']; // ARBX
     return ['1', '5', '10', '50'];
   };
 
@@ -95,8 +96,11 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
         contractAddress = HUB_TOKEN_ADDRESS.polygon;
         contractAbi = ERC20_ABI;
       } else if (isSoneium) {
-        // Adres tokena LUM na Soneium - kontrakt mining LUM
         contractAddress = '0x775AD8230648CA3E9C02687A21C69BECC54868Ad';
+        contractAbi = ERC20_ABI;
+      } else if (isArbitrum) {
+        // Adres tokena ARBX na Arbitrum - jednocześnie kontrakt i token
+        contractAddress = '0xe89F9D96f059D656d62302c30fD513C945aCcF38';
         contractAbi = ERC20_ABI;
       }
 
@@ -135,6 +139,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isLinea) return 'LineaScan';
     if (isPolygon) return 'PolygonScan';
     if (isSoneium) return 'Soneium Explorer';
+    if (isArbitrum) return 'Arbiscan';
     return 'Explorer';
   };
 
@@ -144,6 +149,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isLinea) return '🚀';
     if (isPolygon) return '🔶';
     if (isSoneium) return '🌟';
+    if (isArbitrum) return '⚡';
     return '🔗';
   };
 
@@ -153,6 +159,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isLinea) return 'border-cyan-500/40 text-cyan-400';
     if (isPolygon) return 'border-purple-500/40 text-purple-400';
     if (isSoneium) return 'border-pink-500/40 text-pink-400';
+    if (isArbitrum) return 'border-blue-600/40 text-blue-500';
     return 'border-cyan-500/40 text-cyan-400';
   };
 
@@ -162,6 +169,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isLinea) return 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300';
     if (isPolygon) return 'bg-purple-500/10 border-purple-500/30 text-purple-300';
     if (isSoneium) return 'bg-pink-500/10 border-pink-500/30 text-pink-300';
+    if (isArbitrum) return 'bg-blue-600/10 border-blue-600/30 text-blue-400';
     return 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300';
   };
 
@@ -171,6 +179,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isLinea) return 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600';
     if (isPolygon) return 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600';
     if (isSoneium) return 'bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600';
+    if (isArbitrum) return 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600';
     return 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600';
   };
 
@@ -180,6 +189,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isLinea) return 'bg-gradient-to-r from-cyan-400 to-blue-500';
     if (isPolygon) return 'bg-gradient-to-r from-purple-400 to-pink-500';
     if (isSoneium) return 'bg-gradient-to-r from-pink-400 to-purple-500';
+    if (isArbitrum) return 'bg-gradient-to-r from-blue-400 to-cyan-500';
     return 'bg-gradient-to-r from-cyan-400 to-blue-500';
   };
 
@@ -189,6 +199,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isLinea) return 'border-cyan-500';
     if (isPolygon) return 'border-purple-500';
     if (isSoneium) return 'border-pink-500';
+    if (isArbitrum) return 'border-blue-600';
     return 'border-cyan-500';
   };
 
@@ -198,6 +209,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isLinea) return 'focus:ring-cyan-500';
     if (isPolygon) return 'focus:ring-purple-500';
     if (isSoneium) return 'focus:ring-pink-500';
+    if (isArbitrum) return 'focus:ring-blue-500';
     return 'focus:ring-cyan-500';
   };
 
@@ -207,6 +219,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isLinea) return 'text-cyan-400';
     if (isPolygon) return 'text-purple-400';
     if (isSoneium) return 'text-pink-400';
+    if (isArbitrum) return 'text-blue-500';
     return 'text-cyan-400';
   };
 

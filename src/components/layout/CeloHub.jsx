@@ -10,7 +10,6 @@ const translations = {
     welcomeTitle: "Welcome to our ecosystem!",
     welcomeDescription: "Below you'll find all the main links to our applications and channels.",
     mainLinks: "MAIN LINKS",
-    ourApplications: "OUR APPLICATIONS",
     interactCampaigns: "INTRACT CAMPAIGNS",
     website: "Website",
     officialX: "Official X (Twitter) Channel",
@@ -18,10 +17,6 @@ const translations = {
     officialFarcaster: "Official Farcaster Account",
     officialOpensea: "HUB Ecosystem Genesis NFT",
     discord: "Discord Community",
-    application: "Application",
-    farcasterMiniapp: "Farcaster MiniApp",
-    github: "GitHub",
-    karmagap: "KarmaGap (Proof of Ship)",
     openCampaign: "Open Campaign",
     earlyAccessEvent: "Early Access Event — Be the First to Enter HUB Portal Chat",
     joinWeb3Revolution: "JOIN THE WEB3 REVOLUTION"
@@ -98,44 +93,6 @@ const CeloHub = ({ isMobile = false, showButton = true, isOpen: externalIsOpen, 
         url: "https://quest.intract.io/quest/690d04b45ee5c0186132330c",
         icon: "💫",
         status: t.openCampaign
-      }
-    ]
-  };
-
-  const ourApplications = {
-    en: [
-      {
-        name: "HUB Chat",
-        subtitle: "– Decentralized chat platform",
-        description: "A decentralized chat application running on the Celo network (with Base integration coming soon).",
-        links: [
-          { name: t.application, url: "https://hub-portal-chat.vercel.app/", icon: "💬" },
-          { name: t.farcasterMiniapp, url: "https://farcaster.xyz/miniapps/7USxyPewQ2B8/hub-chat", icon: "🔮" },
-          { name: t.github, url: "https://github.com/Mystique85/Hub-Portal-Chat", icon: "💻" },
-          { name: t.karmagap, url: "https://www.karmahq.xyz/project/hub-portal-chat", icon: "🎯" }
-        ],
-        icon: "💬"
-      },
-      {
-        name: "HUB Vote",
-        subtitle: "– Decentralized voting platform", 
-        description: "A governance voting platform for community decisions and project proposals.",
-        links: [
-          { name: t.application, url: "https://hub-portal-vote.vercel.app/", icon: "🗳️" },
-          { name: t.github, url: "https://github.com/Hub-Ecosystem-Portal/Hub-Vote", icon: "💻" },
-          { name: t.karmagap, url: "https://www.karmahq.xyz/project/hub-vote---decentralized-voting-platform", icon: "🎯" }
-        ],
-        icon: "🗳️"
-      },
-      {
-        name: "GM Hub Ecosystem (dailyGM)",
-        subtitle: "– Multichain social interaction",
-        description: "A daily social interaction app where users can send/click GM each day across multiple networks: Celo, Base, and Optimism. The app tracks daily activity and provides social analytics.",
-        links: [
-          { name: t.application, url: "https://gm-dapp-hub-ecosystem.vercel.app/", icon: "👋" },
-          { name: t.github, url: "https://github.com/Mystique85/GMDapp-HubEcosystem", icon: "💻" }
-        ],
-        icon: "👋"
       }
     ]
   };
@@ -333,45 +290,7 @@ const CeloHub = ({ isMobile = false, showButton = true, isOpen: externalIsOpen, 
                   </div>
                 </div>
 
-                {/* Our Applications Section */}
-                <div className="bg-gray-700/50 border border-gray-600/50 rounded-2xl p-6">
-                  <div className="flex items-center gap-3 mb-6">
-                    <span className="text-2xl">💻</span>
-                    <h3 className="text-xl font-bold text-blue-400">{t.ourApplications}</h3>
-                  </div>
-                  <div className="space-y-6">
-                    {ourApplications[language].map((app, index) => (
-                      <div key={index} className="bg-gray-600/30 rounded-xl p-6 border border-gray-500/30">
-                        <div className="flex items-center gap-3 mb-3">
-                          <span className="text-2xl">{app.icon}</span>
-                          <div>
-                            <h4 className="text-lg font-bold text-blue-400">{app.name}</h4>
-                            <p className="text-gray-400 text-sm">{app.subtitle}</p>
-                          </div>
-                        </div>
-                        
-                        <p className="text-gray-300 mb-4 text-sm leading-relaxed">
-                          {app.description}
-                        </p>
-
-                        <div className="flex flex-wrap gap-2">
-                          {app.links.map((link, linkIndex) => (
-                            <a
-                              key={linkIndex}
-                              href={link.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 px-3 py-2 bg-blue-500/20 border border-blue-500/50 rounded-lg text-blue-300 hover:bg-blue-500/30 transition-all text-sm"
-                            >
-                              <span>{link.icon}</span>
-                              <span>{link.name}</span>
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                {/* Removed: Our Applications Section */}
               </div>
             )}
           </div>

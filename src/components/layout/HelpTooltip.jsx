@@ -22,16 +22,16 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
       type: 'vision',
       content: language === 'pl' 
         ? `<div class="space-y-4 text-white">
-            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> to pierwsza na świecie społeczność Web3, która łączy realne zarobki z komunikacją w czasie rzeczywistym na <span class="text-yellow-300 font-semibold">pięciu sieciach blockchain</span>!</p>
+            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> to pierwsza na świecie społeczność Web3, która łączy realne zarobki z komunikacją w czasie rzeczywistym na <span class="text-yellow-300 font-semibold">sześciu sieciach blockchain</span>!</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium</p>
-            <p>Działamy na pięciu sieciach blockchain! Na <span class="text-yellow-300">Celo</span> zdobywasz tokeny <span class="bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent font-semibold">HC</span>, na <span class="text-blue-300">Base</span> zarabiasz główne tokeny <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-semibold">HUB</span>, na <span class="text-cyan-300">Linea</span> zdobywasz tokeny <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">LPX</span>, na <span class="text-purple-300">Polygon</span> minujesz tokeny <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">MSG</span>, a na <span class="text-pink-300">Soneium</span> tokeny <span class="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent font-semibold">LUM</span>.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium + Arbitrum</p>
+            <p>Działamy na sześciu sieciach blockchain! Zarabiaj tokeny na każdej z nich i buduj swoją pozycję w ekosystemie Web3.</p>
 
             <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
               <p class="text-purple-300 font-semibold text-center mb-2">💎 Co nas wyróżnia?</p>
               <div class="space-y-2">
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Szybkie nagrody</span> - tokeny trafiają bezpośrednio do portfela</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Pięć ekosystemów</span> - zarabiaj na Celo, Base, Linea, Polygon i Soneium jednocześnie</p>
+                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Sześć ekosystemów</span> - zarabiaj na wielu sieciach jednocześnie</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Prawdziwa własność</span> - Twoje tokeny, Twoja kontrola</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Bezpieczeństwo</span> - audytowane smart kontrakty</p>
               </div>
@@ -40,16 +40,16 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
             <p class="text-center text-white italic border-t border-gray-600/30 pt-4 mt-4">Dołącz do społeczności, która nie tylko obserwuje rewolucję Web3 - ale aktywnie ją tworzy.</p>
           </div>`
         : `<div class="space-y-4 text-white">
-            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> is the world's first Web3 community combining real earnings with real-time communication on <span class="text-yellow-300 font-semibold">five blockchain networks</span>!</p>
+            <p><span class="text-cyan-300 font-semibold">HUB Portal</span> is the world's first Web3 community combining real earnings with real-time communication on <span class="text-yellow-300 font-semibold">six blockchain networks</span>!</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium</p>
-            <p>We operate on five blockchain networks! On <span class="text-yellow-300">Celo</span> you earn <span class="bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent font-semibold">HC</span> tokens, on <span class="text-blue-300">Base</span> you collect main <span class="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-semibold">HUB</span> ecosystem tokens, on <span class="text-cyan-300">Linea</span> you earn <span class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-semibold">LPX</span> tokens, on <span class="text-purple-300">Polygon</span> you mine <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-semibold">MSG</span> tokens, and on <span class="text-pink-300">Soneium</span> you earn <span class="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent font-semibold">LUM</span> tokens.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium + Arbitrum</p>
+            <p>We operate on six blockchain networks! Earn tokens on each of them and build your position in the Web3 ecosystem.</p>
 
             <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mt-4">
               <p class="text-purple-300 font-semibold text-center mb-2">💎 What Makes Us Unique?</p>
               <div class="space-y-2">
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Fast Rewards</span> - tokens go directly to your wallet</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Five Ecosystems</span> - earn on Celo, Base, Linea, Polygon and Soneium simultaneously</p>
+                <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Six Ecosystems</span> - earn on multiple networks simultaneously</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">True Ownership</span> - your tokens, your control</p>
                 <p class="flex items-center gap-2"><span class="text-green-400">✓</span> <span class="font-semibold">Security</span> - audited smart contracts</p>
               </div>
@@ -71,7 +71,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">1.</span> Kliknij <span class="text-cyan-300 font-semibold">"Connect Wallet"</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">2.</span> Wybierz kompatybilny portfel EVM</p>
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Portfel automatycznie przełączy się na odpowiednią sieć</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Wspierane sieci:</span> Celo, Base, Linea, Polygon i Soneium</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Wspierane sieci:</span> Celo, Base, Linea, Polygon, Soneium i Arbitrum</p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Połączenie jest w <span class="text-green-400 font-semibold">100% bezpieczne</span></p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 Możesz zmieniać sieci w aplikacji jednym kliknięciem!</p>
@@ -82,7 +82,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">1.</span> Click <span class="text-cyan-300 font-semibold">"Connect Wallet"</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">2.</span> Choose compatible EVM wallet</p>
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Wallet will auto-switch to correct network</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Supported networks:</span> Celo, Base, Linea, Polygon and Soneium</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">4.</span> <span class="text-green-400">Supported networks:</span> Celo, Base, Linea, Polygon, Soneium and Arbitrum</p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Connection is <span class="text-green-400 font-semibold">100% secure</span></p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 You can switch networks in the app with one click!</p>
@@ -103,7 +103,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Wybierz avatar z dostępnych emoji</p>
               <p class="flex items-center gap-2"><span class="text-green-400">4.</span> Profil powiązany z adresem portfela <span class="text-cyan-300 font-semibold">na zawsze</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Dane widoczne dla całej społeczności</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> Jeden profil działa na wszystkich pięciu sieciach!</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> Jeden profil działa na wszystkich sześciu sieciach!</p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 Twój profil to Twoja cyfrowa tożsamość w Web3!</p>
           </div>`
@@ -115,7 +115,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-green-400">3.</span> Select avatar from available emojis</p>
               <p class="flex items-center gap-2"><span class="text-green-400">4.</span> Profile linked to wallet address <span class="text-cyan-300 font-semibold">forever</span></p>
               <p class="flex items-center gap-2"><span class="text-green-400">5.</span> Data visible to entire community</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> One profile works on all five networks!</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">6.</span> One profile works on all six networks!</p>
             </div>
             <p class="text-yellow-300 text-sm text-center mt-4">💡 Your profile is your digital identity in Web3!</p>
           </div>`,
@@ -153,39 +153,46 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
             </div>
 
             <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mb-3">
-              <p class="text-cyan-300 font-semibold text-center mb-2">🔷 LINEA NETWORK (Nowość!)</p>
+              <p class="text-cyan-300 font-semibold text-center mb-2">🔷 LINEA NETWORK</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-cyan-300">1 LPX token</span> za każdą wiadomość</p>
                 <p>• Limit: <span class="text-cyan-300">100 LPX dziennie</span></p>
-                <p>• Nowy token <span class="text-cyan-300 font-semibold">Linea Prime (LPX)</span></p>
+                <p>• Token <span class="text-cyan-300 font-semibold">Linea Prime (LPX)</span></p>
                 <p>• Maksymalna podaż: 1,000,000,000 LPX</p>
-                <p>• Zaawansowane funkcje antyspamowe</p>
               </div>
             </div>
 
             <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
-              <p class="text-purple-300 font-semibold text-center mb-2">🔶 POLYGON NETWORK (Nowość!)</p>
+              <p class="text-purple-300 font-semibold text-center mb-2">🔶 POLYGON NETWORK</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-purple-300">Mining tokena MSG</span> za aktywność</p>
                 <p>• Limit: <span class="text-purple-300">100 MSG dziennie</span></p>
                 <p>• Natychmiastowe dostarczanie tokenów</p>
-                <p>• Niska opłata gas (PoS consensus)</p>
-                <p>• Wsparcie dla szerokiej gamy portfeli</p>
+                <p>• Niska opłata gas</p>
               </div>
             </div>
 
             <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-4 mb-3">
-              <p class="text-pink-300 font-semibold text-center mb-2">✨ SONEIUM NETWORK (Nowość!)</p>
+              <p class="text-pink-300 font-semibold text-center mb-2">✨ SONEIUM NETWORK</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-pink-300">Mining tokena LUM</span> za aktywność</p>
                 <p>• Limit: <span class="text-pink-300">100 LUM dziennie</span></p>
                 <p>• Ekskluzywne środowisko blockchain</p>
-                <p>• Wczesny dostęp do nowej sieci</p>
                 <p>• Unikalne możliwości sieci Soneium</p>
               </div>
             </div>
 
-            <p class="text-yellow-300 text-sm text-center">💡 Wybierz sieć w aplikacji by przełączać między systemami!</p>
+            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-3">
+              <p class="text-emerald-300 font-semibold text-center mb-2">🔵 ARBITRUM NETWORK</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-emerald-300">1 Portal Token (ARBX)</span> za każdą wiadomość</p>
+                <p>• Limit: <span class="text-emerald-300">100 ARBX dziennie</span></p>
+                <p>• Niskie opłaty transakcyjne</p>
+                <p>• Dostęp do ekosystemu Layer 2</p>
+              </div>
+            </div>
+
+            <p class="text-yellow-300 text-sm text-center mt-4">💡 Wybierz sieć w aplikacji by przełączać między systemami!</p>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
             <p class="text-cyan-300 font-semibold text-center">Rewards Systems on All Networks</p>
@@ -213,39 +220,46 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
             </div>
 
             <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mb-3">
-              <p class="text-cyan-300 font-semibold text-center mb-2">🔷 LINEA NETWORK (New!)</p>
+              <p class="text-cyan-300 font-semibold text-center mb-2">🔷 LINEA NETWORK</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-cyan-300">1 LPX token</span> per message</p>
                 <p>• Limit: <span class="text-cyan-300">100 LPX daily</span></p>
-                <p>• New <span class="text-cyan-300 font-semibold">Linea Prime (LPX)</span> token</p>
+                <p>• <span class="text-cyan-300 font-semibold">Linea Prime (LPX)</span> token</p>
                 <p>• Max supply: 1,000,000,000 LPX</p>
-                <p>• Advanced anti-spam features</p>
               </div>
             </div>
 
             <div class="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
-              <p class="text-purple-300 font-semibold text-center mb-2">🔶 POLYGON NETWORK (New!)</p>
+              <p class="text-purple-300 font-semibold text-center mb-2">🔶 POLYGON NETWORK</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-purple-300">MSG token mining</span> for activity</p>
                 <p>• Limit: <span class="text-purple-300">100 MSG daily</span></p>
                 <p>• Instant token delivery</p>
-                <p>• Low gas fees (PoS consensus)</p>
-                <p>• Support for wide range of wallets</p>
+                <p>• Low gas fees</p>
               </div>
             </div>
 
             <div class="bg-pink-500/10 border border-pink-500/30 rounded-xl p-4 mb-3">
-              <p class="text-pink-300 font-semibold text-center mb-2">✨ SONEIUM NETWORK (New!)</p>
+              <p class="text-pink-300 font-semibold text-center mb-2">✨ SONEIUM NETWORK</p>
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-pink-300">LUM token mining</span> for activity</p>
                 <p>• Limit: <span class="text-pink-300">100 LUM daily</span></p>
                 <p>• Exclusive blockchain environment</p>
-                <p>• Early access to new network</p>
                 <p>• Unique Soneium network opportunities</p>
               </div>
             </div>
 
-            <p class="text-yellow-300 text-sm text-center">💡 Choose network in app to switch between systems!</p>
+            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-3">
+              <p class="text-emerald-300 font-semibold text-center mb-2">🔵 ARBITRUM NETWORK</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-emerald-300">1 Portal Token (ARBX)</span> per message</p>
+                <p>• Limit: <span class="text-emerald-300">100 ARBX daily</span></p>
+                <p>• Low transaction fees</p>
+                <p>• Access to Layer 2 ecosystem</p>
+              </div>
+            </div>
+
+            <p class="text-yellow-300 text-sm text-center mt-4">💡 Choose network in app to switch between systems!</p>
           </div>`,
       buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
     },
@@ -336,7 +350,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
             <div class="space-y-3 text-left bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
               <p class="flex items-center gap-2"><span class="text-cyan-300">💬</span> <span class="font-semibold">Jedyny kanał publiczny</span> - rozmawiaj z całą społecznością</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">⚡</span> <span class="font-semibold">Real-time sync</span> - wiadomości na wszystkich urządzeniach</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Przełączanie sieci</span> - zarabiaj na 5 sieciach jednocześnie</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Przełączanie sieci</span> - zarabiaj na 6 sieciach jednocześnie</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">👥</span> <span class="font-semibold">Lista użytkowników</span> - zobacz kto jest online</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">🎯</span> <span class="font-semibold">Limity dzienne</span> - śledź swoje postępy na każdej sieci</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">📊</span> <span class="font-semibold">Leaderboardy</span> - sprawdź ranking aktywnych użytkowników</p>
@@ -356,7 +370,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
             <div class="space-y-3 text-left bg-gray-700/30 rounded-xl p-4 border border-gray-600/30">
               <p class="flex items-center gap-2"><span class="text-cyan-300">💬</span> <span class="font-semibold">Single public channel</span> - talk with entire community</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">⚡</span> <span class="font-semibold">Real-time sync</span> - messages on all devices</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Network switching</span> - earn on 5 networks simultaneously</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🌐</span> <span class="font-semibold">Network switching</span> - earn on 6 networks simultaneously</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">👥</span> <span class="font-semibold">User list</span> - see who's online</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">🎯</span> <span class="font-semibold">Daily limits</span> - track your progress on each network</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">📊</span> <span class="font-semibold">Leaderboards</span> - check ranking of active users</p>

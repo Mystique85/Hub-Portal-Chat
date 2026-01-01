@@ -31,22 +31,42 @@ const soneiumNetwork = {
   testnet: false,
 }
 
+const arbitrumNetwork = {
+  id: 42161,
+  name: 'Arbitrum',
+  network: 'arbitrum',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ethereum',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: { http: ['https://arb1.arbitrum.io/rpc'] },
+    public: { http: ['https://arb1.arbitrum.io/rpc'] },
+  },
+  blockExplorers: {
+    default: { name: 'Arbiscan', url: 'https://arbiscan.io' },
+  },
+  testnet: false,
+}
+
 const wagmiAdapter = new WagmiAdapter({
   projectId,
-  networks: [celo, base, linea, polygon, soneiumNetwork],
+  networks: [celo, base, linea, polygon, soneiumNetwork, arbitrumNetwork],
   transports: {
     [celo.id]: http(),
     [base.id]: http(),
     [linea.id]: http(),
     [polygon.id]: http(),
     [soneiumNetwork.id]: http('https://rpc.soneium.org'),
+    [arbitrumNetwork.id]: http('https://arb1.arbitrum.io/rpc'),
   },
   ssr: false
 })
 
 export const appKit = createAppKit({
   adapters: [wagmiAdapter],
-  networks: [celo, base, linea, polygon, soneiumNetwork],
+  networks: [celo, base, linea, polygon, soneiumNetwork, arbitrumNetwork],
   projectId,
   metadata,
   enableMobileWalletLink: true,

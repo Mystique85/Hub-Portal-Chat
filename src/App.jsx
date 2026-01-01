@@ -20,6 +20,7 @@ import StakingModal from './components/modals/StakingModal';
 import DailyGMLinea from './components/modals/DailyGMLinea';
 import DailyGMPolygon from './components/modals/DailyGMPolygon';
 import DailyGMSoneium from './components/modals/DailyGMSoneium';
+import DailyGMArbitrum from './components/modals/DailyGMArbitrum';
 
 import { useFirebase } from './hooks/useFirebase';
 import { useUsers } from './hooks/useUsers';
@@ -65,6 +66,13 @@ const NETWORKS = [
     logo: '/Soneium.logo.jpg',
     fallbackEmoji: '🌟',
     color: 'pink'
+  },
+  {
+    id: 'arbitrum',
+    name: 'ARBITRUM',
+    logo: '/Arbitrum.logo.jpg',
+    fallbackEmoji: '⚡',
+    color: 'blue'
   }
 ];
 
@@ -84,7 +92,7 @@ function App() {
   
   const [activeChat, setActiveChat] = useState('public');
   
-  const { isCelo, isBase, isLinea, isPolygon, isSoneium, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
+  const { isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
   useEffect(() => {
     (async () => {

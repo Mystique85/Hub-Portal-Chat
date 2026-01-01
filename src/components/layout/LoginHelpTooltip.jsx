@@ -21,7 +21,7 @@ const LoginHelpTooltip = () => {
   }, [showTooltip]);
 
   const nextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, 5));
+    setCurrentStep(prev => Math.min(prev + 1, 6));
   };
 
   const prevStep = () => {
@@ -47,8 +47,8 @@ const LoginHelpTooltip = () => {
         ? `<div class="space-y-4 text-white">
             <p><span class="text-cyan-300 font-semibold">HUB Chat</span> to Twój pierwszy krok w przyszłość społeczności internetowych - miejscu, gdzie Twoja aktywność ma realną wartość.</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium</p>
-            <p>Działamy na pięciu sieciach blockchain! Na <span class="text-yellow-300">Celo</span> zdobywasz tokeny <span class="text-cyan-300">HC</span>, na <span class="text-blue-300">Base</span> tokeny <span class="text-purple-300">HUB</span>, na <span class="text-cyan-300">Linea</span> tokeny <span class="text-blue-300">LPX</span>, na <span class="text-purple-300">Polygon</span> tokeny <span class="text-purple-300">MSG</span>, a na <span class="text-pink-300">Soneium</span> tokeny <span class="text-pink-300">LUM</span>.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium + Arbitrum</p>
+            <p>Działamy na sześciu sieciach blockchain! Na <span class="text-yellow-300">Celo</span> zdobywasz tokeny <span class="text-cyan-300">HC</span>, na <span class="text-blue-300">Base</span> tokeny <span class="text-purple-300">HUB</span>, na <span class="text-cyan-300">Linea</span> tokeny <span class="text-blue-300">LPX</span>, na <span class="text-purple-300">Polygon</span> tokeny <span class="text-purple-300">MSG</span>, na <span class="text-pink-300">Soneium</span> tokeny <span class="text-pink-300">LUM</span>, a na <span class="text-emerald-300">Arbitrum</span> tokeny <span class="text-emerald-300">ARBX</span>.</p>
 
             <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mt-4">
               <p class="text-cyan-300 font-semibold text-center mb-2">💰 Opłaty Sieciowe</p>
@@ -63,8 +63,8 @@ const LoginHelpTooltip = () => {
         : `<div class="space-y-4 text-white">
             <p><span class="text-cyan-300 font-semibold">HUB Chat</span> is your first step into the future of online communities - a place where your activity holds real value.</p>
 
-            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium</p>
-            <p>We operate on five blockchain networks! On <span class="text-yellow-300">Celo</span> you earn <span class="text-cyan-300">HC</span> tokens, on <span class="text-blue-300">Base</span> you collect <span class="text-purple-300">HUB</span> tokens, on <span class="text-cyan-300">Linea</span> you earn <span class="text-blue-300">LPX</span> tokens, on <span class="text-purple-300">Polygon</span> you earn <span class="text-purple-300">MSG</span> tokens, and on <span class="text-pink-300">Soneium</span> you earn <span class="text-pink-300">LUM</span> tokens.</p>
+            <p class="text-cyan-300 font-semibold">🎯 Multi-Chain Rewards: Celo + Base + Linea + Polygon + Soneium + Arbitrum</p>
+            <p>We operate on six blockchain networks! On <span class="text-yellow-300">Celo</span> you earn <span class="text-cyan-300">HC</span> tokens, on <span class="text-blue-300">Base</span> you collect <span class="text-purple-300">HUB</span> tokens, on <span class="text-cyan-300">Linea</span> you earn <span class="text-blue-300">LPX</span> tokens, on <span class="text-purple-300">Polygon</span> you earn <span class="text-purple-300">MSG</span> tokens, on <span class="text-pink-300">Soneium</span> you earn <span class="text-pink-300">LUM</span> tokens, and on <span class="text-emerald-300">Arbitrum</span> you earn <span class="text-emerald-300">ARBX</span> tokens.</p>
 
             <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 mt-4">
               <p class="text-cyan-300 font-semibold text-center mb-2">💰 Network Fees</p>
@@ -90,7 +90,7 @@ const LoginHelpTooltip = () => {
               <p>• Kliknij <span class="text-cyan-300">"Connect Wallet"</span></p>
               <p>• Wybierz kompatybilny portfel EVM</p>
               <p>• Portfel automatycznie przełączy się na odpowiednią sieć</p>
-              <p>• <span class="text-green-400">Wspierane sieci:</span> Celo, Base, Linea, Polygon, Soneium</p>
+              <p>• <span class="text-green-400">Wspierane sieci:</span> Celo, Base, Linea, Polygon, Soneium, Arbitrum</p>
               <p>• Połączenie jest w <span class="text-green-400">100% bezpieczne</span></p>
             </div>
           </div>`
@@ -100,7 +100,7 @@ const LoginHelpTooltip = () => {
               <p>• Click <span class="text-cyan-300">"Connect Wallet"</span></p>
               <p>• Choose compatible EVM wallet</p>
               <p>• Wallet will auto-switch to correct network</p>
-              <p>• <span class="text-green-400">Supported networks:</span> Celo, Base, Linea, Polygon, Soneium</p>
+              <p>• <span class="text-green-400">Supported networks:</span> Celo, Base, Linea, Polygon, Soneium, Arbitrum</p>
               <p>• Connection is <span class="text-green-400">100% secure</span></p>
             </div>
           </div>`,
@@ -120,7 +120,7 @@ const LoginHelpTooltip = () => {
               <p>• Wybierz avatar z dostępnych emoji</p>
               <p>• Profil powiązany z adresem portfela <span class="text-cyan-300">na zawsze</span></p>
               <p>• Dane widoczne dla całej społeczności</p>
-              <p>• Jeden profil działa na wszystkich pięciu sieciach!</p>
+              <p>• Jeden profil działa na wszystkich sześciu sieciach!</p>
             </div>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
@@ -131,7 +131,7 @@ const LoginHelpTooltip = () => {
               <p>• Select avatar from available emojis</p>
               <p>• Profile linked to wallet address <span class="text-cyan-300">forever</span></p>
               <p>• Data visible to entire community</p>
-              <p>• One profile works on all five networks!</p>
+              <p>• One profile works on all six networks!</p>
             </div>
           </div>`,
       buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
@@ -189,6 +189,16 @@ const LoginHelpTooltip = () => {
               </div>
             </div>
 
+            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-3">
+              <p class="text-emerald-300 font-semibold text-center mb-2">🔵 ARBITRUM NETWORK</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-emerald-300">1 ARBX token</span> za każdą wiadomość</p>
+                <p>• Nowa sieć z wyższymi limitami</p>
+                <p>• Arbitrum-based rewards system</p>
+                <p>• ARBX token utility na ekosystemie Arbitrum</p>
+              </div>
+            </div>
+
             <div class="bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 mt-4">
               <p class="text-gray-300 text-sm text-center">💰 Każda wysłana wiadomość wymaga standardowej opłaty sieciowej (gas fee).</p>
             </div>
@@ -240,6 +250,16 @@ const LoginHelpTooltip = () => {
               </div>
             </div>
 
+            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-3">
+              <p class="text-emerald-300 font-semibold text-center mb-2">🔵 ARBITRUM NETWORK</p>
+              <div class="space-y-1 text-sm">
+                <p>• <span class="text-emerald-300">1 ARBX token</span> per message</p>
+                <p>• New network with higher limits</p>
+                <p>• Arbitrum-based rewards system</p>
+                <p>• ARBX token utility on Arbitrum ecosystem</p>
+              </div>
+            </div>
+
             <div class="bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 mt-4">
               <p class="text-gray-300 text-sm text-center">💰 Every sent message requires a standard network fee (gas fee).</p>
             </div>
@@ -253,7 +273,7 @@ const LoginHelpTooltip = () => {
       type: 'step',
       content: language === 'pl'
         ? `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Daily GM Challenge na 5 Sieciach</p>
+            <p class="text-cyan-300 font-semibold text-center">Daily GM Challenge na 6 Sieciach</p>
             
             <div class="space-y-3">
               <p>• <span class="text-yellow-300">Celo:</span> Daily GM Challenge</p>
@@ -261,6 +281,7 @@ const LoginHelpTooltip = () => {
               <p>• <span class="text-cyan-300">Linea:</span> Daily GM Challenge</p>
               <p>• <span class="text-purple-300">Polygon:</span> Daily GM Challenge</p>
               <p>• <span class="text-pink-300">Soneium:</span> Daily GM Challenge</p>
+              <p>• <span class="text-emerald-300">Arbitrum:</span> Daily GM Challenge</p>
             </div>
 
             <div class="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-xl p-4 mt-4">
@@ -278,7 +299,7 @@ const LoginHelpTooltip = () => {
             </div>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Daily Challenge on 5 Networks</p>
+            <p class="text-cyan-300 font-semibold text-center">Daily Challenge on 6 Networks</p>
             
             <div class="space-y-3">
               <p>• <span class="text-yellow-300">Celo:</span> Daily GM Challenge</p>
@@ -286,6 +307,7 @@ const LoginHelpTooltip = () => {
               <p>• <span class="text-cyan-300">Linea:</span> Daily GM Challenge</p>
               <p>• <span class="text-purple-300">Polygon:</span> Daily GM Challenge</p>
               <p>• <span class="text-pink-300">Soneium:</span> Daily GM Challenge</p>
+              <p>• <span class="text-emerald-300">Arbitrum:</span> Daily GM Challenge</p>
             </div>
 
             <div class="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/30 rounded-xl p-4 mt-4">
@@ -306,16 +328,95 @@ const LoginHelpTooltip = () => {
     },
     {
       id: 5,
+      title: language === 'pl' ? "📈 Ekosystem i Użyteczność" : "📈 Ecosystem & Utility",
+      icon: "📈",
+      type: 'step',
+      content: language === 'pl'
+        ? `<div class="space-y-4 text-white mx-auto max-w-md">
+            <p class="text-cyan-300 font-semibold text-center">Wartość Twoich Tokenów</p>
+            
+            <div class="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-xl p-4 mb-3">
+              <p class="text-cyan-300 font-semibold text-center mb-2">🎯 Token Utility</p>
+              <div class="space-y-2 text-sm">
+                <p>• <strong>HC (Celo):</strong> Governance, staking, leaderboard rewards</p>
+                <p>• <strong>HUB (Base):</strong> Subscription access, staking bonuses</p>
+                <p>• <strong>LPX (Linea):</strong> Network rewards, future Linea ecosystem</p>
+                <p>• <strong>MSG (Polygon):</strong> Message Protocol governance, mining rewards</p>
+                <p>• <strong>LUM (Soneium):</strong> Soneium Score boosts, exclusive access</p>
+                <p>• <strong>ARBX (Arbitrum):</strong> Arbitrum ecosystem integration, DeFi opportunities</p>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
+              <p class="text-purple-300 font-semibold text-center mb-2">🚀 HUB Ecosystem Growth</p>
+              <div class="space-y-2 text-sm">
+                <p>• Każdy token zbliża Cię do przyszłych airdropów</p>
+                <p>• Aktywność = wyższy ranking w społeczności</p>
+                <p>• Zaangażowanie na wielu sieciach = większe korzyści</p>
+                <p>• Wczesni użytkownicy otrzymają specjalne nagrody</p>
+              </div>
+            </div>
+
+            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-3">
+              <p class="text-emerald-300 font-semibold text-center mb-2">🔵 Nowość: Arbitrum Network</p>
+              <div class="space-y-2 text-sm">
+                <p>• ARBX jako nowy token w ekosystemie</p>
+                <p>• Integracja z DeFi na Arbitrum</p>
+                <p>• Niższe opłaty transakcyjne</p>
+                <p>• Dostęp do rozwijającego się ekosystemu L2</p>
+              </div>
+            </div>
+          </div>`
+        : `<div class="space-y-4 text-white mx-auto max-w-md">
+            <p class="text-cyan-300 font-semibold text-center">Value of Your Tokens</p>
+            
+            <div class="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-xl p-4 mb-3">
+              <p class="text-cyan-300 font-semibold text-center mb-2">🎯 Token Utility</p>
+              <div class="space-y-2 text-sm">
+                <p>• <strong>HC (Celo):</strong> Governance, staking, leaderboard rewards</p>
+                <p>• <strong>HUB (Base):</strong> Subscription access, staking bonuses</p>
+                <p>• <strong>LPX (Linea):</strong> Network rewards, future Linea ecosystem</p>
+                <p>• <strong>MSG (Polygon):</strong> Message Protocol governance, mining rewards</p>
+                <p>• <strong>LUM (Soneium):</strong> Soneium Score boosts, exclusive access</p>
+                <p>• <strong>ARBX (Arbitrum):</strong> Arbitrum ecosystem integration, DeFi opportunities</p>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 rounded-xl p-4 mb-3">
+              <p class="text-purple-300 font-semibold text-center mb-2">🚀 HUB Ecosystem Growth</p>
+              <div class="space-y-2 text-sm">
+                <p>• Every token brings you closer to future airdrops</p>
+                <p>• Activity = higher community ranking</p>
+                <p>• Engagement across multiple networks = greater benefits</p>
+                <p>• Early users receive special rewards</p>
+              </div>
+            </div>
+
+            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mb-3">
+              <p class="text-emerald-300 font-semibold text-center mb-2">🔵 New: Arbitrum Network</p>
+              <div class="space-y-2 text-sm">
+                <p>• ARBX as new token in ecosystem</p>
+                <p>• Integration with Arbitrum DeFi</p>
+                <p>• Lower transaction fees</p>
+                <p>• Access to growing L2 ecosystem</p>
+              </div>
+            </div>
+          </div>`,
+      buttonText: language === 'pl' ? 'Dalej →' : 'Next →'
+    },
+    {
+      id: 6,
       title: language === 'pl' ? "💬 Rozpocznij Czatowanie" : "💬 Start Chatting",
       icon: "💬",
       type: 'step',
       content: language === 'pl'
         ? `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Krok 5: Rozpocznij Czatowanie</p>
+            <p class="text-cyan-300 font-semibold text-center">Krok 6: Rozpocznij Czatowanie</p>
             <div class="space-y-3 text-left">
               <p>• <span class="text-cyan-300">Czat publiczny</span> - rozmowy ze wszystkimi</p>
               <p>• <span class="text-cyan-300">System online</span> - zobacz aktywnych</p>
               <p>• <span class="text-cyan-300">Enter</span> - szybkie wysyłanie</p>
+              <p>• <span class="text-emerald-300">Wybierz sieć</span> - Celo, Base, Linea, Polygon, Soneium lub Arbitrum</p>
             </div>
 
             <div class="bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 mt-4">
@@ -328,17 +429,19 @@ const LoginHelpTooltip = () => {
                 <p>• <strong>Im więcej tokenów zdobywasz</strong> - tym lepszą pozycję masz</p>
                 <p>• <strong>Aktywność w społeczności</strong> - buduje reputację</p>
                 <p>• <strong>Każda wiadomość ma znaczenie</strong> dla przyszłych airdropów</p>
+                <p>• <strong>Nowa sieć Arbitrum</strong> - dodatkowe możliwości z ARBX</p>
               </div>
             </div>
 
             <p class="text-green-400 font-semibold text-center mt-4">Gotowy by dołączyć? Twoja podróż w <span class="text-purple-400 font-semibold">HUB Ecosystem</span> właśnie się zaczyna!</p>
           </div>`
         : `<div class="space-y-4 text-white mx-auto max-w-md">
-            <p class="text-cyan-300 font-semibold text-center">Step 5: Start Chatting</p>
+            <p class="text-cyan-300 font-semibold text-center">Step 6: Start Chatting</p>
             <div class="space-y-3 text-left">
               <p>• <span class="text-cyan-300">Public chat</span> - talk with everyone</p>
               <p>• <span class="text-cyan-300">Online system</span> - see active users</p>
               <p>• <span class="text-cyan-300">Enter</span> - quick sending</p>
+              <p>• <span class="text-emerald-300">Choose network</span> - Celo, Base, Linea, Polygon, Soneium or Arbitrum</p>
             </div>
 
             <div class="bg-gray-700/50 border border-gray-600/50 rounded-xl p-3 mt-4">
@@ -351,6 +454,7 @@ const LoginHelpTooltip = () => {
                 <p>• <strong>The more tokens you earn</strong> - the better position you have</p>
                 <p>• <strong>Community engagement</strong> - builds reputation</p>
                 <p>• <strong>Every message matters</strong> for future airdrops</p>
+                <p>• <strong>New Arbitrum network</strong> - additional opportunities with ARBX</p>
               </div>
             </div>
 
@@ -465,7 +569,7 @@ const LoginHelpTooltip = () => {
             )}
             
             <button
-              onClick={currentStep === 5 ? handleClose : nextStep}
+              onClick={currentStep === 6 ? handleClose : nextStep}
               className={`px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 border border-cyan-500/50 rounded-xl text-white font-semibold hover:from-cyan-600 hover:to-blue-600 transition-all transform hover:scale-105 ${
                 currentStep === 0 ? 'flex-1' : 'flex-1'
               }`}

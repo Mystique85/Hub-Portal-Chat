@@ -219,6 +219,12 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         textColor: 'text-pink-400',
         logo: '/Soneium.logo.jpg',
         fallbackIcon: '🌟' 
+      },
+      arbitrum: { 
+        text: 'ARBITRUM', 
+        textColor: 'text-blue-500',
+        logo: '/Arbitrum.logo.jpg',
+        fallbackIcon: '⚡' 
       }
     };
     

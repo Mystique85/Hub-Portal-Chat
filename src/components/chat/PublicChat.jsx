@@ -39,7 +39,7 @@ const PublicChat = ({
     hash: transactionHash,
   });
 
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, tokenSymbol } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, tokenSymbol } = useNetwork();
 
   // Twój klucz API ImgBB
   const IMGBB_API_KEY = '333afaf638c5fba6128627e19948c80c';
@@ -316,6 +316,7 @@ const PublicChat = ({
       if (isLinea) return "Type message and earn LPX...";
       if (isPolygon) return "Type message and earn MSG...";
       if (isSoneium) return "Type message and earn LUM...";
+      if (isArbitrum) return "Type message and earn PORTAL...";
       return "Type message...";
     }
     
@@ -334,6 +335,9 @@ const PublicChat = ({
     if (isSoneium) {
       return "Type your message in public chat and earn LUM tokens (max 100 msg daily, 2-560 chars) - Enter to send";
     }
+    if (isArbitrum) {
+      return "Type your message in public chat and earn $ARBX tokens (max 100 msg daily)";
+    }
     
     return "Type your message in public chat... (Enter to send)";
   };
@@ -344,6 +348,7 @@ const PublicChat = ({
     if (isLinea) return "from-cyan-500/10 to-cyan-500/5 border-cyan-500/30 text-cyan-400";
     if (isPolygon) return "from-purple-500/10 to-purple-500/5 border-purple-500/30 text-purple-400";
     if (isSoneium) return "from-pink-500/10 to-pink-500/5 border-pink-500/30 text-pink-400";
+    if (isArbitrum) return "from-blue-600/10 to-blue-600/5 border-blue-600/30 text-blue-500";
     return "from-cyan-500/10 to-blue-500/10 border-cyan-500/30 text-cyan-400";
   };
 
@@ -353,6 +358,7 @@ const PublicChat = ({
     if (isLinea) return "from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600";
     if (isPolygon) return "from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600";
     if (isSoneium) return "from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600";
+    if (isArbitrum) return "from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800";
     return "from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600";
   };
 
