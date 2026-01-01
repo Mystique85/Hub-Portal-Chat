@@ -8,6 +8,7 @@ import DailyRewardsModalBase from '../modals/DailyRewardsModalBase';
 import DailyGMLinea from '../modals/DailyGMLinea';
 import DailyGMPolygon from '../modals/DailyGMPolygon';
 import DailyGMSoneium from '../modals/DailyGMSoneium';
+import DailyGMArbitrum from '../modals/DailyGMArbitrum';
 import ReactDOM from 'react-dom';
 import { useNetwork } from '../../hooks/useNetwork';
 import { useSwitchChain } from 'wagmi';
@@ -28,6 +29,7 @@ const Header = ({
   const [showDailyStreakLinea, setShowDailyStreakLinea] = useState(false);
   const [showDailyStreakPolygon, setShowDailyStreakPolygon] = useState(false);
   const [showDailyStreakSoneium, setShowDailyStreakSoneium] = useState(false);
+  const [showDailyStreakArbitrum, setShowDailyStreakArbitrum] = useState(false);
   const [showQuickAccessMenu, setShowQuickAccessMenu] = useState(false);
   const [showNFTInfo, setShowNFTInfo] = useState(false);
   const [showNetworkDropdown, setShowNetworkDropdown] = useState(false);
@@ -48,6 +50,7 @@ const Header = ({
     isLinea,
     isPolygon,
     isSoneium,
+    isArbitrum,
     tokenSymbol, 
     networkName, 
     networkIcon,
@@ -117,6 +120,8 @@ const Header = ({
         await switchChain({ chainId: 137 });
       } else if (targetNetwork === 'soneium') {
         await switchChain({ chainId: 1868 });
+      } else if (targetNetwork === 'arbitrum') {
+        await switchChain({ chainId: 42161 });
       }
     } catch (error) {
       console.error('Error switching network:', error);
@@ -252,6 +257,8 @@ const Header = ({
                 setShowDailyStreakPolygon(true);
               } else if (isSoneium) {
                 setShowDailyStreakSoneium(true);
+              } else if (isArbitrum) {
+                setShowDailyStreakArbitrum(true);
               }
               setShowQuickAccessMenu(false);
             }}
@@ -357,6 +364,16 @@ const Header = ({
         border: 'border-pink-500/30',
         bg: 'bg-pink-500/10',
         isCurrent: isSoneium
+      },
+      {
+        id: 'arbitrum',
+        name: 'Arbitrum',
+        icon: '/Arbitrum.logo.jpg',
+        symbol: 'ARBX',
+        color: 'text-blue-500',
+        border: 'border-blue-600/30',
+        bg: 'bg-blue-600/10',
+        isCurrent: isArbitrum
       }
     ];
 
@@ -396,7 +413,8 @@ const Header = ({
                     network.id === 'base' ? '🌉' :
                     network.id === 'linea' ? '🚀' :
                     network.id === 'polygon' ? '🔶' :
-                    network.id === 'soneium' ? '🌟' : '🌐'
+                    network.id === 'soneium' ? '🌟' :
+                    network.id === 'arbitrum' ? '⚡' : '🌐'
                   }</span>`;
                 }}
               />
@@ -500,6 +518,19 @@ const Header = ({
         />
       );
     }
+    if (isArbitrum) {
+      return (
+        <img 
+          src="/Arbitrum.logo.jpg" 
+          alt="Arbitrum" 
+          className="w-5 h-5 object-cover rounded"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<span class="text-lg">⚡</span>`;
+          }}
+        />
+      );
+    }
     return <span className="text-lg">🌐</span>;
   };
 
@@ -579,6 +610,8 @@ const Header = ({
                     setShowDailyStreakPolygon(true);
                   } else if (isSoneium) {
                     setShowDailyStreakSoneium(true);
+                  } else if (isArbitrum) {
+                    setShowDailyStreakArbitrum(true);
                   }
                 }}
                 className="bg-gradient-to-r from-orange-500 to-amber-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
@@ -633,6 +666,15 @@ const Header = ({
           <DailyGMSoneium 
             isOpen={showDailyStreakSoneium}
             onClose={() => setShowDailyStreakSoneium(false)}
+            currentUser={currentUser}
+            isMobile={true}
+          />
+        )}
+
+        {showDailyStreakArbitrum && isArbitrum && (
+          <DailyGMArbitrum 
+            isOpen={showDailyStreakArbitrum}
+            onClose={() => setShowDailyStreakArbitrum(false)}
             currentUser={currentUser}
             isMobile={true}
           />
@@ -693,6 +735,8 @@ const Header = ({
               <span>Celo Leaderboard</span>
             </button>
           )}
+
+          {/* USUNIĘTY PRZYCISK Daily GM dla Arbitrum */}
 
           <div className="relative">
             <button 
@@ -797,6 +841,15 @@ const Header = ({
           <DailyGMSoneium 
             isOpen={showDailyStreakSoneium}
             onClose={() => setShowDailyStreakSoneium(false)}
+            currentUser={currentUser}
+            isMobile={false}
+          />
+        )}
+
+        {showDailyStreakArbitrum && isArbitrum && (
+          <DailyGMArbitrum 
+            isOpen={showDailyStreakArbitrum}
+            onClose={() => setShowDailyStreakArbitrum(false)}
             currentUser={currentUser}
             isMobile={false}
           />

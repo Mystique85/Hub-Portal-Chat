@@ -21,6 +21,7 @@ const UserProfileModal = ({
   const [lineaBalance, setLineaBalance] = useState('0');
   const [polygonBalance, setPolygonBalance] = useState('0');
   const [soneiumBalance, setSoneiumBalance] = useState('0');
+  const [arbitrumBalance, setArbitrumBalance] = useState('0');
   const [loading, setLoading] = useState(true);
   const [showSendModal, setShowSendModal] = useState(false);
   const [seasonStats, setSeasonStats] = useState(null);
@@ -29,7 +30,8 @@ const UserProfileModal = ({
     base: 'loading',
     linea: 'loading',
     polygon: 'loading',
-    soneium: 'loading'
+    soneium: 'loading',
+    arbitrum: 'loading'
   });
   const [dailyUsage, setDailyUsage] = useState({
     used: 0,
@@ -42,7 +44,7 @@ const UserProfileModal = ({
   const [stakeBadgeInfo, setStakeBadgeInfo] = useState(null);
 
   const network = useNetwork();
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, tokenSymbol } = network;
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, tokenSymbol } = network;
   const season = getCurrentSeason();
   
   const isCurrentUserProfile = currentUser?.walletAddress?.toLowerCase() === user?.walletAddress?.toLowerCase();
@@ -216,7 +218,7 @@ const UserProfileModal = ({
       if (!user || !user.walletAddress) return;
       
       setLoading(true);
-      setNetworkStatus({ celo: 'loading', base: 'loading', linea: 'loading', polygon: 'loading', soneium: 'loading' });
+      setNetworkStatus({ celo: 'loading', base: 'loading', linea: 'loading', polygon: 'loading', soneium: 'loading', arbitrum: 'loading' });
       
       try {
         const userDoc = await getDoc(doc(db, 'users', user.walletAddress.toLowerCase()));
@@ -256,6 +258,9 @@ const UserProfileModal = ({
             } else if (currentNetwork === 'soneium') {
               setSoneiumBalance(currentUser.balance || '0');
               setNetworkStatus(prev => ({ ...prev, soneium: 'live' }));
+            } else if (currentNetwork === 'arbitrum') {
+              setArbitrumBalance(currentUser.balance || '0');
+              setNetworkStatus(prev => ({ ...prev, arbitrum: 'live' }));
             }
             
             try {
@@ -265,60 +270,84 @@ const UserProfileModal = ({
                 setLineaBalance(balances.linea || '0');
                 setPolygonBalance(balances.polygon || '0');
                 setSoneiumBalance(balances.soneium || '0');
+                setArbitrumBalance(balances.arbitrum || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   base: 'fetched',
                   linea: 'fetched',
                   polygon: 'fetched',
-                  soneium: 'fetched'
+                  soneium: 'fetched',
+                  arbitrum: 'fetched'
                 }));
               } else if (currentNetwork === 'base') {
                 setCeloBalance(balances.celo || '0');
                 setLineaBalance(balances.linea || '0');
                 setPolygonBalance(balances.polygon || '0');
                 setSoneiumBalance(balances.soneium || '0');
+                setArbitrumBalance(balances.arbitrum || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   celo: 'fetched',
                   linea: 'fetched',
                   polygon: 'fetched',
-                  soneium: 'fetched'
+                  soneium: 'fetched',
+                  arbitrum: 'fetched'
                 }));
               } else if (currentNetwork === 'linea') {
                 setBaseBalance(balances.base || '0');
                 setCeloBalance(balances.celo || '0');
                 setPolygonBalance(balances.polygon || '0');
                 setSoneiumBalance(balances.soneium || '0');
+                setArbitrumBalance(balances.arbitrum || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   base: 'fetched',
                   celo: 'fetched',
                   polygon: 'fetched',
-                  soneium: 'fetched'
+                  soneium: 'fetched',
+                  arbitrum: 'fetched'
                 }));
               } else if (currentNetwork === 'polygon') {
                 setBaseBalance(balances.base || '0');
                 setCeloBalance(balances.celo || '0');
                 setLineaBalance(balances.linea || '0');
                 setSoneiumBalance(balances.soneium || '0');
+                setArbitrumBalance(balances.arbitrum || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   base: 'fetched',
                   celo: 'fetched',
                   linea: 'fetched',
-                  soneium: 'fetched'
+                  soneium: 'fetched',
+                  arbitrum: 'fetched'
                 }));
               } else if (currentNetwork === 'soneium') {
                 setBaseBalance(balances.base || '0');
                 setCeloBalance(balances.celo || '0');
                 setLineaBalance(balances.linea || '0');
                 setPolygonBalance(balances.polygon || '0');
+                setArbitrumBalance(balances.arbitrum || '0');
                 setNetworkStatus(prev => ({ 
                   ...prev, 
                   base: 'fetched',
                   celo: 'fetched',
                   linea: 'fetched',
-                  polygon: 'fetched'
+                  polygon: 'fetched',
+                  arbitrum: 'fetched'
+                }));
+              } else if (currentNetwork === 'arbitrum') {
+                setBaseBalance(balances.base || '0');
+                setCeloBalance(balances.celo || '0');
+                setLineaBalance(balances.linea || '0');
+                setPolygonBalance(balances.polygon || '0');
+                setSoneiumBalance(balances.soneium || '0');
+                setNetworkStatus(prev => ({ 
+                  ...prev, 
+                  base: 'fetched',
+                  celo: 'fetched',
+                  linea: 'fetched',
+                  polygon: 'fetched',
+                  soneium: 'fetched'
                 }));
               }
             } catch (error) {
@@ -327,26 +356,37 @@ const UserProfileModal = ({
                 setLineaBalance('0');
                 setPolygonBalance('0');
                 setSoneiumBalance('0');
+                setArbitrumBalance('0');
               } else if (currentNetwork === 'base') {
                 setCeloBalance('0');
                 setLineaBalance('0');
                 setPolygonBalance('0');
                 setSoneiumBalance('0');
+                setArbitrumBalance('0');
               } else if (currentNetwork === 'linea') {
                 setBaseBalance('0');
                 setCeloBalance('0');
                 setPolygonBalance('0');
                 setSoneiumBalance('0');
+                setArbitrumBalance('0');
               } else if (currentNetwork === 'polygon') {
                 setBaseBalance('0');
                 setCeloBalance('0');
                 setLineaBalance('0');
                 setSoneiumBalance('0');
+                setArbitrumBalance('0');
               } else if (currentNetwork === 'soneium') {
                 setBaseBalance('0');
                 setCeloBalance('0');
                 setLineaBalance('0');
                 setPolygonBalance('0');
+                setArbitrumBalance('0');
+              } else if (currentNetwork === 'arbitrum') {
+                setBaseBalance('0');
+                setCeloBalance('0');
+                setLineaBalance('0');
+                setPolygonBalance('0');
+                setSoneiumBalance('0');
               }
             }
           } else {
@@ -357,12 +397,14 @@ const UserProfileModal = ({
               setLineaBalance(balances.linea || '0');
               setPolygonBalance(balances.polygon || '0');
               setSoneiumBalance(balances.soneium || '0');
+              setArbitrumBalance(balances.arbitrum || '0');
               setNetworkStatus({
                 celo: balances.celo !== '0' ? 'fetched' : 'zero',
                 base: balances.base !== '0' ? 'fetched' : 'zero',
                 linea: balances.linea !== '0' ? 'fetched' : 'zero',
                 polygon: balances.polygon !== '0' ? 'fetched' : 'zero',
-                soneium: balances.soneium !== '0' ? 'fetched' : 'zero'
+                soneium: balances.soneium !== '0' ? 'fetched' : 'zero',
+                arbitrum: balances.arbitrum !== '0' ? 'fetched' : 'zero'
               });
             } catch (error) {
               setCeloBalance('0');
@@ -370,7 +412,8 @@ const UserProfileModal = ({
               setLineaBalance('0');
               setPolygonBalance('0');
               setSoneiumBalance('0');
-              setNetworkStatus({ celo: 'error', base: 'error', linea: 'error', polygon: 'error', soneium: 'error' });
+              setArbitrumBalance('0');
+              setNetworkStatus({ celo: 'error', base: 'error', linea: 'error', polygon: 'error', soneium: 'error', arbitrum: 'error' });
             }
           }
         }
@@ -416,6 +459,7 @@ const UserProfileModal = ({
     if (network === 'linea' && currentNetwork === 'linea') return 'Live';
     if (network === 'polygon' && currentNetwork === 'polygon') return 'Live';
     if (network === 'soneium' && currentNetwork === 'soneium') return 'Live';
+    if (network === 'arbitrum' && currentNetwork === 'arbitrum') return 'Live';
     
     switch(status) {
       case 'live': return 'Live';
@@ -857,6 +901,43 @@ const UserProfileModal = ({
                     <div className={`text-pink-300 ${
                       isMobile ? 'text-[9px]' : 'text-[10px]'
                     }`}>$LUM</div>
+                  </div>
+                  
+                  {/* PORTAL Balance - Arbitrum */}
+                  <div className={`bg-blue-600/10 border rounded-xl p-2 text-center ${
+                    currentNetwork === 'arbitrum' ? 'border-blue-600/40' : 'border-blue-600/20'
+                  }`}>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <div className="flex items-center gap-1">
+                        <img 
+                          src="/Arbitrum.logo.jpg" 
+                          alt="Arbitrum" 
+                          className="w-4 h-4 object-cover rounded"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = `<span class="text-blue-500">⚡</span>`;
+                          }}
+                        />
+                        <span className={`text-blue-400 ${
+                          isMobile ? 'text-[9px]' : 'text-[10px]'
+                        }`}>Arbitrum</span>
+                      </div>
+                      <div className={`px-0.5 py-0.5 rounded ${
+                        networkStatus.arbitrum === 'live' ? 'bg-blue-600/30 text-blue-400' :
+                        networkStatus.arbitrum === 'fetched' ? 'bg-blue-600/20 text-blue-500' :
+                        'bg-gray-700/50 text-gray-400'
+                      } ${isMobile ? 'text-[8px]' : 'text-[9px]'}`}>
+                        {getNetworkStatusText('arbitrum', networkStatus.arbitrum)}
+                      </div>
+                    </div>
+                    <div className={`text-blue-500 font-bold truncate ${
+                      isMobile ? 'text-sm' : 'text-base'
+                    }`} title={arbitrumBalance}>
+                      {formatLargeNumber(arbitrumBalance)}
+                    </div>
+                    <div className={`text-blue-400 ${
+                      isMobile ? 'text-[9px]' : 'text-[10px]'
+                    }`}>$ARBX</div>
                   </div>
                 </div>
               </div>

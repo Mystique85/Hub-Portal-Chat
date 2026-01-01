@@ -9,7 +9,8 @@ const DONATION_ADDRESS = '0xd30286180E142628cc437624Ea4160d5450F73D6';
 const TOKEN_ADDRESSES = {
   base: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC na Base
   linea: '0xaca92e438df0b2401ff60da7e4337b687a2435da', // mUSD na Linea
-  soneium: '0x2CAE934a1e84F693fbb78CA5ED3B0A6893259441' // ASTR na Soneium
+  soneium: '0x2CAE934a1e84F693fbb78CA5ED3B0A6893259441', // ASTR na Soneium
+  arbitrum: '0x912CE59144191C1204E64559FE8253a0e49E6548' // ARB na Arbitrum
 };
 
 const DONATION_CONFIG = {
@@ -65,6 +66,17 @@ const DONATION_CONFIG = {
     bgColor: 'bg-pink-500/10',
     borderColor: 'border-pink-500/30',
     icon: '/Soneium.logo.jpg'
+  },
+  arbitrum: {
+    symbol: 'ARB',
+    decimals: 18,
+    explorer: 'https://arbiscan.io',
+    isNative: false,
+    tokenAddress: TOKEN_ADDRESSES.arbitrum,
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/10',
+    borderColor: 'border-emerald-500/30',
+    icon: '/Arbitrum.logo.jpg'
   }
 };
 
@@ -90,7 +102,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
   const [txHash, setTxHash] = useState(null);
   const [currentStep, setCurrentStep] = useState('select');
 
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, networkConfig } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, networkConfig } = useNetwork();
 
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
 
@@ -106,14 +118,16 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
       if (isBase) return ['1', '5', '10', '20'];
       if (isLinea) return ['1', '5', '10', '20'];
       if (isPolygon) return ['0.1', '0.5', '1', '5'];
-      if (isSoneium) return ['1', '5', '10', '20']; // ASTR preset dla Soneium
+      if (isSoneium) return ['1', '5', '10', '20'];
+      if (isArbitrum) return ['0.5', '1', '5', '10']; // ARB preset dla Arbitrum
       return ['0.1', '0.5', '1', '5'];
     } else {
       if (isCelo) return ['0.1', '0.5', '1', '5', '10'];
       if (isBase) return ['1', '5', '10', '20', '50'];
       if (isLinea) return ['1', '5', '10', '20', '50'];
       if (isPolygon) return ['0.1', '0.5', '1', '5', '10'];
-      if (isSoneium) return ['1', '5', '10', '20', '50']; // ASTR preset dla Soneium
+      if (isSoneium) return ['1', '5', '10', '20', '50'];
+      if (isArbitrum) return ['0.5', '1', '5', '10', '20']; // ARB preset dla Arbitrum
       return ['0.1', '0.5', '1', '5', '10'];
     }
   };
@@ -182,7 +196,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
           value: amountInWei,
         });
       } else {
-        // Dla ERC20 tokenów (USDC/mUSD/ASTR) - użyj funkcji transfer
+        // Dla ERC20 tokenów (USDC/mUSD/ASTR/ARB) - użyj funkcji transfer
         hash = await writeContractAsync({
           address: donationConfig.tokenAddress,
           abi: ERC20_ABI,
@@ -220,6 +234,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     if (isLinea) return 'Donate in mUSD';
     if (isPolygon) return 'Donate in POL';
     if (isSoneium) return 'Donate in ASTR';
+    if (isArbitrum) return 'Donate in ARB';
     return 'Donate';
   };
 
@@ -233,6 +248,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     if (isLinea) return 'LineaScan';
     if (isPolygon) return 'PolygonScan';
     if (isSoneium) return 'Soneium Explorer';
+    if (isArbitrum) return 'Arbitrum Explorer';
     return 'Explorer';
   };
 
@@ -242,6 +258,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     if (isLinea) return 'mUSD is the stablecoin on Linea network';
     if (isPolygon) return 'POL (MATIC) is the native token of Polygon network';
     if (isSoneium) return 'ASTR is the native token of Soneium network';
+    if (isArbitrum) return 'ARB is the governance token of Arbitrum network';
     return '';
   };
 
@@ -251,6 +268,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     if (isLinea) return '🚀';
     if (isPolygon) return '🔶';
     if (isSoneium) return '🌟';
+    if (isArbitrum) return '🔵';
     return '💝';
   };
 

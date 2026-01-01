@@ -29,6 +29,8 @@
 | **Polygon** | Daily GM POL Streak | Daily GM POL Streak System | [`0x12F9003d35e30D6Cec22C3E618CE4d4Cd87F8444`](https://polygonscan.com/address/0x12F9003d35e30D6Cec22C3E618CE4d4Cd87F8444) |
 | **Soneium** | LUM Token Mining | LUM Token Mining | [`0x775AD8230648CA3E9C02687A21C69BECC54868Ad`](https://soneium.blockscout.com/address/0x775AD8230648CA3E9C02687A21C69BECC54868Ad) |
 | **Soneium** | Daily GM ASTR Streak | Daily GM ASTR Streak System | [`0x91f586f33Ee6582d307E06fd0dca31a4De079B1E`](https://soneium.blockscout.com/address/0x91f586f33Ee6582d307E06fd0dca31a4De079B1E) |
+| **Arbitrum** | ARBX Token Mining | Portal Token (ARBX) | [`0xe89F9D96f059D656d62302c30fD513C945aCcF38`](https://arbiscan.io/address/0xe89F9D96f059D656d62302c30fD513C945aCcF38) |
+| **Arbitrum** | Daily GM ARB Streak | Daily GM ARB Streak System | [`0x8E0A9B35306ce9Ddf7ea7BD3cc4E2D266186a4ED`](https://arbiscan.io/address/0x8E0A9B35306ce9Ddf7ea7BD3cc4E2D266186a4ED) |
 
 ---
 
@@ -37,7 +39,7 @@
 ### 💬 Intelligent Multi-Chain Messaging
 - **Public Chat** - Community conversations with instant delivery across all devices
 - **Real-time Synchronization** - Messages appear instantly for all users
-- **Multi-Chain Rewards** - Earn native tokens on Base, Celo, Linea, Polygon, and Soneium networks
+- **Multi-Chain Rewards** - Earn native tokens on Base, Celo, Linea, Polygon, Soneium, and Arbitrum networks
 - **Admin Tools** - Message moderation and embedded content for administrators
 - **User Profiles** - Custom avatars, nicknames, and on-chain statistics
 - **Cross-Chain Experience** - Seamlessly switch between different blockchain networks
@@ -51,6 +53,7 @@
 | **Linea** | LPX | Anti-spam protection & admin controls | 100 messages |
 | **Polygon** | MSG | Gas-optimized messages & full statistics | 100 messages |
 | **Soneium** | LUM | Daily rewards with message protocol | 100 messages |
+| **Arbitrum** | ARBX | Portal Token mining on Layer 2 | 100 messages |
 
 ### 🔥 Daily GM Streak System
 
@@ -60,6 +63,7 @@ Maintain daily streaks across all networks:
 - **Linea**: GM with mUSD fee
 - **Polygon**: GM with POL (MATIC) fee
 - **Soneium**: GM with ASTR fee
+- **Arbitrum**: GM with ARB fee
 
 **How it works:**
 1. Send your daily GM to keep your streak alive
@@ -102,7 +106,7 @@ Lock HUB tokens to earn rewards and exclusive badges:
 
 ### Quick Start
 1. **Connect Wallet**: Use your preferred Web3 wallet (MetaMask, Rabby, etc.)
-2. **Choose Network**: Switch to Base, Celo, Linea, Polygon, or Soneium
+2. **Choose Network**: Switch to Base, Celo, Linea, Polygon, Soneium, or Arbitrum
 3. **Set Profile**: Choose nickname and avatar
 4. **Start Chatting**: Send messages to earn tokens
 5. **Maintain Streak**: Send daily GM to keep your streak alive
@@ -135,6 +139,13 @@ Lock HUB tokens to earn rewards and exclusive badges:
 - 100 messages daily limit
 - Soneium Score system with leaderboard
 - Daily GM streak with ASTR fees
+
+**Arbitrum Network**:
+- ARBX Portal Token mining (1 ARBX per message)
+- Ultra-low transaction fees (Layer 2)
+- 100 messages daily limit
+- Daily GM streak with ARB fees
+- Integration with Arbitrum DeFi ecosystem
 
 ---
 
@@ -171,33 +182,21 @@ Lock HUB tokens to earn rewards and exclusive badges:
 - **Utility**: Daily mining rewards with message protocol
 - **Features**: 100 messages daily limit, on-chain statistics
 
----
-
-## 🔥 Daily GM Streak System (All Networks)
-
-### Unified Daily Streak Experience
-
-| Network | Token | Contract | Fee Range |
-|---------|-------|----------|-----------|
-| **Base** | USDC | `0x220160fad5f6f5c2Af2674469dD99e132759D9Ca` | 0.01-0.2 USDC |
-| **Celo** | CELO | `0x5A2652Db9D2eb49C9c66f1952DD56ECd8ED915bc` | 0.1-10 CELO |
-| **Linea** | mUSD | `0x4e4F31986aB5eCf851F5a5321eE83C501cd1D4a8` | Fixed fee |
-| **Polygon** | POL | `0x12F9003d35e30D6Cec22C3E618CE4d4Cd87F8444` | 0.1-2 POL |
-| **Soneium** | ASTR | `0x91f586f33Ee6582d307E06fd0dca31a4De079B1E` | 1-50 ASTR |
-
-**Key Benefits:**
-- On-chain streak tracking (current & longest)
-- 24-hour cooldown between GMs
-- Configurable fee system (owner adjustable)
-- Private fee collector for enhanced security
-- Complete user statistics and spending tracking
+### Arbitrum Network - ARBX Token
+- **Name**: Portal Token
+- **Symbol**: ARBX
+- **Contract**: `0xe89F9D96f059D656d62302c30fD513C945aCcF38`
+- **Utility**: Chat mining rewards on Arbitrum Layer 2
+- **Features**: 100 messages daily limit, ultra-low fees, DeFi integration
+- **Reward per Message**: 1 ARBX
 
 ---
+
 
 ## 🌐 HUB Ecosystem Integration
 
 HUB Portal is the flagship social application within the **HUB Ecosystem**:
-- Multi-chain identity across 5 networks
+- Multi-chain identity across 6 networks
 - NFT-integrated rewards system
 - Governance-ready architecture
 - Growing suite of dApps
@@ -229,6 +228,7 @@ MIT License
 [![Linea Network](https://img.shields.io/badge/🔷_Linea_Network-61DBFB?style=for-the-badge)](https://linea.build)
 [![Polygon Network](https://img.shields.io/badge/🔶_Polygon_Network-8247E5?style=for-the-badge)](https://polygon.technology)
 [![Soneium Network](https://img.shields.io/badge/🌟_Soneium_Network-FF6B8B?style=for-the-badge)](https://soneium.network)
+[![Arbitrum Network](https://img.shields.io/badge/🔵_Arbitrum_Network-28A0F0?style=for-the-badge)](https://arbitrum.io)
 [![Genesis NFT](https://img.shields.io/badge/🎭_Genesis_NFT-FF6B8B?style=for-the-badge)](https://opensea.io/collection/hub-ecosystem-genesis-nft)
 [![Daily GM Streak](https://img.shields.io/badge/🔥_Daily_GM_Streak-FF6A00?style=for-the-badge)](https://hub-portal-chat.vercel.app)
 
