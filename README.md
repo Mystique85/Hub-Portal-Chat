@@ -31,6 +31,9 @@
 | **Soneium** | Daily GM ASTR Streak | Daily GM ASTR Streak System | [`0x91f586f33Ee6582d307E06fd0dca31a4De079B1E`](https://soneium.blockscout.com/address/0x91f586f33Ee6582d307E06fd0dca31a4De079B1E) |
 | **Arbitrum** | ARBX Token Mining | Portal Token (ARBX) | [`0xe89F9D96f059D656d62302c30fD513C945aCcF38`](https://arbiscan.io/address/0xe89F9D96f059D656d62302c30fD513C945aCcF38) |
 | **Arbitrum** | Daily GM ARB Streak | Daily GM ARB Streak System | [`0x8E0A9B35306ce9Ddf7ea7BD3cc4E2D266186a4ED`](https://arbiscan.io/address/0x8E0A9B35306ce9Ddf7ea7BD3cc4E2D266186a4ED) |
+| **Monad** | HUBBY Token Mining | HUBBY Token Mining for Chat | [`0xD3f1028629d56B29a503c1a1f98A2112Dad18d9e`](https://monad.blockscout.com/address/0xD3f1028629d56B29a503c1a1f98A2112Dad18d9e) |
+| **Monad** | HUBBY Token Trading | HUBBY Token on Nad.fun | [`0x116d5cd7dD3108FC76084B4511D362B50d447777`](https://nad.fun/tokens/0x116d5cd7dD3108FC76084B4511D362B50d447777) |
+| **Monad** | HUBBY NFT Collection | HUBBY NFT on OpenSea | [`0xf66af9dc317ec514ebc8b64544db2983f768a560`](https://opensea.io/collection/hubbit-hero) |
 
 ---
 
@@ -39,7 +42,7 @@
 ### 💬 Intelligent Multi-Chain Messaging
 - **Public Chat** - Community conversations with instant delivery across all devices
 - **Real-time Synchronization** - Messages appear instantly for all users
-- **Multi-Chain Rewards** - Earn native tokens on Base, Celo, Linea, Polygon, Soneium, and Arbitrum networks
+- **Multi-Chain Rewards** - Earn native tokens on Base, Celo, Linea, Polygon, Soneium, Arbitrum, and Monad networks
 - **Admin Tools** - Message moderation and embedded content for administrators
 - **User Profiles** - Custom avatars, nicknames, and on-chain statistics
 - **Cross-Chain Experience** - Seamlessly switch between different blockchain networks
@@ -54,6 +57,7 @@
 | **Polygon** | MSG | Gas-optimized messages & full statistics | 100 messages |
 | **Soneium** | LUM | Daily rewards with message protocol | 100 messages |
 | **Arbitrum** | ARBX | Portal Token mining on Layer 2 | 100 messages |
+| **Monad** | HUBBY | Native token mining on Monad network | 100 messages |
 
 ### 🔥 Daily GM Streak System
 
@@ -64,6 +68,7 @@ Maintain daily streaks across all networks:
 - **Polygon**: GM with POL (MATIC) fee
 - **Soneium**: GM with ASTR fee
 - **Arbitrum**: GM with ARB fee
+- **Monad**: GM with MON fee
 
 **How it works:**
 1. Send your daily GM to keep your streak alive
@@ -100,13 +105,36 @@ Lock HUB tokens to earn rewards and exclusive badges:
 - VIP Discord roles
 - Special profile badges
 
+### 🌀 Monad Network - HUBBY Ecosystem
+
+**HUBBY Token Features:**
+- **Token Name**: HUBBY
+- **Symbol**: HUBBY
+- **Contract**: `0xD3f1028629d56B29a503c1a1f98A2112Dad18d9e`
+- **Reward per Message**: 1 HUBBY
+- **Daily Limit**: 100 messages
+- **Trading**: Available on [Nad.fun](https://nad.fun/tokens/0x116d5cd7dD3108FC76084B4511D362B50d447777)
+
+**HUBBY NFT Collection:**
+- **Collection**: Hubbit Hero
+- **Contract**: `0xf66af9dc317ec514ebc8b64544db2983f768a560`
+- **Platform**: [OpenSea](https://opensea.io/collection/hubbit-hero)
+- **Features**: Unique NFT avatars with special benefits
+
+**Monad Network Advantages:**
+- ⚡ **High Performance**: Ultra-fast transaction processing
+- 💰 **Low Fees**: Cost-effective transactions on Monad L1
+- 🎨 **HUBBY NFTs**: Exclusive NFT collection with special perks
+- 💬 **HUBBY Chat**: Dedicated Telegram community for Monad users
+- 🛒 **Easy Trading**: Buy HUBBY directly from Nad.fun platform
+
 ---
 
 ## 🚀 Getting Started
 
 ### Quick Start
 1. **Connect Wallet**: Use your preferred Web3 wallet (MetaMask, Rabby, etc.)
-2. **Choose Network**: Switch to Base, Celo, Linea, Polygon, Soneium, or Arbitrum
+2. **Choose Network**: Switch to Base, Celo, Linea, Polygon, Soneium, Arbitrum, or Monad
 3. **Set Profile**: Choose nickname and avatar
 4. **Start Chatting**: Send messages to earn tokens
 5. **Maintain Streak**: Send daily GM to keep your streak alive
@@ -146,6 +174,15 @@ Lock HUB tokens to earn rewards and exclusive badges:
 - 100 messages daily limit
 - Daily GM streak with ARB fees
 - Integration with Arbitrum DeFi ecosystem
+
+**Monad Network**:
+- HUBBY token mining (1 HUBBY per message)
+- High-performance L1 blockchain
+- 100 messages daily limit
+- Exclusive HUBBY NFT collection
+- HUBBY trading on Nad.fun platform
+- Dedicated Telegram community
+- MON native token donations
 
 ---
 
@@ -190,13 +227,31 @@ Lock HUB tokens to earn rewards and exclusive badges:
 - **Features**: 100 messages daily limit, ultra-low fees, DeFi integration
 - **Reward per Message**: 1 ARBX
 
+### Monad Network - HUBBY Token
+- **Name**: HUBBY Token
+- **Symbol**: HUBBY
+- **Contract**: `0xD3f1028629d56B29a503c1a1f98A2112Dad18d9e`
+- **Total Supply**: To be announced
+- **Utility**: Chat mining rewards on Monad network
+- **Features**: 100 messages daily limit, exclusive NFT collection
+- **Trading**: Available on [Nad.fun](https://nad.fun/tokens/0x116d5cd7dD3108FC76084B4511D362B50d447777)
+- **NFT Collection**: [Hubbit Hero on OpenSea](https://opensea.io/collection/hubbit-hero)
+
 ---
 
+## 🎯 Monad Network Quick Links
+- **🌐 Website**: [Monad Network](https://www.monad.xyz/)
+- **💬 HUBBY Telegram**: [Join Chat](https://t.me/+_Q1A-dW002c5MjFk)
+- **🛒 Buy HUBBY**: [Nad.fun](https://nad.fun/tokens/0x116d5cd7dD3108FC76084B4511D362B50d447777)
+- **🎨 HUBBY NFTs**: [OpenSea Collection](https://opensea.io/collection/hubbit-hero)
+- **🔍 Explorer**: [Monad Blockscout](https://monad.blockscout.com/)
+
+---
 
 ## 🌐 HUB Ecosystem Integration
 
 HUB Portal is the flagship social application within the **HUB Ecosystem**:
-- Multi-chain identity across 6 networks
+- Multi-chain identity across 7 networks
 - NFT-integrated rewards system
 - Governance-ready architecture
 - Growing suite of dApps
@@ -229,7 +284,10 @@ MIT License
 [![Polygon Network](https://img.shields.io/badge/🔶_Polygon_Network-8247E5?style=for-the-badge)](https://polygon.technology)
 [![Soneium Network](https://img.shields.io/badge/🌟_Soneium_Network-FF6B8B?style=for-the-badge)](https://soneium.network)
 [![Arbitrum Network](https://img.shields.io/badge/🔵_Arbitrum_Network-28A0F0?style=for-the-badge)](https://arbitrum.io)
+[![Monad Network](https://img.shields.io/badge/🌀_Monad_Network-836EF9?style=for-the-badge)](https://www.monad.xyz/)
 [![Genesis NFT](https://img.shields.io/badge/🎭_Genesis_NFT-FF6B8B?style=for-the-badge)](https://opensea.io/collection/hub-ecosystem-genesis-nft)
+[![HUBBY NFT](https://img.shields.io/badge/🎨_HUBBY_NFT-836EF9?style=for-the-badge)](https://opensea.io/collection/hubbit-hero)
+[![Buy HUBBY](https://img.shields.io/badge/🛒_Buy_HUBBY-836EF9?style=for-the-badge)](https://nad.fun/tokens/0x116d5cd7dD3108FC76084B4511D362B50d447777)
 [![Daily GM Streak](https://img.shields.io/badge/🔥_Daily_GM_Streak-FF6A00?style=for-the-badge)](https://hub-portal-chat.vercel.app)
 
 </div>

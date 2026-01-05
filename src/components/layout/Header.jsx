@@ -51,6 +51,7 @@ const Header = ({
     isPolygon,
     isSoneium,
     isArbitrum,
+    isMonad,
     tokenSymbol, 
     networkName, 
     networkIcon,
@@ -122,6 +123,8 @@ const Header = ({
         await switchChain({ chainId: 1868 });
       } else if (targetNetwork === 'arbitrum') {
         await switchChain({ chainId: 42161 });
+      } else if (targetNetwork === 'monad') {
+        await switchChain({ chainId: 143 });
       }
     } catch (error) {
       console.error('Error switching network:', error);
@@ -129,7 +132,18 @@ const Header = ({
   };
 
   const handleMintNFT = () => {
-    setShowNFTInfo(true);
+    if (isMonad) {
+      // Dla Monad: bezpośrednie przekierowanie na OpenSea do kolekcji Hubbit Hero
+      window.open('https://opensea.io/collection/hubbit-hero/overview', '_blank', 'noopener,noreferrer');
+    } else {
+      // Dla innych sieci: pokaż modal z informacjami
+      setShowNFTInfo(true);
+    }
+  };
+
+  const handleBuyHUBBY = () => {
+    // Dla Monad: przekierowanie na Nad.fun do tokena HUBBY
+    window.open('https://nad.fun/tokens/0x116d5cd7dD3108FC76084B4511D362B50d447777', '_blank', 'noopener,noreferrer');
   };
 
   const handleProceedToMint = () => {
@@ -244,7 +258,8 @@ const Header = ({
           </button>
         )}
 
-        {supportsDailyRewards && (
+        {/* Usunięto Daily Streak dla Monad - pokazujemy tylko dla sieci które mają daily streak */}
+        {supportsDailyRewards && !isMonad && (
           <button 
             onClick={() => {
               if (isCelo) {
@@ -269,7 +284,7 @@ const Header = ({
           </button>
         )}
 
-        {supportsDailyRewards && (
+        {supportsDailyRewards && !isMonad && (
           <div className="border-t border-gray-600/50 my-1"></div>
         )}
 
@@ -374,6 +389,16 @@ const Header = ({
         border: 'border-blue-600/30',
         bg: 'bg-blue-600/10',
         isCurrent: isArbitrum
+      },
+      {
+        id: 'monad',
+        name: 'Monad',
+        icon: '/Monad.logo.jpg',
+        symbol: 'HUBBY',
+        color: 'text-[#836EF9]',
+        border: 'border-[#836EF9]/30',
+        bg: 'bg-[#836EF9]/10',
+        isCurrent: isMonad
       }
     ];
 
@@ -414,7 +439,8 @@ const Header = ({
                     network.id === 'linea' ? '🚀' :
                     network.id === 'polygon' ? '🔶' :
                     network.id === 'soneium' ? '🌟' :
-                    network.id === 'arbitrum' ? '⚡' : '🌐'
+                    network.id === 'arbitrum' ? '⚡' :
+                    network.id === 'monad' ? '🌀' : '🌐'
                   }</span>`;
                 }}
               />
@@ -531,6 +557,19 @@ const Header = ({
         />
       );
     }
+    if (isMonad) {
+      return (
+        <img 
+          src="/Monad.logo.jpg" 
+          alt="Monad" 
+          className="w-5 h-5 object-cover rounded"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<span class="text-lg text-[#836EF9]">🌀</span>`;
+          }}
+        />
+      );
+    }
     return <span className="text-lg">🌐</span>;
   };
 
@@ -553,18 +592,38 @@ const Header = ({
                 {mobileView === 'users' && 'Users'}
                 {mobileView === 'private' && 'Chat'}
               </h1>
-              <div className={`${networkDetails.textColor} text-[10px] flex items-center gap-1`}>
+              <div className={`${isMonad ? 'text-[#836EF9]' : networkDetails.textColor} text-[10px] flex items-center gap-1`}>
                 <span>{networkName} • {tokenSymbol}</span>
               </div>
             </div>
           </div>
           
           <div className="flex items-center gap-1 flex-shrink-0">
+            {/* Przyciski dla Monad na mobile */}
+            {isMonad && (
+              <>
+                <button
+                  onClick={handleBuyHUBBY}
+                  className="h-[32px] px-2 bg-gradient-to-r from-[#836EF9] to-blue-600 hover:from-[#836EF9]/90 hover:to-blue-600/90 text-white rounded-lg font-semibold transition-all flex items-center justify-center text-xs shadow-lg shadow-[#836EF9]/25 hover:scale-105"
+                  title="Buy HUBBY on Nad.fun"
+                >
+                  💰
+                </button>
+                <button
+                  onClick={handleMintNFT}
+                  className="h-[32px] px-2 bg-gradient-to-r from-[#836EF9] to-purple-600 hover:from-[#836EF9]/90 hover:to-purple-600/90 text-white rounded-lg font-semibold transition-all flex items-center justify-center text-xs shadow-lg shadow-[#836EF9]/25 hover:scale-105"
+                  title="Mint HUBBY NFT"
+                >
+                  🎨
+                </button>
+              </>
+            )}
+            
             <div className="relative">
               <button 
                 ref={networkButtonRef}
                 onClick={() => setShowNetworkDropdown(!showNetworkDropdown)}
-                className={`bg-gradient-to-r ${networkDetails.bgGradient} text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs border ${networkDetails.borderColor}`}
+                className={`${isMonad ? 'bg-[#836EF9]/20 border-[#836EF9]/30' : `bg-gradient-to-r ${networkDetails.bgGradient} ${networkDetails.borderColor}`} text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs border`}
                 title="Select Network"
               >
                 {renderNetworkLogo()}
@@ -597,7 +656,8 @@ const Header = ({
               </button>
             )}
             
-            {supportsDailyRewards && (
+            {/* Usunięto Daily Streak dla Monad na mobile */}
+            {supportsDailyRewards && !isMonad && (
               <button 
                 onClick={() => {
                   if (isCelo) {
@@ -703,18 +763,36 @@ const Header = ({
 
           <div className="h-6 w-px bg-gray-600/50"></div>
           
-          <div className={`${networkDetails.textColor} text-sm font-medium`}>
+          <div className={`${isMonad ? 'text-[#836EF9]' : networkDetails.textColor} text-sm font-medium`}>
             {networkName} Network • Earn {tokenSymbol} Tokens
           </div>
         </div>
         
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleMintNFT}
-            className="h-[36px] px-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all flex items-center justify-center animate-pulse shadow-lg shadow-purple-500/25 hover:scale-105 text-sm"
-          >
-            Mint Genesis NFT
-          </button>
+          {/* Przyciski dla Monad na desktop */}
+          {isMonad ? (
+            <>
+              <button
+                onClick={handleBuyHUBBY}
+                className="h-[36px] px-3 bg-gradient-to-r from-[#836EF9] to-blue-600 hover:from-[#836EF9]/90 hover:to-blue-600/90 text-white rounded-lg font-semibold transition-all flex items-center justify-center shadow-lg shadow-[#836EF9]/25 hover:scale-105 text-sm"
+              >
+                Buy HUBBY on Nad.fun
+              </button>
+              <button
+                onClick={handleMintNFT}
+                className="h-[36px] px-3 bg-gradient-to-r from-[#836EF9] to-purple-600 hover:from-[#836EF9]/90 hover:to-purple-600/90 text-white rounded-lg font-semibold transition-all flex items-center justify-center shadow-lg shadow-[#836EF9]/25 hover:scale-105 text-sm"
+              >
+                Mint HUBBY NFT
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={handleMintNFT}
+              className="h-[36px] px-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-semibold transition-all flex items-center justify-center animate-pulse shadow-lg shadow-purple-500/25 hover:scale-105 text-sm"
+            >
+              Mint Genesis NFT
+            </button>
+          )}
 
           {isBase && (
             <button 
@@ -736,7 +814,7 @@ const Header = ({
             </button>
           )}
 
-          {/* USUNIĘTY PRZYCISK Daily GM dla Arbitrum */}
+          {/* Usunięto przycisk "Daily HUBBY" dla Monad */}
 
           <div className="relative">
             <button 
@@ -756,7 +834,7 @@ const Header = ({
             <button 
               ref={networkButtonRef}
               onClick={() => setShowNetworkDropdown(!showNetworkDropdown)}
-              className={`h-[36px] px-3 bg-gradient-to-r ${networkDetails.bgGradient} hover:opacity-90 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm border ${networkDetails.borderColor} shadow-lg hover:scale-105 group`}
+              className={`h-[36px] px-3 ${isMonad ? 'bg-[#836EF9] hover:bg-[#836EF9]/90 border-[#836EF9]/50' : `bg-gradient-to-r ${networkDetails.bgGradient} ${networkDetails.borderColor}`} hover:opacity-90 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm border shadow-lg hover:scale-105 group`}
               title="Select Network"
             >
               <div className="w-5 h-5 flex items-center justify-center">
@@ -778,6 +856,7 @@ const Header = ({
       <QuickAccessDropdown />
       <NetworkDropdown />
 
+      {/* Modal NFTInfo nie będzie pokazywany dla Monad */}
       <NFTInfoModal />
 
       <HelpTooltip 

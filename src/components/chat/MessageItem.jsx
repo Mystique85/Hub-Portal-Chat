@@ -225,6 +225,12 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
         textColor: 'text-blue-500',
         logo: '/Arbitrum.logo.jpg',
         fallbackIcon: '⚡' 
+      },
+      monad: { 
+        text: 'MONAD', 
+        textColor: 'text-[#836EF9]', // Nowy kolor MONAD: #836EF9
+        logo: '/Monad.logo.jpg',
+        fallbackIcon: '🌀' // Zmieniono na 🌀 dla Monad
       }
     };
     
@@ -239,7 +245,7 @@ const MessageItem = ({ msg, currentUser, onDeleteMessage, isMobile = false, onRe
           className="w-3 h-3 object-cover rounded"
           onError={(e) => {
             e.target.style.display = 'none';
-            e.target.parentElement.innerHTML = `<span class="text-xs">${config.fallbackIcon}</span>`;
+            e.target.parentElement.innerHTML = `<span class="text-xs ${config.textColor}">${config.fallbackIcon}</span>`;
           }}
         />
         <span className={`${config.textColor} text-xs font-medium`}>

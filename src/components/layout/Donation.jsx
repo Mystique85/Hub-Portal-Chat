@@ -77,6 +77,16 @@ const DONATION_CONFIG = {
     bgColor: 'bg-emerald-500/10',
     borderColor: 'border-emerald-500/30',
     icon: '/Arbitrum.logo.jpg'
+  },
+  monad: {
+    symbol: 'MON',
+    decimals: 18,
+    explorer: 'https://monad.blockscout.com',
+    isNative: true,
+    color: 'text-[#836EF9]',
+    bgColor: 'bg-[#836EF9]/10',
+    borderColor: 'border-[#836EF9]/30',
+    icon: '/Monad.logo.jpg'
   }
 };
 
@@ -102,7 +112,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
   const [txHash, setTxHash] = useState(null);
   const [currentStep, setCurrentStep] = useState('select');
 
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, networkConfig } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, isMonad, networkConfig } = useNetwork();
 
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
 
@@ -119,7 +129,8 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
       if (isLinea) return ['1', '5', '10', '20'];
       if (isPolygon) return ['0.1', '0.5', '1', '5'];
       if (isSoneium) return ['1', '5', '10', '20'];
-      if (isArbitrum) return ['0.5', '1', '5', '10']; // ARB preset dla Arbitrum
+      if (isArbitrum) return ['0.5', '1', '5', '10'];
+      if (isMonad) return ['0.1', '0.5', '1', '5']; // MON preset dla Monad
       return ['0.1', '0.5', '1', '5'];
     } else {
       if (isCelo) return ['0.1', '0.5', '1', '5', '10'];
@@ -127,7 +138,8 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
       if (isLinea) return ['1', '5', '10', '20', '50'];
       if (isPolygon) return ['0.1', '0.5', '1', '5', '10'];
       if (isSoneium) return ['1', '5', '10', '20', '50'];
-      if (isArbitrum) return ['0.5', '1', '5', '10', '20']; // ARB preset dla Arbitrum
+      if (isArbitrum) return ['0.5', '1', '5', '10', '20'];
+      if (isMonad) return ['0.1', '0.5', '1', '5', '10']; // MON preset dla Monad
       return ['0.1', '0.5', '1', '5', '10'];
     }
   };
@@ -181,7 +193,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
       let hash;
 
       if (donationConfig.isNative) {
-        // Dla native tokenów (CELO, POL) - prosty transfer
+        // Dla native tokenów (CELO, POL, MON) - prosty transfer
         hash = await writeContractAsync({
           address: DONATION_ADDRESS,
           abi: [{
@@ -235,6 +247,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     if (isPolygon) return 'Donate in POL';
     if (isSoneium) return 'Donate in ASTR';
     if (isArbitrum) return 'Donate in ARB';
+    if (isMonad) return 'Donate in MON';
     return 'Donate';
   };
 
@@ -249,6 +262,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     if (isPolygon) return 'PolygonScan';
     if (isSoneium) return 'Soneium Explorer';
     if (isArbitrum) return 'Arbitrum Explorer';
+    if (isMonad) return 'Monad Explorer';
     return 'Explorer';
   };
 
@@ -259,6 +273,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     if (isPolygon) return 'POL (MATIC) is the native token of Polygon network';
     if (isSoneium) return 'ASTR is the native token of Soneium network';
     if (isArbitrum) return 'ARB is the governance token of Arbitrum network';
+    if (isMonad) return 'MON is the native token of Monad network';
     return '';
   };
 
@@ -269,6 +284,7 @@ const Donation = ({ isMobile = false, showButton = true, isOpen: externalIsOpen,
     if (isPolygon) return '🔶';
     if (isSoneium) return '🌟';
     if (isArbitrum) return '🔵';
+    if (isMonad) return '🌀';
     return '💝';
   };
 
