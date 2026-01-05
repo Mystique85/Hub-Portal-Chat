@@ -50,9 +50,37 @@ const arbitrumNetwork = {
   testnet: false,
 }
 
+const monadNetwork = {
+  id: 143, // Chain ID: 143 (0x8f)
+  name: 'Monad',
+  network: 'monad',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Monad',
+    symbol: 'MON',
+  },
+  rpcUrls: {
+    default: { http: ['https://rpc.monad.xyz'] },
+    public: { 
+      http: [
+        'https://rpc.monad.xyz',
+        'https://rpc1.monad.xyz',
+        'https://rpc2.monad.xyz',
+        'https://rpc3.monad.xyz',
+        'https://rpc4.monad.xyz',
+        'https://monad-mainnet.api.onfinality.io/public'
+      ] 
+    },
+  },
+  blockExplorers: {
+    default: { name: 'MonadScan', url: 'https://monadscan.com' },
+  },
+  testnet: false,
+}
+
 const wagmiAdapter = new WagmiAdapter({
   projectId,
-  networks: [celo, base, linea, polygon, soneiumNetwork, arbitrumNetwork],
+  networks: [celo, base, linea, polygon, soneiumNetwork, arbitrumNetwork, monadNetwork],
   transports: {
     [celo.id]: http(),
     [base.id]: http(),
@@ -60,13 +88,14 @@ const wagmiAdapter = new WagmiAdapter({
     [polygon.id]: http(),
     [soneiumNetwork.id]: http('https://rpc.soneium.org'),
     [arbitrumNetwork.id]: http('https://arb1.arbitrum.io/rpc'),
+    [monadNetwork.id]: http('https://rpc.monad.xyz'), // Możesz zmienić na inny RPC jeśli chcesz
   },
   ssr: false
 })
 
 export const appKit = createAppKit({
   adapters: [wagmiAdapter],
-  networks: [celo, base, linea, polygon, soneiumNetwork, arbitrumNetwork],
+  networks: [celo, base, linea, polygon, soneiumNetwork, arbitrumNetwork, monadNetwork],
   projectId,
   metadata,
   enableMobileWalletLink: true,

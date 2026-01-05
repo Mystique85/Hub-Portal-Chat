@@ -30,7 +30,7 @@ import { useNetwork } from './hooks/useNetwork';
 
 import { AVAILABLE_AVATARS } from './utils/constants';
 
-// Tablica z informacjami o sieciach
+// Tablica z informacjami o sieciach (zaktualizowano Monad)
 const NETWORKS = [
   {
     id: 'base',
@@ -73,6 +73,13 @@ const NETWORKS = [
     logo: '/Arbitrum.logo.jpg',
     fallbackEmoji: '⚡',
     color: 'blue'
+  },
+  {
+    id: 'monad',
+    name: 'MONAD',
+    logo: '/Monad.logo.jpg',
+    fallbackEmoji: '🌀', // Zmieniono na 🌀 dla Monad
+    color: 'monad' // Zmieniono z 'red' na 'monad'
   }
 ];
 
@@ -89,10 +96,11 @@ function App() {
   const [showDailyStreakLinea, setShowDailyStreakLinea] = useState(false);
   const [showDailyStreakPolygon, setShowDailyStreakPolygon] = useState(false);
   const [showDailyStreakSoneium, setShowDailyStreakSoneium] = useState(false);
+  const [showDailyStreakMonad, setShowDailyStreakMonad] = useState(false);
   
   const [activeChat, setActiveChat] = useState('public');
   
-  const { isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
+  const { isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, isMonad, tokenSymbol, networkName, supportsDailyRewards, supportsSeasonSystem } = useNetwork();
   
   useEffect(() => {
     (async () => {
@@ -218,6 +226,7 @@ function App() {
                     ${network.color === 'cyan' ? 'border-cyan-500/20' : ''}
                     ${network.color === 'purple' ? 'border-purple-500/20' : ''}
                     ${network.color === 'pink' ? 'border-pink-500/20' : ''}
+                    ${network.color === 'monad' ? 'border-[#836EF9]/20' : ''} {/* Zmieniono dla Monad */}
                   `}
                 >
                   <div className="flex items-center gap-1">
@@ -235,6 +244,7 @@ function App() {
                           ${network.color === 'cyan' ? 'text-cyan-400' : ''}
                           ${network.color === 'purple' ? 'text-purple-400' : ''}
                           ${network.color === 'pink' ? 'text-pink-400' : ''}
+                          ${network.color === 'monad' ? 'text-[#836EF9]' : ''} {/* Zmieniono dla Monad */}
                         `;
                         fallbackSpan.textContent = network.fallbackEmoji;
                         e.target.parentElement.appendChild(fallbackSpan);
@@ -247,6 +257,7 @@ function App() {
                       ${network.color === 'cyan' ? 'text-cyan-300' : ''}
                       ${network.color === 'purple' ? 'text-purple-300' : ''}
                       ${network.color === 'pink' ? 'text-pink-300' : ''}
+                      ${network.color === 'monad' ? 'text-[#836EF9]' : ''} {/* Zmieniono dla Monad */}
                     `}>
                       {network.name}
                     </div>
@@ -511,6 +522,15 @@ function App() {
         <DailyGMSoneium 
           isOpen={showDailyStreakSoneium}
           onClose={() => setShowDailyStreakSoneium(false)}
+          currentUser={userWithBalance}
+          isMobile={isMobile}
+        />
+      )}
+
+      {showDailyStreakMonad && (
+        <DailyGMMonad 
+          isOpen={showDailyStreakMonad}
+          onClose={() => setShowDailyStreakMonad(false)}
           currentUser={userWithBalance}
           isMobile={isMobile}
         />

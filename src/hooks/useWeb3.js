@@ -12,7 +12,7 @@ export const useWeb3 = (address) => {
   const [remaining, setRemaining] = useState('0');
   const [subscriptionInfo, setSubscriptionInfo] = useState(null);
   const [userStats, setUserStats] = useState(null);
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, networkConfig } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, isMonad, networkConfig } = useNetwork();
   const { chain } = useAccount();
 
   const ERC20_ABI = [
@@ -85,6 +85,16 @@ export const useWeb3 = (address) => {
     }
   });
 
+  const { data: monadRemainingData } = useReadContract({
+    address: CONTRACT_ADDRESSES.monad,
+    abi: CONTRACT_ABIS.monad,
+    functionName: 'remainingRewards',
+    args: [address],
+    query: {
+      enabled: !!address && isMonad,
+    }
+  });
+
   const { data: userSubscriptionInfoData } = useReadContract({
     address: CONTRACT_ADDRESSES.base,
     abi: CONTRACT_ABIS.base,
@@ -145,6 +155,16 @@ export const useWeb3 = (address) => {
     }
   });
 
+  const { data: monadUserStatsData } = useReadContract({
+    address: CONTRACT_ADDRESSES.monad,
+    abi: CONTRACT_ABIS.monad,
+    functionName: 'getUserStats',
+    args: [address],
+    query: {
+      enabled: !!address && isMonad,
+    }
+  });
+
   const { data: simpleSubscriptionData } = useReadContract({
     address: CONTRACT_ADDRESSES.base,
     abi: CONTRACT_ABIS.base,
@@ -192,8 +212,12 @@ export const useWeb3 = (address) => {
       setRemaining(arbitrumRemainingData.toString());
     } else if (isArbitrum) {
       setRemaining('0');
+    } else if (isMonad && monadRemainingData) {
+      setRemaining(monadRemainingData.toString());
+    } else if (isMonad) {
+      setRemaining('0');
     }
-  }, [celoRemainingData, lineaRemainingData, polygonRemainingData, soneiumRemainingData, arbitrumRemainingData, userSubscriptionInfoData, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum]);
+  }, [celoRemainingData, lineaRemainingData, polygonRemainingData, soneiumRemainingData, arbitrumRemainingData, monadRemainingData, userSubscriptionInfoData, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, isMonad]);
 
   useEffect(() => {
     if (isBase && address) {
@@ -357,8 +381,33 @@ export const useWeb3 = (address) => {
         
         setSubscriptionInfo(arbitrumSubscriptionInfo);
       }
+    } else if (isMonad && address && monadUserStatsData) {
+      if (Array.isArray(monadUserStatsData) && monadUserStatsData.length >= 6) {
+        const [totalMessages, totalEarned, lastMessageTime, isBlocked, messagesToday, lastResetDay] = monadUserStatsData;
+        
+        setUserStats({
+          totalMessages: Number(totalMessages),
+          totalEarned: Number(totalEarned) / 1e18,
+          lastMessageTime: Number(lastMessageTime),
+          isBlocked,
+          messagesToday: Number(messagesToday),
+          lastResetDay: Number(lastResetDay)
+        });
+
+        const monadSubscriptionInfo = {
+          tier: 0,
+          expiry: 0,
+          whitelisted: false,
+          isActive: true,
+          remainingMessages: Number(monadRemainingData) || 0,
+          messagesToday: Number(messagesToday),
+          lastResetDay: Number(lastResetDay)
+        };
+        
+        setSubscriptionInfo(monadSubscriptionInfo);
+      }
     }
-  }, [userSubscriptionInfoData, userBasicStatsData, lineaBasicStatsData, polygonUserStatsData, soneiumUserStatsData, arbitrumUserStatsData, simpleSubscriptionData, lineaRemainingData, polygonRemainingData, soneiumRemainingData, arbitrumRemainingData, isBase, isLinea, isPolygon, isSoneium, isArbitrum, address]);
+  }, [userSubscriptionInfoData, userBasicStatsData, lineaBasicStatsData, polygonUserStatsData, soneiumUserStatsData, arbitrumUserStatsData, monadUserStatsData, simpleSubscriptionData, lineaRemainingData, polygonRemainingData, soneiumRemainingData, arbitrumRemainingData, monadRemainingData, isBase, isLinea, isPolygon, isSoneium, isArbitrum, isMonad, address]);
 
   const fetchBalanceForNetwork = async (userAddress, network) => {
     try {
@@ -368,7 +417,8 @@ export const useWeb3 = (address) => {
         linea: import.meta.env.VITE_LINEA_MAINNET_RPC_URL || 'https://rpc.linea.build',
         polygon: import.meta.env.VITE_POLYGON_MAINNET_RPC_URL || 'https://polygon-rpc.com',
         soneium: import.meta.env.VITE_SONEIUM_RPC_URL || 'https://rpc.soneium.org',
-        arbitrum: import.meta.env.VITE_ARBITRUM_RPC_URL || 'https://arb1.arbitrum.io/rpc'
+        arbitrum: import.meta.env.VITE_ARBITRUM_RPC_URL || 'https://arb1.arbitrum.io/rpc',
+        monad: import.meta.env.VITE_MONAD_RPC_URL || 'https://rpc.monad.xyz'  // ZMIENIONE: z testnet na mainnet
       };
       
       const providerUrl = providerUrls[network];
@@ -383,7 +433,8 @@ export const useWeb3 = (address) => {
         linea: HUB_TOKEN_ADDRESS.linea,
         polygon: HUB_TOKEN_ADDRESS.polygon,
         soneium: HUB_TOKEN_ADDRESS.soneium,
-        arbitrum: HUB_TOKEN_ADDRESS.arbitrum
+        arbitrum: HUB_TOKEN_ADDRESS.arbitrum,
+        monad: HUB_TOKEN_ADDRESS.monad
       };
       
       const contractAddress = contractAddresses[network];
@@ -428,25 +479,26 @@ export const useWeb3 = (address) => {
 
   const getOtherUserBalance = async (userAddress, targetNetwork = null) => {
     if (!userAddress) {
-      return { celo: '0', base: '0', linea: '0', polygon: '0', soneium: '0', arbitrum: '0' };
+      return { celo: '0', base: '0', linea: '0', polygon: '0', soneium: '0', arbitrum: '0', monad: '0' };
     }
     
-    const results = { celo: '0', base: '0', linea: '0', polygon: '0', soneium: '0', arbitrum: '0' };
+    const results = { celo: '0', base: '0', linea: '0', polygon: '0', soneium: '0', arbitrum: '0', monad: '0' };
     
     try {
-      if (targetNetwork === 'celo' || targetNetwork === 'base' || targetNetwork === 'linea' || targetNetwork === 'polygon' || targetNetwork === 'soneium' || targetNetwork === 'arbitrum') {
+      if (targetNetwork === 'celo' || targetNetwork === 'base' || targetNetwork === 'linea' || targetNetwork === 'polygon' || targetNetwork === 'soneium' || targetNetwork === 'arbitrum' || targetNetwork === 'monad') {
         const balance = await fetchBalanceForNetwork(userAddress, targetNetwork);
         results[targetNetwork] = balance;
         return results;
       }
       
-      const [celoBalance, baseBalance, lineaBalance, polygonBalance, soneiumBalance, arbitrumBalance] = await Promise.all([
+      const [celoBalance, baseBalance, lineaBalance, polygonBalance, soneiumBalance, arbitrumBalance, monadBalance] = await Promise.all([
         fetchBalanceForNetwork(userAddress, 'celo'),
         fetchBalanceForNetwork(userAddress, 'base'),
         fetchBalanceForNetwork(userAddress, 'linea'),
         fetchBalanceForNetwork(userAddress, 'polygon'),
         fetchBalanceForNetwork(userAddress, 'soneium'),
-        fetchBalanceForNetwork(userAddress, 'arbitrum')
+        fetchBalanceForNetwork(userAddress, 'arbitrum'),
+        fetchBalanceForNetwork(userAddress, 'monad')
       ]);
       
       results.celo = celoBalance;
@@ -455,6 +507,7 @@ export const useWeb3 = (address) => {
       results.polygon = polygonBalance;
       results.soneium = soneiumBalance;
       results.arbitrum = arbitrumBalance;
+      results.monad = monadBalance;
       
     } catch (error) {
       console.error('Error getting other user balance:', error);
@@ -477,7 +530,8 @@ export const useWeb3 = (address) => {
     isPolygon,
     isSoneium,
     isArbitrum,
-    supportsDailyRewards: isCelo || isLinea || isSoneium || isArbitrum,
+    isMonad,
+    supportsDailyRewards: isCelo || isLinea || isSoneium || isArbitrum || isMonad,
     supportsSeasonSystem: isCelo,
     supportsSubscriptions: isBase,
     supportsTokenTransfers: true,

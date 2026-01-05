@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import { useNetwork } from '../../hooks/useNetwork'; // Dodajemy import useNetwork
 
 import HubLogo from "/src/assets/logos/hub.jpg";
 import CeloLogo from "/src/assets/logos/celo.jpg";
@@ -7,6 +8,7 @@ import CeloLogo from "/src/assets/logos/celo.jpg";
 const translations = {
   en: {
     hub: "HUB Ecosystem",
+    hubbyChat: "HUBBY Chat (Telegram)", // Nowy klucz tłumaczenia
     welcomeTitle: "Welcome to our ecosystem!",
     welcomeDescription: "Below you'll find all the main links to our applications and channels.",
     mainLinks: "MAIN LINKS",
@@ -28,6 +30,9 @@ const CeloHub = ({ isMobile = false, showButton = true, isOpen: externalIsOpen, 
   const [currentView, setCurrentView] = useState('hub');
   const [expandedBadge, setExpandedBadge] = useState(null);
   const [language] = useState('en');
+  
+  // Pobieramy informacje o sieci
+  const { isMonad } = useNetwork();
 
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
 
@@ -45,7 +50,8 @@ const CeloHub = ({ isMobile = false, showButton = true, isOpen: externalIsOpen, 
     }
   };
 
-  const mainLinks = {
+  // Bazowe główne linki
+  const baseMainLinks = {
     en: [
       {
         name: t.website,
@@ -78,6 +84,29 @@ const CeloHub = ({ isMobile = false, showButton = true, isOpen: externalIsOpen, 
         icon: "💬"
       }
     ]
+  };
+
+  // Link do Telegrama HUBBY Chat - tylko dla Monad
+  const hubbyTelegramLink = {
+    en: [
+      {
+        name: t.hubbyChat,
+        url: "https://t.me/+_Q1A-dW002c5MjFk",
+        icon: "💬"
+      }
+    ]
+  };
+
+  // Dynamicznie budujemy listę linków w zależności od sieci
+  const getMainLinks = () => {
+    const links = [...baseMainLinks[language]];
+    
+    // Dodaj link do Telegrama tylko jeśli jesteśmy na sieci Monad
+    if (isMonad) {
+      links.push(...hubbyTelegramLink[language]);
+    }
+    
+    return links;
   };
 
   const interactCampaigns = {
@@ -238,24 +267,49 @@ const CeloHub = ({ isMobile = false, showButton = true, isOpen: externalIsOpen, 
                     <h3 className="text-xl font-bold text-cyan-400">{t.mainLinks}</h3>
                   </div>
                   <div className="space-y-3">
-                    {mainLinks[language].map((link, index) => (
+                    {getMainLinks().map((link, index) => (
                       <a
                         key={index}
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 bg-gray-600/30 rounded-xl hover:bg-gray-600/50 transition-all group"
+                        className={`flex items-center gap-3 p-3 bg-gray-600/30 rounded-xl hover:bg-gray-600/50 transition-all group ${
+                          // Specjalne podświetlenie dla linku Telegrama na Monad
+                          isMonad && link.name === t.hubbyChat ? 'border border-[#836EF9]/30' : ''
+                        }`}
                       >
-                        <span className="text-lg">{link.icon}</span>
+                        <span className={`text-lg ${
+                          // Specjalny kolor ikony dla Telegrama na Monad
+                          isMonad && link.name === t.hubbyChat ? 'text-[#836EF9]' : ''
+                        }`}>
+                          {link.icon}
+                        </span>
                         <div className="flex-1">
-                          <p className="text-gray-300 font-medium group-hover:text-cyan-300 transition-colors">
+                          <p className={`text-gray-300 font-medium group-hover:text-cyan-300 transition-colors ${
+                            // Specjalny kolor tekstu dla Telegrama na Monad
+                            isMonad && link.name === t.hubbyChat ? 'group-hover:text-[#836EF9]' : ''
+                          }`}>
                             {link.name}
                           </p>
                         </div>
-                        <span className="text-gray-400 group-hover:text-cyan-400 transition-colors">→</span>
+                        <span className={`text-gray-400 group-hover:text-cyan-400 transition-colors ${
+                          // Specjalny kolor strzałki dla Telegrama na Monad
+                          isMonad && link.name === t.hubbyChat ? 'group-hover:text-[#836EF9]' : ''
+                        }`}>
+                          →
+                        </span>
                       </a>
                     ))}
                   </div>
+                  
+                  {/* Informacja o Telegramie dla Monad */}
+                  {isMonad && (
+                    <div className="mt-4 p-3 bg-[#836EF9]/10 border border-[#836EF9]/30 rounded-lg">
+                      <p className="text-[#836EF9] text-sm font-semibold text-center">
+                        💬 Join HUBBY Chat on Telegram for Monad network discussions!
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Intract Campaigns Section */}

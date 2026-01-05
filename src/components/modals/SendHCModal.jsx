@@ -14,7 +14,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     hash: txHash,
   });
 
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, tokenSymbol, networkConfig } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, isMonad, tokenSymbol, networkConfig } = useNetwork();
 
   const ERC20_ABI = [
     {
@@ -37,10 +37,44 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isPolygon) return ['1', '5', '10', '50']; // MSG
     if (isSoneium) return ['1', '5', '10', '50']; // LUM
     if (isArbitrum) return ['1', '5', '10', '50']; // ARBX
+    if (isMonad) return ['10', '50', '100', '500']; // HUBBY
     return ['1', '5', '10', '50'];
   };
 
   const presetAmounts = getPresetAmounts();
+
+  // Funkcja do renderowania ikony/logo sieci
+  const renderNetworkIcon = () => {
+    if (isMonad) {
+      // Dla Monad używamy logo HUBBY.png
+      return (
+        <img 
+          src="/HUBBY.png" 
+          alt="HUBBY"
+          className={isMobile ? 'w-5 h-5 object-contain' : 'w-6 h-6 object-contain'}
+          onError={(e) => {
+            // Fallback na emoji jeśli logo nie załaduje
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<span class="text-lg text-[#836EF9]">🌀</span>`;
+          }}
+        />
+      );
+    }
+    
+    // Dla innych sieci używamy emoji
+    return <span className="text-lg">{getNetworkIconEmoji()}</span>;
+  };
+
+  const getNetworkIconEmoji = () => {
+    if (isCelo) return '📱';
+    if (isBase) return '🌉';
+    if (isLinea) return '🚀';
+    if (isPolygon) return '🔶';
+    if (isSoneium) return '🌟';
+    if (isArbitrum) return '⚡';
+    if (isMonad) return '🌀';
+    return '🔗';
+  };
 
   useEffect(() => {
     if (isConfirmed && txHash) {
@@ -102,6 +136,10 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
         // Adres tokena ARBX na Arbitrum - jednocześnie kontrakt i token
         contractAddress = '0xe89F9D96f059D656d62302c30fD513C945aCcF38';
         contractAbi = ERC20_ABI;
+      } else if (isMonad) {
+        // Adres tokena HUBBY na Monad - nasz kontrakt
+        contractAddress = '0xD3f1028629d56B29a503c1a1f98A2112Dad18d9e';
+        contractAbi = ERC20_ABI;
       }
 
       const hash = await writeContractAsync({
@@ -140,17 +178,8 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isPolygon) return 'PolygonScan';
     if (isSoneium) return 'Soneium Explorer';
     if (isArbitrum) return 'Arbiscan';
+    if (isMonad) return 'Monad Explorer';
     return 'Explorer';
-  };
-
-  const getNetworkIcon = () => {
-    if (isCelo) return '📱';
-    if (isBase) return '🌉';
-    if (isLinea) return '🚀';
-    if (isPolygon) return '🔶';
-    if (isSoneium) return '🌟';
-    if (isArbitrum) return '⚡';
-    return '🔗';
   };
 
   const getNetworkColor = () => {
@@ -160,6 +189,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isPolygon) return 'border-purple-500/40 text-purple-400';
     if (isSoneium) return 'border-pink-500/40 text-pink-400';
     if (isArbitrum) return 'border-blue-600/40 text-blue-500';
+    if (isMonad) return 'border-[#836EF9]/40 text-[#836EF9]';
     return 'border-cyan-500/40 text-cyan-400';
   };
 
@@ -170,6 +200,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isPolygon) return 'bg-purple-500/10 border-purple-500/30 text-purple-300';
     if (isSoneium) return 'bg-pink-500/10 border-pink-500/30 text-pink-300';
     if (isArbitrum) return 'bg-blue-600/10 border-blue-600/30 text-blue-400';
+    if (isMonad) return 'bg-[#836EF9]/10 border-[#836EF9]/30 text-[#836EF9]';
     return 'bg-cyan-500/10 border-cyan-500/30 text-cyan-300';
   };
 
@@ -180,6 +211,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isPolygon) return 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600';
     if (isSoneium) return 'bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600';
     if (isArbitrum) return 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600';
+    if (isMonad) return 'bg-gradient-to-r from-[#836EF9] to-purple-600 hover:from-[#836EF9]/90 hover:to-purple-600/90';
     return 'bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600';
   };
 
@@ -190,6 +222,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isPolygon) return 'bg-gradient-to-r from-purple-400 to-pink-500';
     if (isSoneium) return 'bg-gradient-to-r from-pink-400 to-purple-500';
     if (isArbitrum) return 'bg-gradient-to-r from-blue-400 to-cyan-500';
+    if (isMonad) return 'bg-gradient-to-r from-[#836EF9] to-purple-500';
     return 'bg-gradient-to-r from-cyan-400 to-blue-500';
   };
 
@@ -200,6 +233,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isPolygon) return 'border-purple-500';
     if (isSoneium) return 'border-pink-500';
     if (isArbitrum) return 'border-blue-600';
+    if (isMonad) return 'border-[#836EF9]';
     return 'border-cyan-500';
   };
 
@@ -210,6 +244,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isPolygon) return 'focus:ring-purple-500';
     if (isSoneium) return 'focus:ring-pink-500';
     if (isArbitrum) return 'focus:ring-blue-500';
+    if (isMonad) return 'focus:ring-[#836EF9]';
     return 'focus:ring-cyan-500';
   };
 
@@ -220,6 +255,7 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
     if (isPolygon) return 'text-purple-400';
     if (isSoneium) return 'text-pink-400';
     if (isArbitrum) return 'text-blue-500';
+    if (isMonad) return 'text-[#836EF9]';
     return 'text-cyan-400';
   };
 
@@ -351,7 +387,9 @@ const SendHCModal = ({ user, onClose, isMobile = false }) => {
           isMobile ? 'p-3 mb-4' : 'p-4 mb-6'
         }`}>
           <div className="flex items-center justify-center gap-2 mb-1">
-            <span className={`text-lg ${getTextColor()}`}>{getNetworkIcon()}</span>
+            <div className={`flex items-center justify-center ${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`}>
+              {renderNetworkIcon()}
+            </div>
             <p className={`font-semibold ${
               isMobile ? 'text-xs' : 'text-sm'
             } ${infoTextColor}`}>

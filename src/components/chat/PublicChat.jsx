@@ -39,7 +39,7 @@ const PublicChat = ({
     hash: transactionHash,
   });
 
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, tokenSymbol } = useNetwork();
+  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, isMonad, tokenSymbol } = useNetwork();
 
   // Twój klucz API ImgBB
   const IMGBB_API_KEY = '333afaf638c5fba6128627e19948c80c';
@@ -217,7 +217,7 @@ const PublicChat = ({
       // BASE: Wymaga zawsze tekstu (jak w oryginale)
       canSend = newMessage.trim() && currentUser && db && !isSending;
     } else {
-      // INNE SIECI: Tekst LUB obrazek
+      // INNE SIECI: Tekst LUB obrazek (w tym Monad)
       canSend = (newMessage.trim() || selectedImage) && currentUser && db && !isSending;
     }
     
@@ -316,7 +316,8 @@ const PublicChat = ({
       if (isLinea) return "Type message and earn LPX...";
       if (isPolygon) return "Type message and earn MSG...";
       if (isSoneium) return "Type message and earn LUM...";
-      if (isArbitrum) return "Type message and earn PORTAL...";
+      if (isArbitrum) return "Type message and earn ARBX...";
+      if (isMonad) return "Type message and earn HUBBY...";
       return "Type message...";
     }
     
@@ -338,6 +339,9 @@ const PublicChat = ({
     if (isArbitrum) {
       return "Type your message in public chat and earn $ARBX tokens (max 100 msg daily)";
     }
+    if (isMonad) {
+      return "Type your message in public chat and earn HUBBY tokens (max 100 msg daily) - Enter to send";
+    }
     
     return "Type your message in public chat... (Enter to send)";
   };
@@ -349,6 +353,7 @@ const PublicChat = ({
     if (isPolygon) return "from-purple-500/10 to-purple-500/5 border-purple-500/30 text-purple-400";
     if (isSoneium) return "from-pink-500/10 to-pink-500/5 border-pink-500/30 text-pink-400";
     if (isArbitrum) return "from-blue-600/10 to-blue-600/5 border-blue-600/30 text-blue-500";
+    if (isMonad) return "from-[#836EF9]/10 to-[#836EF9]/5 border-[#836EF9]/30 text-[#836EF9]"; // Nowy kolor MONAD: #836EF9
     return "from-cyan-500/10 to-blue-500/10 border-cyan-500/30 text-cyan-400";
   };
 
@@ -359,6 +364,7 @@ const PublicChat = ({
     if (isPolygon) return "from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600";
     if (isSoneium) return "from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600";
     if (isArbitrum) return "from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800";
+    if (isMonad) return "from-[#836EF9] to-[#6A5AF9] hover:from-[#6A5AF9] hover:to-[#5A4AF9]"; // Gradient w kolorach MONAD
     return "from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600";
   };
 
