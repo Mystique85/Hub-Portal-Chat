@@ -135,7 +135,6 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-cyan-300">1 HC token</span> za każdą wiadomość</p>
                 <p>• Limit: <span class="text-cyan-300">10 HC dziennie</span></p>
-                <p>• Dodatkowe codzienne nagrody CELO</p>
                 <p>• Natychmiastowe dostarczanie tokenów</p>
               </div>
             </div>
@@ -148,7 +147,6 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
                 <p class="ml-4">🎯 <span class="text-green-400">FREE</span>: 10 wiadomości/dzień</p>
                 <p class="ml-4">🚀 <span class="text-blue-400">BASIC</span>: 50 wiadomości/dzień (10 USDC/miesiąc)</p>
                 <p class="ml-4">👑 <span class="text-purple-400">PREMIUM</span>: Nielimitowane (50 USDC/miesiąc)</p>
-                <p>• Codzienne nagrody USDC dostępne dla wszystkich</p>
               </div>
             </div>
 
@@ -202,7 +200,6 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <div class="space-y-1 text-sm">
                 <p>• <span class="text-cyan-300">1 HC token</span> per message</p>
                 <p>• Limit: <span class="text-cyan-300">10 HC daily</span></p>
-                <p>• Additional daily CELO rewards</p>
                 <p>• Instant token delivery</p>
               </div>
             </div>
@@ -215,7 +212,6 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
                 <p class="ml-4">🎯 <span class="text-green-400">FREE</span>: 10 messages/day</p>
                 <p class="ml-4">🚀 <span class="text-blue-400">BASIC</span>: 50 messages/day (10 USDC/month)</p>
                 <p class="ml-4">👑 <span class="text-purple-400">PREMIUM</span>: Unlimited (50 USDC/month)</p>
-                <p>• Daily USDC rewards available for everyone</p>
               </div>
             </div>
 
@@ -354,7 +350,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-cyan-300">👥</span> <span class="font-semibold">Lista użytkowników</span> - zobacz kto jest online</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">🎯</span> <span class="font-semibold">Limity dzienne</span> - śledź swoje postępy na każdej sieci</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">📊</span> <span class="font-semibold">Leaderboardy</span> - sprawdź ranking aktywnych użytkowników</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🔥</span> <span class="font-semibold">Daily Streak</span> - codzienne nagrody za aktywność</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🔥</span> <span class="font-semibold">Daily Streak</span> - śledź swoją codzienną aktywność</p>
             </div>
 
             <div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-4 mt-4">
@@ -374,7 +370,7 @@ const HelpTooltip = ({ isMobile = false, showButton = true, isOpen: externalIsOp
               <p class="flex items-center gap-2"><span class="text-cyan-300">👥</span> <span class="font-semibold">User list</span> - see who's online</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">🎯</span> <span class="font-semibold">Daily limits</span> - track your progress on each network</p>
               <p class="flex items-center gap-2"><span class="text-cyan-300">📊</span> <span class="font-semibold">Leaderboards</span> - check ranking of active users</p>
-              <p class="flex items-center gap-2"><span class="text-cyan-300">🔥</span> <span class="font-semibold">Daily Streak</span> - daily rewards for activity</p>
+              <p class="flex items-center gap-2"><span class="text-cyan-300">🔥</span> <span class="font-semibold">Daily Streak</span> - track your daily activity</p>
             </div>
 
             <div class="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/30 rounded-xl p-4 mt-4">
