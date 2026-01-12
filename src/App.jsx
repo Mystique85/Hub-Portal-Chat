@@ -10,6 +10,8 @@ import LoginHelpTooltip from './components/layout/LoginHelpTooltip';
 
 import PublicChat from './components/chat/PublicChat';
 import BaseAirdropChat from './components/chat/BaseAirdropChat';
+import SayHelloChat from './components/chat/SayHelloChat';
+import MemesChat from './components/chat/MemesChat';
 
 import NicknameModal from './components/modals/NicknameModal';
 import UserProfileModal from './components/modals/UserProfileModal';
@@ -360,6 +362,28 @@ function App() {
                   />
                 )}
                 
+                {activeChat === 'say-hello' && (
+                  <SayHelloChat 
+                    currentUser={userWithBalance}
+                    onUpdateLastSeen={updateUserLastSeen}
+                    onDeleteMessage={deleteMessage}
+                    onViewProfile={handleViewProfile}
+                    updateUserMessageCount={updateUserMessageCount}
+                    isMobile={true}
+                  />
+                )}
+                
+                {activeChat === 'memes' && (
+                  <MemesChat 
+                    currentUser={userWithBalance}
+                    onUpdateLastSeen={updateUserLastSeen}
+                    onDeleteMessage={deleteMessage}
+                    onViewProfile={handleViewProfile}
+                    updateUserMessageCount={updateUserMessageCount}
+                    isMobile={true}
+                  />
+                )}
+                
                 {activeChat === 'base-airdrop' && isBase && (
                   <BaseAirdropChat 
                     currentUser={userWithBalance}
@@ -453,6 +477,26 @@ function App() {
               <div className="w-full min-w-0">
                 {activeChat === 'public' && (
                   <PublicChat 
+                    currentUser={userWithBalance}
+                    onUpdateLastSeen={updateUserLastSeen}
+                    onDeleteMessage={deleteMessage}
+                    onViewProfile={handleViewProfile}
+                    updateUserMessageCount={updateUserMessageCount}
+                  />
+                )}
+                
+                {activeChat === 'say-hello' && (
+                  <SayHelloChat 
+                    currentUser={userWithBalance}
+                    onUpdateLastSeen={updateUserLastSeen}
+                    onDeleteMessage={deleteMessage}
+                    onViewProfile={handleViewProfile}
+                    updateUserMessageCount={updateUserMessageCount}
+                  />
+                )}
+                
+                {activeChat === 'memes' && (
+                  <MemesChat 
                     currentUser={userWithBalance}
                     onUpdateLastSeen={updateUserLastSeen}
                     onDeleteMessage={deleteMessage}
