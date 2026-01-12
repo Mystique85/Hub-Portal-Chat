@@ -11,13 +11,14 @@ import {
 import { db } from '../../config/firebase';
 import MessageList from './MessageList';
 import { useNetwork } from '../../hooks/useNetwork';
-import { CONTRACT_ADDRESSES, CONTRACT_ABIS, ADMIN_ADDRESSES } from '../../utils/constants';
+import { CONTRACT_ADDRESSES, CONTRACT_ABIS } from '../../utils/constants';
 
-const PublicChat = ({ 
+const MemesChat = ({ 
   currentUser, 
   onUpdateLastSeen, 
   onDeleteMessage, 
   isMobile = false, 
+  onStartPrivateChat, 
   onViewProfile, 
   updateUserMessageCount 
 }) => {
@@ -39,13 +40,43 @@ const PublicChat = ({
     hash: transactionHash,
   });
 
-  const { currentNetwork, isCelo, isBase, isLinea, isPolygon, isSoneium, isArbitrum, isMonad, tokenSymbol } = useNetwork();
+  const { 
+    currentNetwork, 
+    isCelo, 
+    isBase, 
+    isLinea,
+    isPolygon,
+    isSoneium,
+    isArbitrum,
+    isMonad,
+    tokenSymbol 
+  } = useNetwork();
 
   // Twój klucz API ImgBB
   const IMGBB_API_KEY = '333afaf638c5fba6128627e19948c80c';
 
-  // Sprawdzenie czy użytkownik jest adminem
-  const isAdmin = currentUser && ADMIN_ADDRESSES.includes(currentUser.walletAddress?.toLowerCase());
+  // Ustawienie kontraktu dla aktualnej sieci
+  const getContractForNetwork = () => {
+    if (isCelo) return CONTRACT_ADDRESSES.celo;
+    if (isBase) return CONTRACT_ADDRESSES.base;
+    if (isLinea) return CONTRACT_ADDRESSES.linea;
+    if (isPolygon) return CONTRACT_ADDRESSES.polygon;
+    if (isSoneium) return CONTRACT_ADDRESSES.soneium;
+    if (isArbitrum) return CONTRACT_ADDRESSES.arbitrum;
+    if (isMonad) return CONTRACT_ADDRESSES.monad;
+    return null;
+  };
+
+  const getContractABI = () => {
+    if (isCelo) return CONTRACT_ABIS.celo;
+    if (isBase) return CONTRACT_ABIS.base;
+    if (isLinea) return CONTRACT_ABIS.linea;
+    if (isPolygon) return CONTRACT_ABIS.polygon;
+    if (isSoneium) return CONTRACT_ABIS.soneium;
+    if (isArbitrum) return CONTRACT_ABIS.arbitrum;
+    if (isMonad) return CONTRACT_ABIS.monad;
+    return null;
+  };
 
   useEffect(() => {
     if (!db) return;
@@ -56,18 +87,17 @@ const PublicChat = ({
     );
     
     const unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
-      const messagesData = snapshot.docs
-        .map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
-        .filter(msg => 
-          !msg.channel || 
-          msg.channel === 'general' || 
-          msg.channel === undefined
-        );
+      const allMessages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
       
-      setMessages(messagesData);
+      // Filtrujemy wiadomości tylko z kanału memes
+      const memesMessages = allMessages.filter(msg => 
+        msg.channel === 'memes'
+      );
+      
+      setMessages(memesMessages);
     });
 
     return () => unsubscribeMessages();
@@ -132,11 +162,6 @@ const PublicChat = ({
   };
 
   const handleFileSelect = async (event) => {
-    // Sprawdź czy użytkownik jest adminem
-    if (!isAdmin) {
-      return; // Po prostu nic nie robimy dla zwykłych użytkowników
-    }
-    
     const file = event.target.files[0];
     if (!file) return;
     
@@ -172,17 +197,19 @@ const PublicChat = ({
 
   const addMessageToFirestore = async (messageData) => {
     try {
-      await addDoc(collection(db, 'messages'), {
+      const newMessageDoc = {
         content: messageData.content,
         nickname: messageData.nickname,
         avatar: messageData.avatar,
         avatarType: messageData.avatarType,
         walletAddress: messageData.walletAddress,
         replyTo: messageData.replyTo || null,
-        channel: 'general',
+        channel: 'memes',
         timestamp: serverTimestamp(),
         network: currentNetwork
-      });
+      };
+
+      await addDoc(collection(db, 'messages'), newMessageDoc);
       
       if (updateUserMessageCount) {
         await updateUserMessageCount(messageData.walletAddress);
@@ -205,32 +232,42 @@ const PublicChat = ({
     }, 100);
   };
 
+  const handlePrivateMessage = (message) => {
+    if (onStartPrivateChat) {
+      const user = {
+        walletAddress: message.walletAddress,
+        nickname: message.nickname,
+        avatar: message.avatar
+      };
+      onStartPrivateChat(user);
+    }
+  };
+
   const handleScrollToMessage = (messageId) => {
     const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
     if (messageElement) {
       messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
       
-      messageElement.classList.add('bg-cyan-500/20', 'border-cyan-500/50');
+      messageElement.classList.add('bg-orange-500/20', 'border-orange-500/50');
       setTimeout(() => {
-        messageElement.classList.remove('bg-cyan-500/20', 'border-cyan-500/50');
+        messageElement.classList.remove('bg-orange-500/20', 'border-orange-500/50');
       }, 2000);
     }
   };
 
   const sendMessage = async () => {
-    // KLUCZOWA ZMIANA: Dla Base - zawsze wymagaj tekstu, dla innych - tekst LUB obrazek (tylko dla adminów)
+    const contractAddress = getContractForNetwork();
+    const contractABI = getContractABI();
+    
+    // WARUNKI DLA RÓŻNYCH SIECI:
     let canSend = false;
     
     if (isBase) {
       // BASE: Wymaga zawsze tekstu (jak w oryginale)
-      canSend = newMessage.trim() && currentUser && db && !isSending;
+      canSend = newMessage.trim() && currentUser && db && !isSending && contractAddress && contractABI;
     } else {
-      // INNE SIECI: Tekst LUB obrazek (tylko dla adminów)
-      // Jeśli użytkownik nie jest adminem, to może wysyłać tylko tekst
-      if (!isAdmin && selectedImage) {
-        return; // Po prostu nic nie robimy dla zwykłych użytkowników
-      }
-      canSend = (newMessage.trim() || selectedImage) && currentUser && db && !isSending;
+      // INNE SIECI: Tekst LUB obrazek (w tym Monad)
+      canSend = (newMessage.trim() || selectedImage) && currentUser && db && !isSending && contractAddress && contractABI;
     }
     
     if (!canSend) return;
@@ -240,14 +277,8 @@ const PublicChat = ({
     try {
       let finalContent = newMessage.trim();
       
-      // Jeśli jest wybrany obraz, prześlij go (tylko dla adminów)
+      // Jeśli jest wybrany obraz, prześlij go
       if (selectedImage) {
-        // Dodatkowe sprawdzenie dla bezpieczeństwa
-        if (!isAdmin) {
-          setIsSending(false);
-          return;
-        }
-        
         const imageUrl = await uploadImageToImgBB(selectedImage);
         if (imageUrl) {
           // Dodaj URL obrazka do treści
@@ -286,14 +317,12 @@ const PublicChat = ({
       
       setPendingTransaction(messageData);
       
-      const contractConfig = {
-        address: CONTRACT_ADDRESSES[currentNetwork],
-        abi: CONTRACT_ABIS[currentNetwork],
+      writeContract({
+        address: contractAddress,
+        abi: contractABI,
         functionName: 'sendMessage',
         args: [finalContent],
-      };
-      
-      writeContract(contractConfig);
+      });
       
       setNewMessage('');
       setSelectedImage(null);
@@ -329,50 +358,21 @@ const PublicChat = ({
     }
     
     if (isMobile) {
-      if (isCelo) return "Type message and earn HC...";
-      if (isBase) return "Type message and earn HUB... (Text required)";
-      if (isLinea) return "Type message and earn LPX...";
-      if (isPolygon) return "Type message and earn MSG...";
-      if (isSoneium) return "Type message and earn LUM...";
-      if (isArbitrum) return "Type message and earn ARBX...";
-      if (isMonad) return "Type message and earn HUBBY...";
-      return "Type message...";
+      return "Add meme image or caption...";
     }
     
-    if (isCelo) {
-      return "Type your message in public chat and earn HC tokens (10 msg daily) - Enter to send";
-    }
-    if (isBase) {
-      return "Type your message in public chat and earn HUB tokens (Free: 10 msg, Basic: 50, Premium: Unlimited) - Text required";
-    }
-    if (isLinea) {
-      return "Type your message in public chat and earn LPX tokens (max 100 msg daily) - Enter to send";
-    }
-    if (isPolygon) {
-      return "Type your message in public chat and earn MSG tokens (max 100 msg daily, 2-560 chars) - Enter to send";
-    }
-    if (isSoneium) {
-      return "Type your message in public chat and earn LUM tokens (max 100 msg daily, 2-560 chars) - Enter to send";
-    }
-    if (isArbitrum) {
-      return "Type your message in public chat and earn $ARBX tokens (max 100 msg daily)";
-    }
-    if (isMonad) {
-      return "Type your message in public chat and earn HUBBY tokens (max 100 msg daily) - Enter to send";
-    }
-    
-    return "Type your message in public chat... (Enter to send)";
+    return "Share funny memes! Upload image or add caption (Enter to send)";
   };
 
   const getNetworkColor = () => {
-    if (isCelo) return "from-yellow-500/10 to-yellow-500/5 border-yellow-500/30 text-yellow-400";
-    if (isBase) return "from-blue-500/10 to-blue-500/5 border-blue-500/30 text-blue-400";
-    if (isLinea) return "from-cyan-500/10 to-cyan-500/5 border-cyan-500/30 text-cyan-400";
-    if (isPolygon) return "from-purple-500/10 to-purple-500/5 border-purple-500/30 text-purple-400";
-    if (isSoneium) return "from-pink-500/10 to-pink-500/5 border-pink-500/30 text-pink-400";
-    if (isArbitrum) return "from-blue-600/10 to-blue-600/5 border-blue-600/30 text-blue-500";
-    if (isMonad) return "from-[#836EF9]/10 to-[#836EF9]/5 border-[#836EF9]/30 text-[#836EF9]"; // Nowy kolor MONAD: #836EF9
-    return "from-cyan-500/10 to-blue-500/10 border-cyan-500/30 text-cyan-400";
+    if (isCelo) return "from-yellow-500/10 to-amber-500/5 border-yellow-500/30";
+    if (isBase) return "from-blue-500/10 to-blue-500/5 border-blue-500/30";
+    if (isLinea) return "from-cyan-500/10 to-cyan-500/5 border-cyan-500/30";
+    if (isPolygon) return "from-purple-500/10 to-purple-500/5 border-purple-500/30";
+    if (isSoneium) return "from-pink-500/10 to-pink-500/5 border-pink-500/30";
+    if (isArbitrum) return "from-blue-600/10 to-blue-600/5 border-blue-600/30";
+    if (isMonad) return "from-[#836EF9]/10 to-[#836EF9]/5 border-[#836EF9]/30";
+    return "from-orange-500/10 to-red-500/5 border-orange-500/30";
   };
 
   const getButtonGradient = () => {
@@ -382,35 +382,57 @@ const PublicChat = ({
     if (isPolygon) return "from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600";
     if (isSoneium) return "from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600";
     if (isArbitrum) return "from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800";
-    if (isMonad) return "from-[#836EF9] to-[#6A5AF9] hover:from-[#6A5AF9] hover:to-[#5A4AF9]"; // Gradient w kolorach MONAD
-    return "from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600";
+    if (isMonad) return "from-[#836EF9] to-[#6A5AF9] hover:from-[#6A5AF9] hover:to-[#5A4AF9]";
+    return "from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600";
   };
+
+  // Filtruj tylko wiadomości z obrazkami
+  const memeMessages = messages.filter(msg => 
+    msg.content && (
+      msg.content.includes('https://i.ibb.co/') || 
+      msg.content.includes('https://i.imgbb.com/') ||
+      msg.content.includes('.jpg') ||
+      msg.content.includes('.jpeg') ||
+      msg.content.includes('.png') ||
+      msg.content.includes('.gif') ||
+      msg.content.includes('.webp')
+    )
+  );
 
   return (
     <section className={`flex flex-col h-full min-h-0 ${isMobile ? 'p-2' : 'p-6'}`}>
       <div className={`mb-2 text-center ${isMobile ? 'p-1' : 'p-2'} bg-gradient-to-r ${getNetworkColor()} rounded-lg border`}>
         <div className="flex items-baseline justify-center gap-1">
-          <h2 className="text-base font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Public Chat - All Networks
+          <h2 className="text-base font-bold bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+            Memes 🎭
           </h2>
+          <span className="text-gray-300 text-xs">
+            - Share and laugh with the best memes!
+          </span>
         </div>
       </div>
 
       <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden ${isMobile ? 'mb-2' : 'mb-4'}`}>
-        {messages.length === 0 ? (
+        {memeMessages.length === 0 ? (
           <div className="flex-1 flex items-center justify-center">
             <div className={`text-center text-gray-400 ${isMobile ? 'px-4' : ''}`}>
-              <div className={`${isMobile ? 'text-4xl mb-3' : 'text-6xl mb-4'}`}>💬</div>
-              <p className={isMobile ? 'text-lg mb-1' : 'text-xl mb-2'}>No messages yet in Public Chat</p>
-              <p className={isMobile ? 'text-xs' : 'text-sm'}>Be the first to start the conversation!</p>
+              <div className={`${isMobile ? 'text-4xl mb-3' : 'text-6xl mb-4'}`}>🖼️</div>
+              <p className={isMobile ? 'text-lg mb-1' : 'text-xl mb-2'}>No memes yet</p>
+              <p className={isMobile ? 'text-xs' : 'text-sm'}>
+                Be the first to share a meme!
+              </p>
+              <div className="mt-4 inline-block bg-orange-500/10 border border-orange-500/30 text-orange-300 px-4 py-2 rounded-lg text-sm">
+                😄 Upload your funniest memes!
+              </div>
             </div>
           </div>
         ) : (
           <MessageList 
-            messages={messages}
+            messages={memeMessages}
             currentUser={currentUser}
             onDeleteMessage={handleDeleteMessage}
             onReply={handleReply}
+            onPrivateMessage={handlePrivateMessage}
             onViewProfile={onViewProfile}
             onScrollToMessage={handleScrollToMessage}
             isMobile={isMobile}
@@ -420,11 +442,11 @@ const PublicChat = ({
       </div>
 
       {replyingTo && (
-        <div className="bg-cyan-500/20 border border-cyan-500/30 rounded-xl p-3 mb-3 flex items-center justify-between max-w-full">
+        <div className="bg-orange-500/20 border border-orange-500/30 rounded-xl p-3 mb-3 flex items-center justify-between max-w-full">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <span className="text-cyan-400 text-lg flex-shrink-0">↶</span>
+            <span className="text-orange-400 text-lg flex-shrink-0">↶</span>
             <div className="flex-1 min-w-0 overflow-hidden">
-              <div className="text-cyan-400 text-sm font-medium truncate">
+              <div className="text-orange-400 text-sm font-medium truncate">
                 Replying to <strong>@{replyingTo.nickname}</strong>
               </div>
               <div className="text-gray-300 text-xs truncate">
@@ -446,7 +468,7 @@ const PublicChat = ({
           <div className="relative">
             <img 
               src={imagePreview} 
-              alt="Preview" 
+              alt="Meme preview" 
               className="w-16 h-16 object-cover rounded-lg"
             />
             <button 
@@ -457,41 +479,37 @@ const PublicChat = ({
             </button>
           </div>
           <div className="flex-1">
-            <p className="text-sm text-gray-300">Image ready to send</p>
-            <p className="text-xs text-gray-400">Will be uploaded and sent with your message</p>
+            <p className="text-sm text-gray-300">Meme ready to send!</p>
+            <p className="text-xs text-gray-400">Will be uploaded and shared with community</p>
             {isBase && (
-              <p className="text-xs text-yellow-400 mt-1">⚠️ Base requires text with image</p>
+              <p className="text-xs text-yellow-400 mt-1">⚠️ Base requires caption with image</p>
             )}
           </div>
         </div>
       )}
 
-      <div className={`flex gap-2 bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 rounded-xl flex-shrink-0 ${isMobile ? 'mt-auto p-2' : 'p-4 rounded-2xl'}`}>
-        {isAdmin && (
-          <>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileSelect}
-              accept="image/jpeg,image/png,image/gif,image/webp"
-              className="hidden"
-            />
-            
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading || isSending}
-              className={`flex items-center justify-center ${isMobile ? 'w-8 h-8 rounded-lg' : 'w-10 h-10 rounded-xl'} ${isUploading ? 'bg-cyan-500/20 text-cyan-400' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'} transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
-              title="Add image"
-            >
-              {isUploading ? (
-                <div className={`animate-spin rounded-full border-2 border-t-transparent ${isMobile ? 'w-5 h-5 border-cyan-400' : 'w-6 h-6 border-cyan-400'}`}></div>
-              ) : (
-                <span className={isMobile ? 'text-base' : 'text-lg'}>📎</span>
-              )}
-            </button>
-          </>
-        )}
+      <div className={`flex gap-2 bg-gray-800/50 backdrop-blur-xl border border-orange-500/30 rounded-xl flex-shrink-0 ${isMobile ? 'mt-auto p-2' : 'p-4 rounded-2xl'}`}>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          className="hidden"
+        />
+        
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isUploading || isSending}
+          className={`flex items-center justify-center ${isMobile ? 'w-8 h-8 rounded-lg' : 'w-10 h-10 rounded-xl'} ${isUploading ? 'bg-orange-500/20 text-orange-400' : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'} transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+          title="Upload meme"
+        >
+          {isUploading ? (
+            <div className={`animate-spin rounded-full border-2 border-t-transparent ${isMobile ? 'w-5 h-5 border-orange-400' : 'w-6 h-6 border-orange-400'}`}></div>
+          ) : (
+            <span className={isMobile ? 'text-base' : 'text-lg'}>🖼️</span>
+          )}
+        </button>
         
         <input 
           ref={messageInputRef}
@@ -501,23 +519,26 @@ const PublicChat = ({
           onKeyPress={handleKeyPress}
           placeholder={getPlaceholderText()}
           disabled={isSending || isUploading}
-          className={`flex-1 bg-transparent border-none text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-0 disabled:opacity-50 ${isMobile ? 'text-sm px-2' : 'px-3'}`}
+          className={`flex-1 bg-transparent border-none text-white placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 ${isMobile ? 'text-sm px-2' : 'px-3'}`}
         />
         
         <button 
           onClick={sendMessage}
-          // RÓŻNE WARUNKI DLA RÓŻNYCH SIECI
           disabled={
             isBase 
               ? !newMessage.trim() || isSending || isUploading  // Base: tylko tekst
-              : (!newMessage.trim() && !selectedImage) || isSending || isUploading // Inne: tekst LUB obrazek (tylko dla adminów)
+              : (!newMessage.trim() && !selectedImage) || isSending || isUploading // Inne: tekst LUB obrazek
           }
-          className={`bg-gradient-to-r ${getButtonGradient()} text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0 ${isMobile ? 'px-3 py-2 rounded-lg text-xs min-h-[36px]' : 'px-6 py-3 rounded-xl'}`}
+          className={`bg-gradient-to-r ${getButtonGradient()} text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all flex-shrink-0 ${
+            isMobile 
+              ? 'px-3 py-2 rounded-lg text-xs min-h-[36px]' 
+              : 'px-6 py-3 rounded-xl'
+          }`}
         >
           {isSending ? (
             <div className="flex items-center">
               <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
-              {isMobile ? '' : 'Sending...'}
+              {isMobile ? '' : 'Sharing...'}
             </div>
           ) : isConfirming ? (
             <div className="flex items-center">
@@ -530,7 +551,7 @@ const PublicChat = ({
               {isMobile ? '' : 'Uploading...'}
             </div>
           ) : (
-            isMobile ? '⬆️' : 'Send'
+            isMobile ? '🎭' : 'Share Meme'
           )}
         </button>
       </div>
@@ -538,4 +559,4 @@ const PublicChat = ({
   );
 };
 
-export default PublicChat;
+export default MemesChat;

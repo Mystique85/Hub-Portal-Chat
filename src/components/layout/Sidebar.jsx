@@ -110,6 +110,54 @@ const Sidebar = ({
               )}
             </button>
             
+            <button 
+              onClick={() => onChatChange('say-hello')}
+              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all ${
+                activeChat === 'say-hello' 
+                  ? 'bg-green-500/20 text-green-300 border border-green-500/30' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-700/30 border border-transparent hover:border-green-500/20'
+              }`}
+            >
+              <div className={`w-6 h-6 rounded-md flex items-center justify-center ${
+                activeChat === 'say-hello' 
+                  ? 'bg-green-500/30 text-green-300' 
+                  : 'bg-gray-700/50 text-gray-400'
+              }`}>
+                <span className="text-sm">👋</span>
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-medium">Say Hello</div>
+                <div className="text-[10px] text-gray-500">All networks • Welcome</div>
+              </div>
+              {activeChat === 'say-hello' && (
+                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+              )}
+            </button>
+            
+            <button 
+              onClick={() => onChatChange('memes')}
+              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all ${
+                activeChat === 'memes' 
+                  ? 'bg-orange-500/20 text-orange-300 border border-orange-500/30' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-700/30 border border-transparent hover:border-orange-500/20'
+              }`}
+            >
+              <div className={`w-6 h-6 rounded-md flex items-center justify-center ${
+                activeChat === 'memes' 
+                  ? 'bg-orange-500/30 text-orange-300' 
+                  : 'bg-gray-700/50 text-gray-400'
+              }`}>
+                <span className="text-sm">🎭</span>
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-medium">Memes</div>
+                <div className="text-[10px] text-gray-500">All networks • Share images</div>
+              </div>
+              {activeChat === 'memes' && (
+                <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse"></div>
+              )}
+            </button>
+            
             {isBase && (
               <button 
                 onClick={() => onChatChange('base-airdrop')}
@@ -305,7 +353,10 @@ const Sidebar = ({
           </div>
           <div className="flex items-center gap-2">
             <span className="text-gray-400 text-xs">
-              {activeChat === 'public' ? 'Public Chat' : 'Airdrops & New Projects'}
+              {activeChat === 'public' ? 'Public Chat' : 
+               activeChat === 'say-hello' ? 'Say Hello' : 
+               activeChat === 'memes' ? 'Memes' :
+               'Airdrops & New Projects'}
             </span>
             <span className={`transform transition-transform ${showChannelsDropdown ? 'rotate-180' : ''}`}>
               ▼
@@ -339,6 +390,60 @@ const Sidebar = ({
               </div>
               {activeChat === 'public' && (
                 <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+              )}
+            </button>
+
+            <button
+              onClick={() => {
+                onChatChange('say-hello');
+                setShowChannelsDropdown(false);
+              }}
+              className={`w-full flex items-center gap-3 p-3 text-left transition-all border-b border-gray-700/50 hover:bg-gray-700/50 ${
+                activeChat === 'say-hello'
+                  ? 'bg-green-500/20 text-green-300'
+                  : 'text-gray-300'
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                activeChat === 'say-hello'
+                  ? 'bg-green-500/30 text-green-300'
+                  : 'bg-gray-700/50 text-gray-400'
+              }`}>
+                <span className="text-xl">👋</span>
+              </div>
+              <div className="flex-1">
+                <div className="font-medium">Say Hello</div>
+                <div className="text-xs text-gray-400">All networks • Welcome channel</div>
+              </div>
+              {activeChat === 'say-hello' && (
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              )}
+            </button>
+
+            <button
+              onClick={() => {
+                onChatChange('memes');
+                setShowChannelsDropdown(false);
+              }}
+              className={`w-full flex items-center gap-3 p-3 text-left transition-all border-b border-gray-700/50 hover:bg-gray-700/50 ${
+                activeChat === 'memes'
+                  ? 'bg-orange-500/20 text-orange-300'
+                  : 'text-gray-300'
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                activeChat === 'memes'
+                  ? 'bg-orange-500/30 text-orange-300'
+                  : 'bg-gray-700/50 text-gray-400'
+              }`}>
+                <span className="text-xl">🎭</span>
+              </div>
+              <div className="flex-1">
+                <div className="font-medium">Memes</div>
+                <div className="text-xs text-gray-400">All networks • Share images</div>
+              </div>
+              {activeChat === 'memes' && (
+                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
               )}
             </button>
 
@@ -483,7 +588,12 @@ const Sidebar = ({
           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
           <span>{onlineUsers.length} online</span>
           <span className="text-gray-500">•</span>
-          <span>{activeChat === 'public' ? '💬 Public Chat' : '🎁 Airdrops & New Projects'}</span>
+          <span>
+            {activeChat === 'public' ? '💬 Public Chat' : 
+             activeChat === 'say-hello' ? '👋 Say Hello' : 
+             activeChat === 'memes' ? '🎭 Memes' :
+             '🎁 Airdrops & New Projects'}
+          </span>
         </div>
       </div>
     </div>
