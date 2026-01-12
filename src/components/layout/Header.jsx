@@ -198,6 +198,12 @@ const Header = ({
                 <span><strong>Exclusive Discord Role</strong> with special permissions</span>
               </p>
 
+              {/* DODANY PUNKT O WYZWANIACH I KAMPANIACH */}
+              <p className="flex items-start gap-2">
+                <span className="text-purple-400 mt-1">⚡</span>
+                <span><strong>Access to exclusive community challenges and campaigns</strong></span>
+              </p>
+
               <p className="flex items-start gap-2">
                 <span className="text-purple-400 mt-1">📝</span>
                 <span><strong>Limit: maximum of 10 Genesis NFTs per wallet</strong></span>
