@@ -174,11 +174,6 @@ const Header = ({
             
             <div className="text-gray-300 text-left space-y-3 mb-6">
               <p className="flex items-start gap-2">
-                <span className="text-purple-400 mt-1">🔄</span>
-                <span><strong>Only tradable NFT</strong> in our ecosystem - secondary market trading is <strong>live</strong></span>
-              </p>
-              
-              <p className="flex items-start gap-2">
                 <span className="text-purple-400 mt-1">✨</span>
                 <span><strong>Genesis holders receive:</strong></span>
               </p>
@@ -202,11 +197,6 @@ const Header = ({
               <p className="flex items-start gap-2">
                 <span className="text-purple-400 mt-1">⚡</span>
                 <span><strong>Access to exclusive community challenges and campaigns</strong></span>
-              </p>
-
-              <p className="flex items-start gap-2">
-                <span className="text-purple-400 mt-1">📝</span>
-                <span><strong>Limit: maximum of 10 Genesis NFTs per wallet</strong></span>
               </p>
 
               <div className="mt-4 p-3 bg-purple-500/10 border border-purple-400/30 rounded-lg">
