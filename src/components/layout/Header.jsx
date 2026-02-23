@@ -167,8 +167,8 @@ const Header = ({
             </h2>
             
             <div className="mb-4">
-              <span className="inline-block bg-red-500/20 border border-red-400/50 text-red-300 px-3 py-1 rounded-full text-sm font-semibold">
-                ⚡ Only 1000 Genesis NFTs Available
+              <span className="inline-block bg-purple-500/20 border border-purple-400/50 text-purple-300 px-3 py-1 rounded-full text-sm font-semibold">
+                ⚡ Only 10000 Genesis NFTs Available
               </span>
             </div>
             
@@ -197,17 +197,6 @@ const Header = ({
                 <span className="text-purple-400 mt-1">⚡</span>
                 <span><strong>Access to exclusive community challenges and campaigns</strong></span>
               </p>
-
-              {/* DODANA PROSTA SEKCJA PROMOCYJNA */}
-              <div className="mt-4 p-3 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-400/30 rounded-lg">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-yellow-400 text-lg">⚡</span>
-                  <span className="text-white font-bold">SPECIAL DISCOUNT ACTIVE</span>
-                </div>
-                <p className="text-yellow-300 text-sm">
-                  This 50% discount is available for a limited time only. Don't miss this opportunity to join the Genesis tier at half price!
-                </p>
-              </div>
 
               <div className="mt-4 p-3 bg-purple-500/10 border border-purple-400/30 rounded-lg">
                 <p className="text-purple-300 text-sm font-semibold text-center">
