@@ -19,8 +19,7 @@ const Header = ({
   isMobile = false,
   mobileView = 'public',
   onMobileViewChange,
-  onShowLeaderboard,
-  onShowBaseLeaderboard,
+  onShowBaseLeaderboard,  // Tylko Base Leaderboard
   onShowSubscriptionModal,
   onShowStakingModal
 }) => {
@@ -253,7 +252,7 @@ const Header = ({
           </button>
         )}
 
-        {/* Usunięto Daily Streak dla Monad - pokazujemy tylko dla sieci które mają daily streak */}
+        {/* Daily Streak - zostaje bez zmian */}
         {supportsDailyRewards && !isMonad && (
           <button 
             onClick={() => {
@@ -635,23 +634,18 @@ const Header = ({
               </button>
             )}
             
-            {(isCelo || isBase) && (
+            {/* Tylko Base Leaderboard - usunięto Celo */}
+            {isBase && (
               <button 
-                onClick={() => {
-                  if (isCelo) {
-                    onShowLeaderboard();
-                  } else if (isBase) {
-                    onShowBaseLeaderboard();
-                  }
-                }}
+                onClick={onShowBaseLeaderboard}
                 className="bg-gradient-to-r from-amber-500 to-orange-500 text-white p-1.5 rounded-lg hover:scale-105 transition-transform text-xs"
-                title="Leaderboard"
+                title="Base Leaderboard"
               >
                 🏆
               </button>
             )}
             
-            {/* Usunięto Daily Streak dla Monad na mobile */}
+            {/* Daily Streak - zostaje bez zmian! */}
             {supportsDailyRewards && !isMonad && (
               <button 
                 onClick={() => {
@@ -799,17 +793,7 @@ const Header = ({
             </button>
           )}
 
-          {isCelo && (
-            <button 
-              onClick={onShowLeaderboard}
-              className="h-[36px] px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg font-semibold transition-all flex items-center gap-2 text-sm shadow-lg shadow-amber-500/25 hover:scale-105"
-            >
-              <span>🏆</span>
-              <span>Celo Leaderboard</span>
-            </button>
-          )}
-
-          {/* Usunięto przycisk "Daily HUBBY" dla Monad */}
+          {/* Usunięto Celo Leaderboard */}
 
           <div className="relative">
             <button 
@@ -932,4 +916,4 @@ const Header = ({
     );
   };
 
-  export default Header;
+export default Header;
