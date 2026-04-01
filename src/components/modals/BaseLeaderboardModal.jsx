@@ -1,14 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useReadContract, useAccount, usePublicClient } from 'wagmi';
+import { useReadContract, useAccount } from 'wagmi';
 import { useNetwork } from '../../hooks/useNetwork';
 
 // Pełne ABI kontraktu HUBChatRewards
 const HUB_CHAT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"cooldown","type":"uint256"}],"name":"CooldownUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"utcDay","type":"uint256"}],"name":"DailyLimitReset","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"free","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"basic","type":"uint256"}],"name":"LimitsUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"sender","type":"address"},{"indexed":false,"internalType":"string","name":"content","type":"string"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"reward","type":"uint256"}],"name":"MessageSent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"basic","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"premium","type":"uint256"}],"name":"PricesUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"duration","type":"uint256"}],"name":"SubscriptionDurationUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"},{"indexed":false,"internalType":"uint256","name":"expiry","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"paidAmount","type":"uint256"}],"name":"SubscriptionPurchased","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":false,"internalType":"uint256","name":"amountHUB","type":"uint256"}],"name":"TokensDeposited","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"bool","name":"status","type":"bool"}],"name":"WhitelistUpdated","type":"event"},{"inputs":[],"name":"DEV_ACCOUNT","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"HUB_TOKEN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_MESSAGE_LENGTH","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD_PER_MESSAGE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"UNLIMITED_FLAG","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"USDC_TOKEN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"basicDailyLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"basicPriceUSDC","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"blacklist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"blockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"buyBasicSubscription","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"buyPremiumSubscription","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"canSendMessage","outputs":[{"internalType":"bool","name":"canSend","type":"bool"},{"internalType":"string","name":"reason","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"checkWhitelist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"cooldownSeconds","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"depositHUBTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"emergencyWithdrawHUB","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"forceResetUserLimit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"freeDailyLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getContractStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"hubBalance","type":"uint256"},{"internalType":"uint256","name":"usdcBalance","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCurrentUTCDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getNextResetTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getRemainingDailyMessages","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getSubscriptionInfo","outputs":[{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"},{"internalType":"uint256","name":"expiry","type":"uint256"},{"internalType":"bool","name":"whitelisted","type":"bool"},{"internalType":"bool","name":"isActive","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserBasicStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"uint256","name":"lastMessageTime","type":"uint256"},{"internalType":"bool","name":"isBlocked","type":"bool"},{"internalType":"uint256","name":"messagesToday","type":"uint256"},{"internalType":"uint256","name":"lastResetDay","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserSubscriptionInfo","outputs":[{"internalType":"uint256","name":"remainingMessages","type":"uint256"},{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"},{"internalType":"bool","name":"whitelisted","type":"bool"},{"internalType":"uint256","name":"subscriptionExpiry","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getWhitelistedAddresses","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"paidSubscriptions","outputs":[{"internalType":"uint256","name":"expiry","type":"uint256"},{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"pause","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"premiumPriceUSDC","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"removeFromWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_content","type":"string"}],"name":"sendMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_seconds","type":"uint256"}],"name":"setCooldown","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_free","type":"uint256"},{"internalType":"uint256","name":"_basic","type":"uint256"}],"name":"setLimits","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_basic","type":"uint256"},{"internalType":"uint256","name":"_premium","type":"uint256"}],"name":"setPrices","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_seconds","type":"uint256"}],"name":"setSubscriptionDuration","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"subscriptionDuration","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"unblockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"unpause","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"uint256","name":"lastMessageTime","type":"uint256"},{"internalType":"bool","name":"isBlocked","type":"bool"},{"internalType":"uint256","name":"messagesToday","type":"uint256"},{"internalType":"uint256","name":"lastResetDay","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"whitelist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"withdrawUSDC","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}];
 
 const HUB_CHAT_CONTRACT = "0x8ea3818294887376673e4e64fBd518598e3a2306";
-
-// Base network RPC URL
-const BASE_RPC_URL = "https://mainnet.base.org";
 
 const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   const [timeRemaining, setTimeRemaining] = useState({});
@@ -19,10 +16,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
   const [userMessageCount, setUserMessageCount] = useState(0);
   const [userSubscriptionTier, setUserSubscriptionTier] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [rankingLoading, setRankingLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(null);
-  const [rankingError, setRankingError] = useState(null);
-  const [allUsersStats, setAllUsersStats] = useState([]);
   const [userStatus, setUserStatus] = useState({
     hasNFT: false,
     hasEnoughTokens: false,
@@ -33,7 +27,6 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
   
   const { isCelo, isBase } = useNetwork();
   const { address } = useAccount();
-  const publicClient = usePublicClient();
 
   // Nowe daty: 1 kwietnia - 31 października 2026
   const startDate = new Date('2026-04-01T00:00:00');
@@ -54,6 +47,8 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     8: 700,    // 8th: $700 (3.5% puli)
     9: 600,    // 9th: $600 (3% puli)
     10: 500,   // 10th: $500 (2.5% puli)
+    // Pozostałe nagrody (łącznie $3,700) rozłożone proporcjonalnie dla miejsc 11-100
+    // Reszta: $3,700 dla miejsc 11-100
   };
 
   const NFT_ABI = [
@@ -65,115 +60,6 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
       "type": "function"
     }
   ];
-
-  // Funkcja do pobierania wszystkich zdarzeń MessageSent od startu wyzwania
-  const fetchAllMessagesFromContract = useCallback(async () => {
-    if (!isBase || !isOpen || !publicClient) return;
-    
-    setRankingLoading(true);
-    setRankingError(null);
-    
-    try {
-      const startTimestamp = Math.floor(startDate.getTime() / 1000);
-      const endTimestamp = Math.floor(endDate.getTime() / 1000);
-      
-      console.log("Fetching messages from", new Date(startTimestamp * 1000), "to", new Date(endTimestamp * 1000));
-      
-      // Pobierz wszystkie logi zdarzeń MessageSent z kontraktu
-      const logs = await publicClient.getLogs({
-        address: HUB_CHAT_CONTRACT,
-        event: {
-          type: 'event',
-          name: 'MessageSent',
-          inputs: [
-            { indexed: true, name: 'sender', type: 'address' },
-            { indexed: false, name: 'content', type: 'string' },
-            { indexed: false, name: 'timestamp', type: 'uint256' },
-            { indexed: false, name: 'reward', type: 'uint256' }
-          ]
-        },
-        fromBlock: 0n, // Od początku
-        toBlock: 'latest',
-      });
-      
-      console.log(`Found ${logs.length} total message events`);
-      
-      // Filtruj wiadomości po dacie startu
-      const filteredMessages = logs.filter(log => {
-        const timestamp = Number(log.args.timestamp);
-        return timestamp >= startTimestamp && timestamp <= endTimestamp;
-      });
-      
-      console.log(`Filtered to ${filteredMessages.length} messages in challenge period`);
-      
-      // Agreguj wiadomości per użytkownik
-      const userMessageCounts = {};
-      
-      filteredMessages.forEach(log => {
-        const sender = log.args.sender.toLowerCase();
-        userMessageCounts[sender] = (userMessageCounts[sender] || 0) + 1;
-      });
-      
-      // Stwórz tablicę rankingową
-      const rankingArray = Object.entries(userMessageCounts).map(([address, count]) => ({
-        address,
-        messageCount: count
-      }));
-      
-      // Sortuj malejąco
-      rankingArray.sort((a, b) => b.messageCount - a.messageCount);
-      
-      setAllUsersStats(rankingArray);
-      
-      // Znajdź pozycję aktualnego użytkownika
-      const currentWallet = (currentUser?.walletAddress || address)?.toLowerCase();
-      if (currentWallet) {
-        const currentUserIndex = rankingArray.findIndex(
-          user => user.address.toLowerCase() === currentWallet
-        );
-        
-        if (currentUserIndex !== -1) {
-          setUserRank({
-            rank: currentUserIndex + 1,
-            messageCount: rankingArray[currentUserIndex].messageCount
-          });
-          setUserMessageCount(rankingArray[currentUserIndex].messageCount);
-        } else {
-          // Jeśli użytkownik nie ma wiadomości
-          setUserRank({
-            rank: rankingArray.length + 1,
-            messageCount: 0
-          });
-          setUserMessageCount(0);
-        }
-      }
-      
-      setLastUpdate(new Date());
-      
-    } catch (error) {
-      console.error("Error fetching messages from contract:", error);
-      setRankingError(error.message);
-      
-      // Fallback - użyj danych z kontraktu
-      try {
-        if (publicClient) {
-          const contractStats = await publicClient.readContract({
-            address: HUB_CHAT_CONTRACT,
-            abi: HUB_CHAT_ABI,
-            functionName: 'getContractStats',
-          });
-          
-          if (contractStats && contractStats[0]) {
-            setTotalMessages(Number(contractStats[0]));
-          }
-        }
-      } catch (fallbackError) {
-        console.error("Fallback error:", fallbackError);
-      }
-    } finally {
-      setRankingLoading(false);
-    }
-  }, [isBase, isOpen, publicClient, startDate, endDate, currentUser, address]);
 
   // Odczyt statystyk kontraktu (całkowita liczba wiadomości)
   const { 
@@ -338,23 +224,11 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     return () => clearInterval(timer);
   }, [isOpen]);
 
-  // Pobieranie danych rankingu
-  useEffect(() => {
-    if (isOpen && isBase && publicClient) {
-      fetchAllMessagesFromContract();
-      
-      // Odświeżaj co 30 minut
-      const interval = setInterval(fetchAllMessagesFromContract, 30 * 60 * 1000);
-      
-      return () => clearInterval(interval);
-    }
-  }, [isOpen, isBase, publicClient, fetchAllMessagesFromContract]);
-
   // Sprawdzanie ładowania
   useEffect(() => {
-    const isLoading = contractStatsLoading || userStatsLoading || rankingLoading;
+    const isLoading = contractStatsLoading || userStatsLoading;
     setLoading(isLoading);
-  }, [contractStatsLoading, userStatsLoading, rankingLoading]);
+  }, [contractStatsLoading, userStatsLoading]);
 
   // Funkcja do formatowania adresu
   const formatAddress = (address) => {
@@ -377,10 +251,13 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     if (rank <= 10) {
       return rewardStructure[rank];
     } else if (rank <= 100) {
+      // Proporcjonalny rozkład dla miejsc 11-100 (łącznie $3,700)
+      // Im wyższe miejsce, tym większa nagroda
       const remainingPool = 3700;
       const positionsFrom11 = rank - 10;
       const totalPositions = 90;
-      const weight = (91 - positionsFrom11) / 4095;
+      // Wzór malejący: (91 - positionsFrom11) / (suma 1..90) * remainingPool
+      const weight = (91 - positionsFrom11) / 4095; // Suma 1..90 = 4095
       return Math.floor(weight * remainingPool);
     }
     return 0;
@@ -439,134 +316,6 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     </div>
   );
 
-  // Komponent tabeli rankingu
-  const RankingTable = () => {
-    if (rankingLoading) {
-      return (
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
-          <p className="text-gray-400">Loading ranking data...</p>
-          <p className="text-gray-500 text-xs mt-2">Fetching messages from contract...</p>
-        </div>
-      );
-    }
-    
-    if (rankingError) {
-      return (
-        <div className="text-center py-8 text-red-400">
-          <p>Error loading ranking: {rankingError}</p>
-          <button 
-            onClick={fetchAllMessagesFromContract}
-            className="mt-3 px-4 py-2 bg-blue-500 rounded-lg text-sm hover:bg-blue-600 transition-all"
-          >
-            Retry
-          </button>
-        </div>
-      );
-    }
-    
-    if (allUsersStats.length === 0) {
-      return (
-        <div className="text-center py-8 text-gray-400">
-          <div className="text-4xl mb-3">💬</div>
-          <p>No messages sent yet in the challenge period.</p>
-          <p className="text-xs mt-2">Be the first to send a message and start competing!</p>
-        </div>
-      );
-    }
-    
-    const top100 = allUsersStats.slice(0, 100);
-    
-    return (
-      <div className="space-y-2">
-        <div className={`bg-gray-700/30 rounded-xl p-3 border border-blue-500/30 mb-4 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-          <div className="grid grid-cols-12 gap-2 font-bold text-gray-300">
-            <div className="col-span-2 text-center">#</div>
-            <div className="col-span-7">User</div>
-            <div className="col-span-3 text-right">Messages</div>
-          </div>
-        </div>
-        
-        <div className="space-y-2 max-h-96 overflow-y-auto">
-          {top100.map((user, index) => {
-            const rank = index + 1;
-            const currentWallet = (currentUser?.walletAddress || address)?.toLowerCase();
-            const isCurrentUser = currentWallet && user.address.toLowerCase() === currentWallet;
-            
-            return (
-              <div 
-                key={user.address}
-                className={`bg-gray-700/30 rounded-xl p-3 border transition-all ${
-                  isCurrentUser 
-                    ? 'border-yellow-500 bg-yellow-500/10 shadow-lg shadow-yellow-500/10' 
-                    : 'border-gray-700/50 hover:border-gray-600'
-                } ${isMobile ? 'text-xs' : 'text-sm'}`}
-              >
-                <div className="grid grid-cols-12 gap-2 items-center">
-                  <div className={`col-span-2 text-center font-bold ${
-                    rank === 1 ? 'text-yellow-400' :
-                    rank === 2 ? 'text-gray-300' :
-                    rank === 3 ? 'text-amber-600' :
-                    rank <= 10 ? 'text-cyan-400' : 'text-gray-400'
-                  }`}>
-                    {rank === 1 && '🥇 '}
-                    {rank === 2 && '🥈 '}
-                    {rank === 3 && '🥉 '}
-                    #{rank}
-                  </div>
-                  <div className="col-span-7 truncate font-mono">
-                    {formatAddress(user.address)}
-                    {isCurrentUser && (
-                      <span className="ml-2 text-xs text-yellow-400 font-normal">(You)</span>
-                    )}
-                  </div>
-                  <div className="col-span-3 text-right font-mono font-bold text-blue-400">
-                    {user.messageCount.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        
-        {userRank && userRank.rank > 100 && (
-          <div className="mt-4 p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-xl border border-yellow-500/30 text-center">
-            <p className="text-yellow-400 text-sm font-semibold">
-              Your current rank: #{userRank.rank}
-            </p>
-            <p className="text-2xl font-bold text-yellow-400 mt-1">
-              {userRank.messageCount.toLocaleString()} messages
-            </p>
-            <p className="text-gray-400 text-xs mt-2">
-              Need {allUsersStats[99]?.messageCount - userRank.messageCount || 1} more messages to enter Top 100!
-            </p>
-            <p className="text-green-400 text-xs mt-1">
-              🚀 Keep messaging to climb the ranks!
-            </p>
-          </div>
-        )}
-        
-        {userRank && userRank.rank <= 100 && (
-          <div className="mt-4 p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl border border-green-500/30 text-center">
-            <p className="text-green-400 text-sm font-semibold">
-              🎉 You're in the TOP 100! 🎉
-            </p>
-            <p className="text-2xl font-bold text-green-400 mt-1">
-              #{userRank.rank} with {userRank.messageCount.toLocaleString()} messages
-            </p>
-            <p className="text-yellow-400 text-xs mt-2">
-              Estimated reward: ${getRewardForRank(userRank.rank).toLocaleString()} USDC
-            </p>
-          </div>
-        )}
-        
-        <div className="text-center text-xs text-gray-500 mt-3">
-          Total participants: {allUsersStats.length} • Showing top 100
-        </div>
-      </div>
-    );
-  };
-
   if (!isBase && isOpen) {
     return (
       <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 ${
@@ -580,10 +329,11 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
           <div className="text-center">
             <div className={`${isMobile ? 'text-3xl' : 'text-4xl'} mb-4`}>🌐</div>
             <h2 className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold text-blue-400 mb-4`}>
-              Base Leaderboard
+              Base Leaderboard Coming Soon
             </h2>
             <p className="text-gray-300 mb-6">
-              Please switch to Base network to view the leaderboard and compete for $20,000 USDC rewards!
+              The Base network leaderboard with $20,000 USDC rewards pool launches on April 1st, 2026!
+              The competition runs until October 31st, 2026 - get ready to compete!
             </p>
             <button 
               onClick={onClose}
@@ -784,7 +534,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
             {/* Informacja o aktualizacji */}
             {lastUpdate && (
               <div className="text-center text-xs text-gray-500 mb-3">
-                Last updated: {formatTimeAgo(lastUpdate)} • Rankings update every 30 minutes
+                Last updated: {formatTimeAgo(lastUpdate)} • Rankings update every 24h
               </div>
             )}
 
@@ -796,7 +546,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
                   Reward Distribution
                 </h2>
                 <p className="text-gray-400 text-sm">Top 100 participants share ${TOTAL_REWARD_POOL.toLocaleString()} USDC</p>
-                <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-sm py-2 px-4 font-bold rounded-xl inline-block mt-2">
+                <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white ${isMobile ? 'text-sm py-1.5 px-3' : 'text-base py-2 px-4'} font-bold rounded-xl inline-block mt-2">
                   🎯 Top 10 get MASSIVE rewards! 🎯
                 </div>
               </div>
@@ -823,24 +573,53 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
               </div>
             </div>
 
-            {/* LIVE RANKING */}
-            <div className="bg-gray-700/30 rounded-xl p-4 border border-blue-500/30 mb-4">
-              <h3 className={`text-blue-400 font-bold ${isMobile ? 'text-sm' : 'text-base'} mb-3 flex items-center gap-2`}>
-                <span>📊</span> Live Rankings
-                {!rankingLoading && allUsersStats.length > 0 && (
-                  <span className="text-xs text-green-400 ml-2">
-                    {allUsersStats.length} participants
-                  </span>
-                )}
-              </h3>
-              
-              <RankingTable />
-              
-              {eventActive && !rankingLoading && allUsersStats.length > 0 && (
-                <div className="text-center text-xs text-green-400 mt-3">
-                  ✅ Messages are being counted from April 1st, 2026!
+            {/* Informacja o rankingu */}
+            <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/30 mb-4">
+              <div className="text-center">
+                <div className="text-blue-400 font-bold mb-2">📊 How It Works</div>
+                <p className="text-gray-300 text-sm">
+                  Rankings are based on total messages sent on the Base network through the HUB Chat contract.
+                  The leaderboard updates every 24 hours. Top 100 participants at the end of the season (October 31st, 2026) will receive USDC rewards!
+                </p>
+                <div className="grid grid-cols-3 gap-2 mt-3 text-xs">
+                  <div className="bg-yellow-500/10 rounded p-2">
+                    <div className="text-yellow-400 font-bold">🥇 Top 1</div>
+                    <div>$5,000 USDC</div>
+                  </div>
+                  <div className="bg-gray-400/10 rounded p-2">
+                    <div className="text-gray-300 font-bold">🥈 Top 2-3</div>
+                    <div>$3,000 - $2,000</div>
+                  </div>
+                  <div className="bg-cyan-500/10 rounded p-2">
+                    <div className="text-cyan-400 font-bold">🎯 Top 4-10</div>
+                    <div>$1,500 - $500</div>
+                  </div>
                 </div>
-              )}
+              </div>
+            </div>
+
+            {/* Komunikat o pełnym leaderboardzie */}
+            <div className="text-center py-4">
+              <div className="text-4xl mb-2">📊</div>
+              <h3 className="text-lg font-bold text-white mb-2">Full Leaderboard Coming Soon</h3>
+              <p className="text-gray-400 text-sm mb-3">
+                We're building a comprehensive leaderboard system that will show all participants ranked by their message count.
+              </p>
+              <div className="bg-blue-500/10 rounded-lg p-3 border border-blue-500/30">
+                <p className="text-blue-300 text-sm">
+                  🔄 Your messages are being counted! Total messages: <span className="font-bold">{totalMessages.toLocaleString()}</span>
+                </p>
+                {userMessageCount > 0 && (
+                  <p className="text-blue-300 text-sm mt-1">
+                    📝 You've sent <span className="font-bold">{userMessageCount.toLocaleString()} messages</span> on Base network
+                  </p>
+                )}
+                {userStatus.isEligible && eventActive && (
+                  <p className="text-green-300 text-sm mt-2">
+                    🚀 Keep messaging to climb the ranks! Top 100 win rewards!
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Informacje o sezonie */}
@@ -875,7 +654,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 mt-1">•</span>
-                  <span><strong>Data Update:</strong> Rankings update every 30 minutes</span>
+                  <span><strong>Data Update:</strong> Rankings update every 24 hours</span>
                 </li>
               </ul>
             </div>
@@ -888,7 +667,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
         }`}>
           <div className={`text-center text-gray-400 ${isMobile ? 'text-[9px]' : 'text-[10px]'}`}>
             <p>Base Network Leaderboard • Grand Season 2026: April 1 - October 31 • $20,000 USDC Total Rewards</p>
-            <p className={isMobile ? 'mt-0.5' : 'mt-1'}>Data updated every 30 minutes • Rankings based on verified message count from HUB Chat contract</p>
+            <p className={isMobile ? 'mt-0.5' : 'mt-1'}>Data updated every 24 hours • Rankings based on verified message count from HUB Chat contract</p>
             <p className="text-yellow-500/70 mt-1">🏆 Top 10 get MASSIVE rewards! 🏆</p>
             {userStatsError && (
               <p className="text-red-400 mt-1 text-[8px]">Error loading message data. Please ensure you're connected to Base network.</p>
