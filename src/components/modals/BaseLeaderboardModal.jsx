@@ -9,11 +9,14 @@ const HUB_CHAT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constr
 
 const HUB_CHAT_CONTRACT = "0x8ea3818294887376673e4e64fBd518598e3a2306";
 
-// Utworzenie publicznego klienta z oficjalnym RPC Base Mainnet
+// Utworzenie publicznego klienta z lepszym RPC (llamarpc ma wyższe limity)
 const publicClient = createPublicClient({
   chain: base,
-  transport: http('https://mainnet.base.org'),
+  transport: http('https://base.llamarpc.com'),
 });
+
+// Stała określająca wielkość partii bloków (większość RPC akceptuje 10,000-50,000)
+const BLOCK_BATCH_SIZE = 50000n;
 
 const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   // State dla rankingu
@@ -68,19 +71,91 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     }
   ];
   
+  // Funkcja do pobierania wszystkich eventów MessageSent w partiach
+  const getAllMessageEventsInBatches = useCallback(async () => {
+    try {
+      setLoadingProgress('Getting latest block number...');
+      
+      // Pobierz numer najnowszego bloku
+      const latestBlock = await publicClient.getBlockNumber();
+      console.log(`Latest block: ${latestBlock}`);
+      
+      let allEvents = [];
+      let currentFromBlock = 0n;
+      let batchNumber = 1;
+      
+      setLoadingProgress(`Scanning blockchain in batches (max ${BLOCK_BATCH_SIZE.toLocaleString()} blocks per batch)...`);
+      
+      while (currentFromBlock < latestBlock) {
+        let currentToBlock = currentFromBlock + BLOCK_BATCH_SIZE - 1n;
+        if (currentToBlock > latestBlock) {
+          currentToBlock = latestBlock;
+        }
+        
+        console.log(`Fetching batch ${batchNumber}: blocks ${currentFromBlock} to ${currentToBlock}`);
+        setLoadingProgress(`Fetching batch ${batchNumber}: blocks ${currentFromBlock.toLocaleString()} to ${currentToBlock.toLocaleString()}...`);
+        
+        try {
+          const events = await publicClient.getContractEvents({
+            address: HUB_CHAT_CONTRACT,
+            abi: HUB_CHAT_ABI,
+            eventName: 'MessageSent',
+            fromBlock: currentFromBlock,
+            toBlock: currentToBlock,
+          });
+          
+          console.log(`Batch ${batchNumber}: found ${events.length} events`);
+          allEvents = [...allEvents, ...events];
+          
+        } catch (batchError) {
+          console.error(`Error fetching batch ${batchNumber}:`, batchError);
+          // Jeśli batch jest za duży, spróbuj podzielić go na mniejsze części
+          if (batchError.message?.includes('limit') || batchError.message?.includes('range')) {
+            console.log(`Batch too large, splitting into smaller chunks...`);
+            const midBlock = (currentFromBlock + currentToBlock) / 2n;
+            
+            const events1 = await publicClient.getContractEvents({
+              address: HUB_CHAT_CONTRACT,
+              abi: HUB_CHAT_ABI,
+              eventName: 'MessageSent',
+              fromBlock: currentFromBlock,
+              toBlock: midBlock,
+            });
+            
+            const events2 = await publicClient.getContractEvents({
+              address: HUB_CHAT_CONTRACT,
+              abi: HUB_CHAT_ABI,
+              eventName: 'MessageSent',
+              fromBlock: midBlock + 1n,
+              toBlock: currentToBlock,
+            });
+            
+            allEvents = [...allEvents, ...events1, ...events2];
+          } else {
+            throw batchError;
+          }
+        }
+        
+        currentFromBlock = currentToBlock + 1n;
+        batchNumber++;
+        
+        // Małe opóźnienie między batchami aby nie przeciążyć RPC
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      console.log(`Total events fetched: ${allEvents.length}`);
+      return allEvents;
+      
+    } catch (err) {
+      console.error('Error fetching events in batches:', err);
+      throw err;
+    }
+  }, []);
+  
   // Funkcja do pobierania wszystkich adresów z eventów MessageSent
   const getAllUserAddressesFromEvents = useCallback(async () => {
     try {
-      setLoadingProgress('Fetching message events from Base Mainnet via official RPC...');
-      
-      // Pobierz wszystkie eventy MessageSent z głównej sieci Base
-      const events = await publicClient.getContractEvents({
-        address: HUB_CHAT_CONTRACT,
-        abi: HUB_CHAT_ABI,
-        eventName: 'MessageSent',
-        fromBlock: 0n,
-        toBlock: 'latest',
-      });
+      const events = await getAllMessageEventsInBatches();
       
       console.log(`Found ${events.length} total messages on Base Mainnet`);
       
@@ -101,7 +176,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
       console.error('Error fetching events from Base Mainnet:', err);
       throw err;
     }
-  }, []);
+  }, [getAllMessageEventsInBatches]);
   
   // Funkcja do pobierania statystyk dla listy adresów
   const fetchStatsForUsers = useCallback(async (userAddresses, onProgress) => {
@@ -180,7 +255,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     setLoadingProgress('Starting...');
     
     try {
-      // Krok 1: Pobierz wszystkich użytkowników z eventów
+      // Krok 1: Pobierz wszystkich użytkowników z eventów (w partiach)
       const { userAddresses, totalMessages } = await getAllUserAddressesFromEvents();
       setTotalMessagesCount(totalMessages);
       
@@ -597,7 +672,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto mb-2"></div>
                 <div className="text-gray-400 text-sm">{loadingProgress || 'Loading leaderboard from Base Mainnet...'}</div>
-                <div className="text-gray-500 text-xs mt-2">First load may take 10-30 seconds</div>
+                <div className="text-gray-500 text-xs mt-2">Scanning blockchain in batches (this may take a moment)</div>
               </div>
             ) : leaderboardData.length === 0 ? (
               <div className="text-center py-8">
