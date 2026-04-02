@@ -1,12 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useReadContract, useAccount, usePublicClient } from 'wagmi';
+import { useReadContract, useAccount } from 'wagmi';
 import { useNetwork } from '../../hooks/useNetwork';
-import { base } from 'wagmi/chains';
+import { createPublicClient, http } from 'viem';
+import { base } from 'viem/chains';
 
 // Pełne ABI kontraktu HUBChatRewards
 const HUB_CHAT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"cooldown","type":"uint256"}],"name":"CooldownUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"utcDay","type":"uint256"}],"name":"DailyLimitReset","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"free","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"basic","type":"uint256"}],"name":"LimitsUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"sender","type":"address"},{"indexed":false,"internalType":"string","name":"content","type":"string"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"reward","type":"uint256"}],"name":"MessageSent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"basic","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"premium","type":"uint256"}],"name":"PricesUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"duration","type":"uint256"}],"name":"SubscriptionDurationUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"},{"indexed":false,"internalType":"uint256","name":"expiry","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"paidAmount","type":"uint256"}],"name":"SubscriptionPurchased","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":false,"internalType":"uint256","name":"amountHUB","type":"uint256"}],"name":"TokensDeposited","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"bool","name":"status","type":"bool"}],"name":"WhitelistUpdated","type":"event"},{"inputs":[],"name":"DEV_ACCOUNT","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"HUB_TOKEN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_MESSAGE_LENGTH","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD_PER_MESSAGE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"UNLIMITED_FLAG","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"USDC_TOKEN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"basicDailyLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"basicPriceUSDC","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"blacklist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"blockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"buyBasicSubscription","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"buyPremiumSubscription","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"canSendMessage","outputs":[{"internalType":"bool","name":"canSend","type":"bool"},{"internalType":"string","name":"reason","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"checkWhitelist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"cooldownSeconds","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"depositHUBTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"emergencyWithdrawHUB","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"forceResetUserLimit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"freeDailyLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getContractStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"hubBalance","type":"uint256"},{"internalType":"uint256","name":"usdcBalance","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCurrentUTCDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getNextResetTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getRemainingDailyMessages","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getSubscriptionInfo","outputs":[{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"},{"internalType":"uint256","name":"expiry","type":"uint256"},{"internalType":"bool","name":"whitelisted","type":"bool"},{"internalType":"bool","name":"isActive","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserBasicStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"uint256","name":"lastMessageTime","type":"uint256"},{"internalType":"bool","name":"isBlocked","type":"bool"},{"internalType":"uint256","name":"messagesToday","type":"uint256"},{"internalType":"uint256","name":"lastResetDay","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserSubscriptionInfo","outputs":[{"internalType":"uint256","name":"remainingMessages","type":"uint256"},{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"},{"internalType":"bool","name":"whitelisted","type":"bool"},{"internalType":"uint256","name":"subscriptionExpiry","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getWhitelistedAddresses","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"paidSubscriptions","outputs":[{"internalType":"uint256","name":"expiry","type":"uint256"},{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"pause","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"premiumPriceUSDC","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"removeFromWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_content","type":"string"}],"name":"sendMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_seconds","type":"uint256"}],"name":"setCooldown","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_free","type":"uint256"},{"internalType":"uint256","name":"_basic","type":"uint256"}],"name":"setLimits","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_basic","type":"uint256"},{"internalType":"uint256","name":"_premium","type":"uint256"}],"name":"setPrices","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_seconds","type":"uint256"}],"name":"setSubscriptionDuration","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"subscriptionDuration","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"unblockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"unpause","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"uint256","name":"lastMessageTime","type":"uint256"},{"internalType":"bool","name":"isBlocked","type":"bool"},{"internalType":"uint256","name":"messagesToday","type":"uint256"},{"internalType":"uint256","name":"lastResetDay","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"whitelist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"withdrawUSDC","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}];
 
 const HUB_CHAT_CONTRACT = "0x8ea3818294887376673e4e64fBd518598e3a2306";
+
+// Utworzenie publicznego klienta z oficjalnym RPC Base Mainnet
+const publicClient = createPublicClient({
+  chain: base,
+  transport: http('https://mainnet.base.org'),
+});
 
 const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
   // State dla rankingu
@@ -34,7 +41,6 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
   
   const { isBase } = useNetwork();
   const { address } = useAccount();
-  const publicClient = usePublicClient();
   
   // Stałe
   const CACHE_KEY = 'base_leaderboard_cache_v2';
@@ -65,7 +71,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
   // Funkcja do pobierania wszystkich adresów z eventów MessageSent
   const getAllUserAddressesFromEvents = useCallback(async () => {
     try {
-      setLoadingProgress('Fetching message events from Base Mainnet...');
+      setLoadingProgress('Fetching message events from Base Mainnet via official RPC...');
       
       // Pobierz wszystkie eventy MessageSent z głównej sieci Base
       const events = await publicClient.getContractEvents({
@@ -95,7 +101,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
       console.error('Error fetching events from Base Mainnet:', err);
       throw err;
     }
-  }, [publicClient]);
+  }, []);
   
   // Funkcja do pobierania statystyk dla listy adresów
   const fetchStatsForUsers = useCallback(async (userAddresses, onProgress) => {
@@ -142,7 +148,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     }
     
     return results;
-  }, [publicClient]);
+  }, []);
   
   // Główna funkcja aktualizacji rankingu
   const updateLeaderboard = useCallback(async (forceRefresh = false) => {
@@ -200,7 +206,18 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
         rank: index + 1
       }));
       
-      // Krok 5: Zapisz w cache
+      // Krok 5: Znajdź rangę bieżącego użytkownika
+      if (currentUser?.walletAddress || address) {
+        const userAddress = (currentUser?.walletAddress || address).toLowerCase();
+        const userEntry = withRanking.find(u => u.walletAddress.toLowerCase() === userAddress);
+        if (userEntry) {
+          setUserRank(userEntry.rank);
+        } else {
+          setUserRank(null);
+        }
+      }
+      
+      // Krok 6: Zapisz w cache
       const cacheData = {
         data: withRanking,
         timestamp: Date.now(),
@@ -236,7 +253,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
       setLoadingLeaderboard(false);
       setLoadingProgress('');
     }
-  }, [getAllUserAddressesFromEvents, fetchStatsForUsers]);
+  }, [getAllUserAddressesFromEvents, fetchStatsForUsers, currentUser, address]);
   
   // Auto-odświeżanie co 24h
   useEffect(() => {
@@ -287,7 +304,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     return () => clearInterval(timer);
   }, [isOpen]);
   
-  // Odczyt statystyk kontraktu
+  // Odczyt statystyk kontraktu przez wagmi
   const { data: contractStats } = useReadContract({
     address: HUB_CHAT_CONTRACT,
     abi: HUB_CHAT_ABI,
@@ -295,7 +312,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     query: { enabled: isOpen && isBase },
   });
   
-  // Odczyt statystyk użytkownika
+  // Odczyt statystyk użytkownika przez wagmi
   const { data: userStatsData } = useReadContract({
     address: HUB_CHAT_CONTRACT,
     abi: HUB_CHAT_ABI,
@@ -304,7 +321,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     query: { enabled: (isOpen && isBase) && !!(currentUser?.walletAddress || address) },
   });
   
-  // Odczyt subskrypcji
+  // Odczyt subskrypcji przez wagmi
   const { data: subscriptionInfo } = useReadContract({
     address: HUB_CHAT_CONTRACT,
     abi: HUB_CHAT_ABI,
@@ -313,14 +330,33 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     query: { enabled: (isOpen && isBase) && !!(currentUser?.walletAddress || address) },
   });
   
-  // Odczyt NFT
-  const { data: nftBalanceData, isLoading: nftLoading } = useReadContract({
-    address: GENESIS_NFT_CONTRACT,
-    abi: NFT_ABI,
-    functionName: 'balanceOf',
-    args: [currentUser?.walletAddress || address],
-    query: { enabled: !!currentUser?.walletAddress && isOpen && isBase },
-  });
+  // Odczyt NFT przez publicClient (bo to inny kontrakt)
+  const [nftBalanceData, setNftBalanceData] = useState(null);
+  const [nftLoading, setNftLoading] = useState(false);
+  
+  useEffect(() => {
+    const fetchNFTBalance = async () => {
+      if (!currentUser?.walletAddress || !isOpen || !isBase) return;
+      
+      setNftLoading(true);
+      try {
+        const balance = await publicClient.readContract({
+          address: GENESIS_NFT_CONTRACT,
+          abi: NFT_ABI,
+          functionName: 'balanceOf',
+          args: [currentUser.walletAddress],
+        });
+        setNftBalanceData(balance);
+      } catch (error) {
+        console.error("Error fetching NFT balance:", error);
+        setNftBalanceData(0n);
+      } finally {
+        setNftLoading(false);
+      }
+    };
+    
+    fetchNFTBalance();
+  }, [currentUser?.walletAddress, isOpen, isBase]);
   
   // Aktualizacja message count użytkownika
   useEffect(() => {
@@ -348,7 +384,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
         const hubBalance = parseFloat(currentUser?.balance || '0');
         const hasEnoughTokens = hubBalance >= MIN_TOKENS_REQUIRED;
         let hasNFT = false;
-        if (nftBalanceData !== undefined) {
+        if (nftBalanceData !== undefined && nftBalanceData !== null) {
           hasNFT = Number(nftBalanceData) > 0;
         }
         const hasActiveSubscription = userSubscriptionTier && userSubscriptionTier !== 'None';
