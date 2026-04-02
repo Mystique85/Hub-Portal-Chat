@@ -2,21 +2,22 @@ import { useState, useEffect, useCallback } from 'react';
 import { useReadContract, useAccount, usePublicClient } from 'wagmi';
 import { useNetwork } from '../../hooks/useNetwork';
 
-// Pełne ABI kontraktu HUBChatRewards (twoje istniejące ABI)
+// Pełne ABI kontraktu HUBChatRewards
 const HUB_CHAT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"cooldown","type":"uint256"}],"name":"CooldownUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"uint256","name":"utcDay","type":"uint256"}],"name":"DailyLimitReset","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"free","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"basic","type":"uint256"}],"name":"LimitsUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"sender","type":"address"},{"indexed":false,"internalType":"string","name":"content","type":"string"},{"indexed":false,"internalType":"uint256","name":"timestamp","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"reward","type":"uint256"}],"name":"MessageSent","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"basic","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"premium","type":"uint256"}],"name":"PricesUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"duration","type":"uint256"}],"name":"SubscriptionDurationUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"},{"indexed":false,"internalType":"uint256","name":"expiry","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"paidAmount","type":"uint256"}],"name":"SubscriptionPurchased","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":false,"internalType":"uint256","name":"amountHUB","type":"uint256"}],"name":"TokensDeposited","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":false,"internalType":"bool","name":"status","type":"bool"}],"name":"WhitelistUpdated","type":"event"},{"inputs":[],"name":"DEV_ACCOUNT","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"HUB_TOKEN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_MESSAGE_LENGTH","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"REWARD_PER_MESSAGE","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"UNLIMITED_FLAG","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"USDC_TOKEN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"basicDailyLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"basicPriceUSDC","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"blacklist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"blockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"buyBasicSubscription","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"buyPremiumSubscription","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"canSendMessage","outputs":[{"internalType":"bool","name":"canSend","type":"bool"},{"internalType":"string","name":"reason","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"checkWhitelist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"cooldownSeconds","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"depositHUBTokens","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"emergencyWithdrawHUB","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"forceResetUserLimit","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"freeDailyLimit","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getContractStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"hubBalance","type":"uint256"},{"internalType":"uint256","name":"usdcBalance","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCurrentUTCDay","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getNextResetTime","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getRemainingDailyMessages","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getSubscriptionInfo","outputs":[{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"},{"internalType":"uint256","name":"expiry","type":"uint256"},{"internalType":"bool","name":"whitelisted","type":"bool"},{"internalType":"bool","name":"isActive","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserBasicStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"uint256","name":"lastMessageTime","type":"uint256"},{"internalType":"bool","name":"isBlocked","type":"bool"},{"internalType":"uint256","name":"messagesToday","type":"uint256"},{"internalType":"uint256","name":"lastResetDay","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserSubscriptionInfo","outputs":[{"internalType":"uint256","name":"remainingMessages","type":"uint256"},{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"},{"internalType":"bool","name":"whitelisted","type":"bool"},{"internalType":"uint256","name":"subscriptionExpiry","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getWhitelistedAddresses","outputs":[{"internalType":"address[]","name":"","type":"address[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"paidSubscriptions","outputs":[{"internalType":"uint256","name":"expiry","type":"uint256"},{"internalType":"enum HUBChatRewards.Tier","name":"tier","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"pause","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"paused","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"premiumPriceUSDC","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"removeFromWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"_content","type":"string"}],"name":"sendMessage","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_seconds","type":"uint256"}],"name":"setCooldown","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_free","type":"uint256"},{"internalType":"uint256","name":"_basic","type":"uint256"}],"name":"setLimits","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_basic","type":"uint256"},{"internalType":"uint256","name":"_premium","type":"uint256"}],"name":"setPrices","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"_seconds","type":"uint256"}],"name":"setSubscriptionDuration","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"subscriptionDuration","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"unblockUser","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"unpause","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"userStats","outputs":[{"internalType":"uint256","name":"totalMessages","type":"uint256"},{"internalType":"uint256","name":"totalEarned","type":"uint256"},{"internalType":"uint256","name":"lastMessageTime","type":"uint256"},{"internalType":"bool","name":"isBlocked","type":"bool"},{"internalType":"uint256","name":"messagesToday","type":"uint256"},{"internalType":"uint256","name":"lastResetDay","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"whitelist","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"}],"name":"withdrawUSDC","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}];
 
 const HUB_CHAT_CONTRACT = "0x8ea3818294887376673e4e64fBd518598e3a2306";
 
 const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }) => {
-  // NOWE STATE dla rankingu
+  // State dla rankingu
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [leaderboardLastUpdate, setLeaderboardLastUpdate] = useState(null);
   const [totalParticipants, setTotalParticipants] = useState(0);
   const [totalMessagesCount, setTotalMessagesCount] = useState(0);
   const [loadingProgress, setLoadingProgress] = useState('');
+  const [error, setError] = useState(null);
   
-  // Istniejące state (zostawiamy)
+  // State dla timera i użytkownika
   const [timeRemaining, setTimeRemaining] = useState({});
   const [timeUntilEnd, setTimeUntilEnd] = useState({});
   const [userRank, setUserRank] = useState(null);
@@ -30,15 +31,15 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     loading: true
   });
   
-  const { isCelo, isBase } = useNetwork();
+  const { isBase } = useNetwork();
   const { address } = useAccount();
-  const publicClient = usePublicClient(); // DODANE: do odczytu eventów
+  const publicClient = usePublicClient();
   
-  // Stałe cache
+  // Stałe
   const CACHE_KEY = 'base_leaderboard_cache_v2';
-  const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24h
+  const CACHE_DURATION = 24 * 60 * 60 * 1000;
   
-  // Istniejące stałe (zostawiamy)
+  // Daty sezonu
   const startDate = new Date('2026-04-01T00:00:00');
   const endDate = new Date('2026-10-31T23:59:59');
   const MIN_TOKENS_REQUIRED = 100;
@@ -60,11 +61,12 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     }
   ];
   
-  // NOWA FUNKCJA: pobieranie wszystkich użytkowników z eventów
-  const getAllUsersFromEvents = useCallback(async () => {
-    console.log('📊 Fetching all users from contract events...');
-    
+  // Funkcja do pobierania wszystkich adresów z eventów MessageSent
+  const getAllUserAddressesFromEvents = useCallback(async () => {
     try {
+      setLoadingProgress('Fetching message events from blockchain...');
+      
+      // Pobierz wszystkie eventy MessageSent
       const events = await publicClient.getContractEvents({
         address: HUB_CHAT_CONTRACT,
         abi: HUB_CHAT_ABI,
@@ -73,36 +75,37 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
         toBlock: 'latest',
       });
       
-      console.log(`✅ Found ${events.length} total messages`);
+      console.log(`Found ${events.length} total messages`);
       
-      const uniqueUsers = new Set();
+      // Wyciągnij unikalnych senderów
+      const uniqueSenders = new Set();
       events.forEach(event => {
-        if (event.args.sender) {
-          uniqueUsers.add(event.args.sender);
+        if (event.args && event.args.sender) {
+          uniqueSenders.add(event.args.sender);
         }
       });
       
-      const usersList = Array.from(uniqueUsers);
-      console.log(`✅ Found ${usersList.length} unique users`);
+      const userAddresses = Array.from(uniqueSenders);
+      console.log(`Found ${userAddresses.length} unique users`);
       
-      return { usersList, totalMessagesCount: events.length };
+      return { userAddresses, totalMessages: events.length };
       
-    } catch (error) {
-      console.error("Error fetching events:", error);
-      return { usersList: [], totalMessagesCount: 0 };
+    } catch (err) {
+      console.error('Error fetching events:', err);
+      throw err;
     }
   }, [publicClient]);
   
-  // NOWA FUNKCJA: pobieranie statystyk użytkowników w batchach
-  const fetchUsersStats = useCallback(async (userAddresses, onProgress) => {
-    const batchSize = 20;
+  // Funkcja do pobierania statystyk dla listy adresów
+  const fetchStatsForUsers = useCallback(async (userAddresses, onProgress) => {
     const results = [];
+    const batchSize = 10; // Małe batche dla RPC
     
     for (let i = 0; i < userAddresses.length; i += batchSize) {
       const batch = userAddresses.slice(i, Math.min(i + batchSize, userAddresses.length));
       
       if (onProgress) {
-        onProgress(i, userAddresses.length);
+        onProgress(i + batch.length, userAddresses.length);
       }
       
       const batchPromises = batch.map(async (walletAddress) => {
@@ -121,87 +124,86 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
             lastMessageTime: Number(stats[2]),
             isBlocked: stats[3],
           };
-        } catch (error) {
-          console.error(`Error fetching ${walletAddress}:`, error);
+        } catch (err) {
+          console.error(`Error fetching stats for ${walletAddress}:`, err);
           return null;
         }
       });
       
       const batchResults = await Promise.all(batchPromises);
-      results.push(...batchResults.filter(r => r !== null && r.totalMessages > 0));
+      const validResults = batchResults.filter(r => r !== null && r.totalMessages > 0);
+      results.push(...validResults);
       
-      // Małe opóźnienie między batchami
+      // Opóźnienie między batchami
       if (i + batchSize < userAddresses.length) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
     }
     
     return results;
   }, [publicClient]);
   
-  // NOWA FUNKCJA: główna aktualizacja rankingu
+  // Główna funkcja aktualizacji rankingu
   const updateLeaderboard = useCallback(async (forceRefresh = false) => {
     // Sprawdź cache
     if (!forceRefresh) {
       const cached = localStorage.getItem(CACHE_KEY);
       if (cached) {
         try {
-          const { data, timestamp, totalMessagesCount: cachedTotalMessages } = JSON.parse(cached);
+          const { data, timestamp, totalMessagesCount: cachedMsgCount } = JSON.parse(cached);
           const age = Date.now() - timestamp;
           
-          if (age < CACHE_DURATION) {
-            console.log(`📦 Using cached data from ${new Date(timestamp).toLocaleString()}`);
+          if (age < CACHE_DURATION && data && data.length > 0) {
+            console.log('Using cached data');
             setLeaderboardData(data);
             setTotalParticipants(data.length);
-            setTotalMessagesCount(cachedTotalMessages);
+            setTotalMessagesCount(cachedMsgCount);
             setLeaderboardLastUpdate(new Date(timestamp));
-            
-            // Znajdź pozycję bieżącego użytkownika
-            if (currentUser?.walletAddress || address) {
-              const userAddress = currentUser?.walletAddress || address;
-              const userEntry = data.find(u => u.walletAddress.toLowerCase() === userAddress.toLowerCase());
-              if (userEntry) {
-                setUserRank(userEntry.rank);
-                setUserMessageCount(userEntry.totalMessages);
-              }
-            }
+            setError(null);
             return;
           }
         } catch (e) {
-          console.error("Cache parse error:", e);
+          console.error('Cache read error:', e);
         }
       }
     }
     
     setLoadingLeaderboard(true);
-    setLoadingProgress('Fetching message events from blockchain...');
+    setError(null);
+    setLoadingProgress('Starting...');
     
     try {
       // Krok 1: Pobierz wszystkich użytkowników z eventów
-      const { usersList, totalMessagesCount: msgCount } = await getAllUsersFromEvents();
-      setTotalMessagesCount(msgCount);
+      const { userAddresses, totalMessages } = await getAllUserAddressesFromEvents();
+      setTotalMessagesCount(totalMessages);
       
-      if (usersList.length === 0) {
-        throw new Error("No users found");
+      if (userAddresses.length === 0) {
+        setLeaderboardData([]);
+        setTotalParticipants(0);
+        setLoadingLeaderboard(false);
+        return;
       }
       
       // Krok 2: Pobierz statystyki dla każdego użytkownika
-      const usersStats = await fetchUsersStats(usersList, (current, total) => {
-        setLoadingProgress(`Processing users ${current}/${total}...`);
+      setLoadingProgress(`Fetching stats for ${userAddresses.length} users...`);
+      const usersStats = await fetchStatsForUsers(userAddresses, (processed, total) => {
+        setLoadingProgress(`Processing ${processed}/${total} users...`);
       });
       
-      // Krok 3: Sortuj i dodaj ranking
+      // Krok 3: Sortuj według liczby wiadomości
       const sorted = usersStats.sort((a, b) => b.totalMessages - a.totalMessages);
+      
+      // Krok 4: Dodaj ranking
       const withRanking = sorted.map((user, index) => ({
         ...user,
         rank: index + 1
       }));
       
-      // Krok 4: Zapisz w cache
+      // Krok 5: Zapisz w cache
       const cacheData = {
         data: withRanking,
         timestamp: Date.now(),
-        totalMessagesCount: msgCount,
+        totalMessagesCount: totalMessages,
       };
       localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
       
@@ -209,42 +211,33 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
       setTotalParticipants(withRanking.length);
       setLeaderboardLastUpdate(new Date());
       
-      // Znajdź pozycję bieżącego użytkownika
-      if (currentUser?.walletAddress || address) {
-        const userAddress = currentUser?.walletAddress || address;
-        const userEntry = withRanking.find(u => u.walletAddress.toLowerCase() === userAddress.toLowerCase());
-        if (userEntry) {
-          setUserRank(userEntry.rank);
-          setUserMessageCount(userEntry.totalMessages);
-        } else {
-          setUserRank(null);
-          setUserMessageCount(0);
-        }
-      }
+      console.log(`Leaderboard updated: ${withRanking.length} users`);
       
-      console.log(`✅ Leaderboard updated: ${withRanking.length} users, ${msgCount} messages`);
+    } catch (err) {
+      console.error('Error updating leaderboard:', err);
+      setError(err.message);
       
-    } catch (error) {
-      console.error("Error updating leaderboard:", error);
-      setLoadingProgress('Error loading leaderboard');
-      
-      // W przypadku błędu, spróbuj użyć starego cache
+      // Spróbuj użyć starego cache
       const cached = localStorage.getItem(CACHE_KEY);
       if (cached) {
-        const { data, timestamp, totalMessagesCount: cachedTotalMessages } = JSON.parse(cached);
-        setLeaderboardData(data);
-        setTotalParticipants(data.length);
-        setTotalMessagesCount(cachedTotalMessages);
-        setLeaderboardLastUpdate(new Date(timestamp));
+        try {
+          const { data, timestamp, totalMessagesCount: cachedMsgCount } = JSON.parse(cached);
+          if (data && data.length > 0) {
+            setLeaderboardData(data);
+            setTotalParticipants(data.length);
+            setTotalMessagesCount(cachedMsgCount);
+            setLeaderboardLastUpdate(new Date(timestamp));
+            setError(null);
+          }
+        } catch (e) {}
       }
-      
     } finally {
       setLoadingLeaderboard(false);
       setLoadingProgress('');
     }
-  }, [publicClient, currentUser, address, getAllUsersFromEvents, fetchUsersStats]);
+  }, [getAllUserAddressesFromEvents, fetchStatsForUsers]);
   
-  // NOWY EFFECT: auto-odświeżanie co 24h
+  // Auto-odświeżanie co 24h
   useEffect(() => {
     if (!isOpen || !isBase) return;
     
@@ -257,7 +250,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     return () => clearInterval(interval);
   }, [isOpen, isBase, updateLeaderboard]);
   
-  // Istniejące useEffect (zostawiamy bez zmian)
+  // Timer countdown
   useEffect(() => {
     if (!isOpen) return;
     
@@ -265,20 +258,23 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
       const now = new Date();
       const startDiff = startDate.getTime() - now.getTime();
       if (startDiff > 0) {
-        const days = Math.floor(startDiff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((startDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((startDiff % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((startDiff % (1000 * 60)) / 1000);
-        setTimeRemaining({ days, hours, minutes, seconds });
+        setTimeRemaining({
+          days: Math.floor(startDiff / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((startDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((startDiff % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((startDiff % (1000 * 60)) / 1000)
+        });
+        setTimeUntilEnd({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       } else {
         setTimeRemaining({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         const endDiff = endDate.getTime() - now.getTime();
         if (endDiff > 0) {
-          const days = Math.floor(endDiff / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((endDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((endDiff % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((endDiff % (1000 * 60)) / 1000);
-          setTimeUntilEnd({ days, hours, minutes, seconds });
+          setTimeUntilEnd({
+            days: Math.floor(endDiff / (1000 * 60 * 60 * 24)),
+            hours: Math.floor((endDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+            minutes: Math.floor((endDiff % (1000 * 60 * 60)) / (1000 * 60)),
+            seconds: Math.floor((endDiff % (1000 * 60)) / 1000)
+          });
         } else {
           setTimeUntilEnd({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         }
@@ -290,7 +286,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     return () => clearInterval(timer);
   }, [isOpen]);
   
-  // Istniejące odczyty z kontraktu (zostawiamy)
+  // Odczyt statystyk kontraktu
   const { data: contractStats } = useReadContract({
     address: HUB_CHAT_CONTRACT,
     abi: HUB_CHAT_ABI,
@@ -298,6 +294,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     query: { enabled: isOpen && isBase },
   });
   
+  // Odczyt statystyk użytkownika
   const { data: userStatsData } = useReadContract({
     address: HUB_CHAT_CONTRACT,
     abi: HUB_CHAT_ABI,
@@ -306,6 +303,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     query: { enabled: (isOpen && isBase) && !!(currentUser?.walletAddress || address) },
   });
   
+  // Odczyt subskrypcji
   const { data: subscriptionInfo } = useReadContract({
     address: HUB_CHAT_CONTRACT,
     abi: HUB_CHAT_ABI,
@@ -314,6 +312,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     query: { enabled: (isOpen && isBase) && !!(currentUser?.walletAddress || address) },
   });
   
+  // Odczyt NFT
   const { data: nftBalanceData, isLoading: nftLoading } = useReadContract({
     address: GENESIS_NFT_CONTRACT,
     abi: NFT_ABI,
@@ -322,13 +321,14 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     query: { enabled: !!currentUser?.walletAddress && isOpen && isBase },
   });
   
-  // Istniejące useEffect dla statystyk użytkownika
+  // Aktualizacja message count użytkownika
   useEffect(() => {
     if (userStatsData && Array.isArray(userStatsData) && userStatsData.length > 0) {
       setUserMessageCount(Number(userStatsData[0]));
     }
   }, [userStatsData]);
   
+  // Aktualizacja tieru subskrypcji
   useEffect(() => {
     if (subscriptionInfo && Array.isArray(subscriptionInfo) && subscriptionInfo.length > 0) {
       const tier = Number(subscriptionInfo[1]);
@@ -337,6 +337,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     }
   }, [subscriptionInfo]);
   
+  // Sprawdzanie statusu użytkownika
   useEffect(() => {
     if (!isOpen || !currentUser || !isBase) return;
     
@@ -373,15 +374,6 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
   
-  const formatTimeAgo = (date) => {
-    if (!date) return 'Never';
-    const seconds = Math.floor((new Date() - date) / 1000);
-    if (seconds < 60) return `${seconds}s ago`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-    return `${Math.floor(seconds / 86400)}d ago`;
-  };
-  
   const getRewardForRank = (rank) => {
     if (rank <= 10) return rewardStructure[rank];
     if (rank <= 100) {
@@ -412,7 +404,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
     updateLeaderboard(true);
   };
   
-  // Komponenty (zostawiamy bez zmian)
+  // Komponenty
   const StatusBadge = ({ condition, text }) => (
     <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold ${
       condition ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
@@ -458,12 +450,11 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
   const eventNotStarted = isEventNotStarted();
   const eventEnded = isEventEnded();
   
-  // GŁÓWNY RENDER - ZMIENIONY aby pokazać ranking
   return (
     <div className={`fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 ${isMobile ? 'p-0' : 'p-4'}`}>
       <div className={`bg-gray-800/90 backdrop-blur-xl border border-gray-700/50 w-full ${isMobile ? 'h-full rounded-none overflow-hidden flex flex-col max-w-full' : 'rounded-3xl max-w-5xl h-[90vh] overflow-hidden flex flex-col'}`}>
         
-        {/* Header z przyciskiem refresh */}
+        {/* Header */}
         <div className="flex-shrink-0">
           <div className={`flex items-center justify-between ${isMobile ? 'p-3' : 'p-4'} border-b border-gray-700/50`}>
             <div className="flex-1">
@@ -478,6 +469,9 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
                   Last update: {leaderboardLastUpdate.toLocaleString()} • Auto-refresh every 24h
                 </p>
               )}
+              {error && (
+                <p className="text-red-400 text-[10px] mt-0.5">Error: {error}</p>
+              )}
             </div>
             <button
               onClick={handleRefresh}
@@ -489,9 +483,8 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
             <button onClick={onClose} className={`${isMobile ? 'w-8 h-8 text-lg' : 'w-12 h-12 text-xl'} flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-xl transition-all ml-2`}>✕</button>
           </div>
           
-          {/* Countdown banner (istniejący) */}
+          {/* Countdown Banner */}
           <div className={`bg-gradient-to-r ${eventNotStarted ? 'from-blue-500/10 to-purple-500/10 border-blue-500/20' : eventActive ? 'from-green-500/10 to-emerald-500/10 border-green-500/20' : 'from-red-500/10 to-orange-500/10 border-red-500/20'} border-y p-3`}>
-            {/* ... istniejący kod countdown ... */}
             <div className="text-center">
               {eventNotStarted && (
                 <>
@@ -515,14 +508,17 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
                   </div>
                 </>
               )}
-              {eventEnded && <h3 className="text-red-400 font-bold text-sm">🏆 Season Ended</h3>}
+              {eventEnded && (
+                <h3 className="text-red-400 font-bold text-sm">🏆 Season Ended - Rewards Distribution in Progress</h3>
+              )}
             </div>
           </div>
         </div>
         
-        {/* Główna zawartość z rankingiem */}
+        {/* Main Content */}
         <div className={`flex-1 overflow-y-auto ${isMobile ? 'p-3' : 'p-4'}`}>
-          {/* Status użytkownika (istniejący) */}
+          
+          {/* User Status */}
           <div className="bg-gray-700/30 rounded-xl p-4 border border-cyan-500/30 mb-4">
             <h3 className={`text-cyan-400 font-bold ${isMobile ? 'text-sm' : 'text-base'} mb-3 flex items-center gap-2`}>👤 Your Eligibility Status</h3>
             {userStatus.loading ? (
@@ -532,7 +528,12 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
                 <div className={`flex ${isMobile ? 'flex-col gap-2' : 'flex-wrap gap-2'}`}>
                   <StatusBadge condition={userStatus.hasNFT} text={userStatus.hasNFT ? "Genesis NFT Owner" : "No Genesis NFT"} />
                   <StatusBadge condition={userStatus.hasEnoughTokens} text={`${userStatus.hubBalance.toFixed(2)} HUB / ${MIN_TOKENS_REQUIRED}`} />
-                  {userSubscriptionTier && userSubscriptionTier !== 'None' && <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30"><span>{userSubscriptionTier === 'Premium' ? '💎' : '⭐'}</span><span>{userSubscriptionTier} Subscription</span></div>}
+                  {userSubscriptionTier && userSubscriptionTier !== 'None' && (
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                      <span>{userSubscriptionTier === 'Premium' ? '💎' : '⭐'}</span>
+                      <span>{userSubscriptionTier} Subscription</span>
+                    </div>
+                  )}
                 </div>
                 <div className={`text-center p-3 rounded-lg border text-sm ${userStatus.isEligible ? 'bg-green-500/10 text-green-400 border-green-500/30' : 'bg-amber-500/10 text-amber-400 border-amber-500/30'}`}>
                   {userStatus.isEligible ? '🎉 You are ELIGIBLE to compete!' : '⚠️ You are NOT eligible yet'}
@@ -549,7 +550,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
             )}
           </div>
           
-          {/* NOWY: Tabela rankingu */}
+          {/* Leaderboard Table */}
           <div className="bg-gray-700/30 rounded-xl p-4 border border-cyan-500/30 mb-4">
             <h3 className={`text-cyan-400 font-bold ${isMobile ? 'text-sm' : 'text-base'} mb-3 flex items-center gap-2`}>
               <span>🏆</span> Live Ranking - Top 100
@@ -623,24 +624,33 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
             )}
           </div>
           
-          {/* Reszta istniejącej zawartości (nagrody, informacje) */}
+          {/* Prize Breakdown */}
           <div className="bg-gray-700/30 rounded-xl p-4 border border-yellow-500/30 mb-4">
             <h3 className={`text-yellow-400 font-bold ${isMobile ? 'text-sm' : 'text-base'} mb-3 flex items-center gap-2`}>💰 Prize Breakdown</h3>
             <div className="space-y-1 max-h-64 overflow-y-auto">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(rank => <RewardRow key={rank} rank={rank} reward={rewardStructure[rank]} />)}
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(rank => (
+                <RewardRow key={rank} rank={rank} reward={rewardStructure[rank]} />
+              ))}
               <div className="pt-2 mt-2 border-t border-gray-700/50">
-                <div className="flex items-center justify-between py-1 text-sm text-gray-400"><span>Places 11-100</span><span>Proportional distribution ($3,700 total)</span></div>
+                <div className="flex items-center justify-between py-1 text-sm text-gray-400">
+                  <span>Places 11-100</span>
+                  <span>Proportional distribution ($3,700 total)</span>
+                </div>
               </div>
             </div>
           </div>
           
+          {/* How It Works */}
           <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl p-4 border border-blue-500/30">
             <h3 className={`text-blue-400 font-bold ${isMobile ? 'text-sm' : 'text-base'} mb-3 flex items-center gap-2`}>📊 How It Works</h3>
-            <p className="text-gray-300 text-sm mb-3">Rankings are based on total messages sent on Base network. The leaderboard updates every 24 hours. Top 100 participants at the end of the season receive USDC rewards!</p>
+            <p className="text-gray-300 text-sm mb-3">
+              Rankings are based on total messages sent on Base network through the HUB Chat contract. 
+              The leaderboard updates every 24 hours. Top 100 participants at the end of the season (October 31st, 2026) will receive USDC rewards!
+            </p>
             <div className="grid grid-cols-3 gap-2 text-xs">
-              <div className="bg-yellow-500/10 rounded p-2 text-center"><div className="text-yellow-400 font-bold">🥇 #1</div><div>$5,000</div></div>
-              <div className="bg-gray-400/10 rounded p-2 text-center"><div className="text-gray-300 font-bold">🥈 #2-3</div><div>$3,000-2,000</div></div>
-              <div className="bg-cyan-500/10 rounded p-2 text-center"><div className="text-cyan-400 font-bold">🎯 #4-10</div><div>$1,500-500</div></div>
+              <div className="bg-yellow-500/10 rounded p-2 text-center"><div className="text-yellow-400 font-bold">🥇 #1</div><div>$5,000 USDC</div></div>
+              <div className="bg-gray-400/10 rounded p-2 text-center"><div className="text-gray-300 font-bold">🥈 #2-3</div><div>$3,000 - $2,000</div></div>
+              <div className="bg-cyan-500/10 rounded p-2 text-center"><div className="text-cyan-400 font-bold">🎯 #4-10</div><div>$1,500 - $500</div></div>
             </div>
           </div>
         </div>
