@@ -153,15 +153,6 @@ const Header = ({
   const NFTInfoModal = () => {
     if (!showNFTInfo) return null;
 
-    // Oblicz datę zakończenia promocji (7 dni od dzisiaj)
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 7);
-    const formattedEndDate = endDate.toLocaleDateString('pl-PL', { 
-      day: 'numeric', 
-      month: 'long',
-      year: 'numeric'
-    });
-
     const modalContent = (
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
         <div className="bg-gray-800/95 border border-gray-600/50 rounded-2xl shadow-2xl max-w-md w-full p-6">
@@ -173,24 +164,6 @@ const Header = ({
             <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-500 bg-clip-text text-transparent mb-3">
               HUB Genesis NFT
             </h2>
-            
-            {/* Promocja - nowy element */}
-            <div className="mb-4 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-400/50 rounded-lg p-3">
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <span className="text-yellow-400 text-xl">🎉</span>
-                <span className="text-yellow-400 font-bold">SPECIAL PROMOTION!</span>
-                <span className="text-yellow-400 text-xl">🎉</span>
-              </div>
-              <p className="text-yellow-300 text-sm font-semibold">
-                Limited Time Offer • 1 Week Only!
-              </p>
-              <p className="text-white text-lg font-bold mt-1">
-                Mint for only 0.001 ETH
-              </p>
-              <p className="text-gray-400 text-xs mt-1">
-                Valid until {formattedEndDate}
-              </p>
-            </div>
             
             <div className="mb-4">
               <span className="inline-block bg-purple-500/20 border border-purple-400/50 text-purple-300 px-3 py-1 rounded-full text-sm font-semibold">
@@ -454,7 +427,7 @@ const Header = ({
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.style.display = 'none';
-                  e.target.parentElement.innerHTML = `<span class="text-base ${network.color}">${
+                  e.target.parentElement.innerHTML = `<span className="text-base ${network.color}">${
                     network.id === 'celo' ? '📱' :
                     network.id === 'base' ? '🌉' :
                     network.id === 'linea' ? '🚀' :
@@ -508,7 +481,7 @@ const Header = ({
           className="w-5 h-5 object-cover rounded"
           onError={(e) => {
             e.target.style.display = 'none';
-            e.target.parentElement.innerHTML = `<span class="text-lg">📱</span>`;
+            e.target.parentElement.innerHTML = `<span className="text-lg">📱</span>`;
           }}
         />
       );
@@ -521,7 +494,7 @@ const Header = ({
           className="w-5 h-5 object-cover rounded"
           onError={(e) => {
             e.target.style.display = 'none';
-            e.target.parentElement.innerHTML = `<span class="text-lg">🌉</span>`;
+            e.target.parentElement.innerHTML = `<span className="text-lg">🌉</span>`;
           }}
         />
       );
@@ -534,7 +507,7 @@ const Header = ({
           className="w-5 h-5 object-cover rounded"
           onError={(e) => {
             e.target.style.display = 'none';
-            e.target.parentElement.innerHTML = `<span class="text-lg">🚀</span>`;
+            e.target.parentElement.innerHTML = `<span className="text-lg">🚀</span>`;
           }}
         />
       );
@@ -547,7 +520,7 @@ const Header = ({
           className="w-5 h-5 object-cover rounded"
           onError={(e) => {
             e.target.style.display = 'none';
-            e.target.parentElement.innerHTML = `<span class="text-lg">🔶</span>`;
+            e.target.parentElement.innerHTML = `<span className="text-lg">🔶</span>`;
           }}
         />
       );
@@ -560,7 +533,7 @@ const Header = ({
           className="w-5 h-5 object-cover rounded"
           onError={(e) => {
             e.target.style.display = 'none';
-            e.target.parentElement.innerHTML = `<span class="text-lg">🌟</span>`;
+            e.target.parentElement.innerHTML = `<span className="text-lg">🌟</span>`;
           }}
         />
       );
@@ -573,7 +546,7 @@ const Header = ({
           className="w-5 h-5 object-cover rounded"
           onError={(e) => {
             e.target.style.display = 'none';
-            e.target.parentElement.innerHTML = `<span class="text-lg">⚡</span>`;
+            e.target.parentElement.innerHTML = `<span className="text-lg">⚡</span>`;
           }}
         />
       );
@@ -586,7 +559,7 @@ const Header = ({
           className="w-5 h-5 object-cover rounded"
           onError={(e) => {
             e.target.style.display = 'none';
-            e.target.parentElement.innerHTML = `<span class="text-lg text-[#836EF9]">🌀</span>`;
+            e.target.parentElement.innerHTML = `<span className="text-lg text-[#836EF9]">🌀</span>`;
           }}
         />
       );
