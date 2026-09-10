@@ -179,12 +179,7 @@ const Header = ({
               
               <p className="flex items-start gap-2">
                 <span className="text-purple-400 mt-1">💰</span>
-                <span><strong>20,000 HUB tokens</strong> on the Base network</span>
-              </p>
-              
-              <p className="flex items-start gap-2">
-                <span className="text-purple-400 mt-1">🚀</span>
-                <span><strong>10x airdrop multiplier</strong> for active early users</span>
+                <span><strong>+50,000 HUB per Genesis NFT</strong> added directly to your airdrop allocation</span>
               </p>
 
               <p className="flex items-start gap-2">
@@ -194,7 +189,7 @@ const Header = ({
 
               <p className="flex items-start gap-2">
                 <span className="text-purple-400 mt-1">⚡</span>
-                <span><strong>Access to exclusive community challenges and campaigns</strong></span>
+                <span><strong>Exclusive community access</strong> to challenges and campaigns reserved for Genesis holders</span>
               </p>
 
               <div className="mt-4 p-3 bg-purple-500/10 border border-purple-400/30 rounded-lg">
