@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useAccount, useReadContract } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { useAppKit } from '@reown/appkit/react';
 import { sdk } from '@farcaster/miniapp-sdk';
 
@@ -45,16 +45,6 @@ const SNAPSHOT_DATE = 'October 23, 2026';
 const CHECKER_URL = 'https://www.hubecosystem.xyz/';
 const X_HANDLE = '@HUB_Ecosystem';
 
-const NFT_ABI = [
-  {
-    inputs: [{ name: 'owner', type: 'address' }],
-    name: 'balanceOf',
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  }
-];
-
 const BASE_RPC_URLS = [
   'https://mainnet.base.org',
   'https://base.llamarpc.com',
@@ -65,7 +55,6 @@ const BASE_RPC_URLS = [
 
 const RPC_TIMEOUT_MS = 10000;
 const GLOBAL_TIMEOUT_MS = 30000;
-const NFT_FALLBACK_TIMEOUT_MS = 5000;
 
 const ALLOCATION_TIERS = [
   { tier: 0,  minTx: 0,     maxTx: 999,   allocation: 0      },
@@ -102,6 +91,7 @@ async function fetchWithTimeout(url, options, timeoutMs) {
   }
 }
 
+// === TX count z Base RPC (eth_getTransactionCount) ===
 async function fetchTxCountFromRpc(address) {
   let lastError = null;
 
@@ -145,6 +135,59 @@ async function fetchTxCountFromRpc(address) {
   }
 
   throw new Error('All Base RPC endpoints failed. Please try again in a moment.');
+}
+
+// === NFT count z Base RPC (eth_call balanceOf) ===
+async function fetchNftCountFromRpc(address) {
+  const selector = '0x70a08231'; // balanceOf(address)
+  const paddedAddress = address.toLowerCase().replace('0x', '').padStart(64, '0');
+  const data = selector + paddedAddress;
+
+  let lastError = null;
+
+  for (const rpcUrl of BASE_RPC_URLS) {
+    try {
+      const res = await fetchWithTimeout(
+        rpcUrl,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'eth_call',
+            params: [
+              { to: GENESIS_NFT_CONTRACT, data: data },
+              'latest'
+            ],
+            id: 1
+          })
+        },
+        RPC_TIMEOUT_MS
+      );
+
+      if (!res.ok) {
+        lastError = new Error(`${rpcUrl} HTTP ${res.status}`);
+        continue;
+      }
+
+      const json = await res.json();
+
+      if (json.error) {
+        lastError = new Error(json.error.message || `${rpcUrl} RPC error`);
+        continue;
+      }
+
+      if (json.result && json.result !== '0x') {
+        return parseInt(json.result, 16) || 0;
+      }
+
+      return 0;
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  throw new Error('All Base RPC endpoints failed for NFT.');
 }
 
 function calculateAllocation(txCount, nftCount) {
@@ -205,10 +248,6 @@ function App() {
   const [airdropResult, setAirdropResult] = useState(null);
   const [airdropLoading, setAirdropLoading] = useState(false);
 
-  const [nftCount, setNftCount] = useState(null);
-  const [nftError, setNftError] = useState(null);
-  const [pendingTxCount, setPendingTxCount] = useState(null);
-
   const loadingTimeoutRef = useRef(null);
 
   const [subChars, setSubChars] = useState([]);
@@ -217,41 +256,6 @@ function App() {
   const [allTyped, setAllTyped] = useState(false);
 
   const { isCelo, isBase } = useNetwork();
-
-  // ============================================================
-  // ODCZYT NFT — bezpośrednio w App (jak w BaseLeaderboardModal)
-  // z staleTime: 0 i gcTime: 0, żeby nie cache'owało błędnych danych
-  // ============================================================
-  const trimmedAddress = airdropAddress.trim();
-
-  const {
-    data: nftBalanceData,
-    error: nftReadError
-  } = useReadContract({
-    address: GENESIS_NFT_CONTRACT,
-    abi: NFT_ABI,
-    functionName: 'balanceOf',
-    args: [trimmedAddress],
-    query: {
-      enabled: trimmedAddress.startsWith('0x') && trimmedAddress.length === 42,
-      staleTime: 0,
-      gcTime: 0,
-    }
-  });
-
-  // Zapis NFT do stanu — tylko gdy adres poprawny
-  useEffect(() => {
-    if (nftBalanceData !== undefined) {
-      setNftCount(Number(nftBalanceData));
-    }
-  }, [nftBalanceData]);
-
-  // Zapis błędu NFT
-  useEffect(() => {
-    if (nftReadError) {
-      setNftError(nftReadError);
-    }
-  }, [nftReadError]);
 
   useEffect(() => {
     (async () => {
@@ -384,88 +388,49 @@ function App() {
 
     setAirdropLoading(true);
     setAirdropResult(null);
-    setNftError(null);
-    setPendingTxCount(null);
 
     if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
     loadingTimeoutRef.current = setTimeout(() => {
       setAirdropLoading(false);
       setAirdropResult({
-        error: 'Request timed out. The Base network may be congested. Please try again.'
+        error: 'Request timed out. Please try again in a moment.'
       });
-      setPendingTxCount(null);
     }, GLOBAL_TIMEOUT_MS);
 
     try {
-      const txCount = await fetchTxCountFromRpc(trimmed);
-      setPendingTxCount(txCount);
+      // Pobierz TX i NFT RÓWNOLEGLE
+      const [txCount, nftCountResult] = await Promise.all([
+        fetchTxCountFromRpc(trimmed),
+        fetchNftCountFromRpc(trimmed).catch(err => {
+          console.error('NFT fetch failed:', err);
+          return null; // null = błąd NFT
+        })
+      ]);
+
+      if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
+
+      const nftCount = nftCountResult ?? 0;
+      const allocation = calculateAllocation(txCount, nftCount);
+
+      setAirdropResult({
+        address: trimmed,
+        ...allocation,
+        message: nftCountResult === null
+          ? 'Could not read NFT balance. Allocation based on transactions only.'
+          : (allocation.status === 'eligible'
+              ? null
+              : 'No allocation found. You need at least 1,000 Base transactions or at least 1 Genesis NFT.')
+      });
     } catch (error) {
+      console.error('Airdrop check error:', error);
       if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
       setAirdropResult({
-        error: error.message || 'Could not fetch transaction count. Please try again in a moment.'
+        error: error.message || 'Could not fetch data. Please try again in a moment.'
       });
+    } finally {
       setAirdropLoading(false);
     }
   };
-
-  // Gdy oba gotowe — dokończ kalkulację
-  useEffect(() => {
-    if (pendingTxCount === null) return;
-    if (nftCount === null) return;
-
-    if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
-
-    const allocation = calculateAllocation(pendingTxCount, nftCount);
-
-    setAirdropResult({
-      address: airdropAddress.trim(),
-      ...allocation,
-      message: allocation.status === 'eligible'
-        ? null
-        : 'No allocation found. You need at least 1,000 Base transactions or at least 1 Genesis NFT.'
-    });
-
-    setAirdropLoading(false);
-    setPendingTxCount(null);
-  }, [pendingTxCount, nftCount, airdropAddress]);
-
-  // Fallback: jeśli NFT nie wczyta się w 5s — licz bez NFT
-  useEffect(() => {
-    if (pendingTxCount === null) return;
-    if (nftCount !== null) return;
-
-    const nftFallbackTimeout = setTimeout(() => {
-      if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
-
-      const allocation = calculateAllocation(pendingTxCount, 0);
-      setAirdropResult({
-        address: airdropAddress.trim(),
-        ...allocation,
-        message: 'Could not read NFT balance. Allocation based on transactions only.'
-      });
-      setAirdropLoading(false);
-      setPendingTxCount(null);
-    }, NFT_FALLBACK_TIMEOUT_MS);
-
-    return () => clearTimeout(nftFallbackTimeout);
-  }, [pendingTxCount, nftCount, airdropAddress]);
-
-  useEffect(() => {
-    if (nftError && pendingTxCount !== null) {
-      if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
-
-      const allocation = calculateAllocation(pendingTxCount, 0);
-
-      setAirdropResult({
-        address: airdropAddress.trim(),
-        ...allocation,
-        message: 'Could not read NFT balance. Allocation based on transactions only.'
-      });
-
-      setAirdropLoading(false);
-      setPendingTxCount(null);
-    }
-  }, [nftError, pendingTxCount, airdropAddress]);
 
   useEffect(() => {
     return () => {
@@ -477,9 +442,6 @@ function App() {
     setShowAirdropChecker(false);
     setAirdropAddress('');
     setAirdropResult(null);
-    setNftCount(null);
-    setNftError(null);
-    setPendingTxCount(null);
     if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
   };
 
@@ -844,11 +806,7 @@ function App() {
                       <input
                         type="text"
                         value={airdropAddress}
-                        onChange={(e) => {
-                          setAirdropAddress(e.target.value);
-                          setNftCount(null);
-                          setNftError(null);
-                        }}
+                        onChange={(e) => setAirdropAddress(e.target.value)}
                         placeholder="0x..."
                         className="w-full bg-gray-900/80 border border-cyan-500/30 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-cyan-400 transition-colors font-mono text-center"
                       />
@@ -1013,9 +971,6 @@ function App() {
                         onClick={() => {
                           setAirdropResult(null);
                           setAirdropAddress('');
-                          setNftCount(null);
-                          setNftError(null);
-                          setPendingTxCount(null);
                         }}
                         className="w-full bg-gray-700/50 hover:bg-gray-700/80 border border-gray-600/50 text-gray-300 font-semibold px-4 sm:px-5 py-2.5 rounded-xl transition-all text-[10px] sm:text-xs"
                       >
