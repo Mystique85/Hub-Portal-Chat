@@ -179,34 +179,6 @@ Claim opens October 31, 2026. See what you're owed.`;
 }
 
 // ============================================================
-// KOMPONENT POMOCNICZY — czyta NFT przez wagmi
-// ============================================================
-
-function NftBalanceReader({ walletAddress, onBalance, onError }) {
-  const { data, error } = useReadContract({
-    address: GENESIS_NFT_CONTRACT,
-    abi: NFT_ABI,
-    functionName: 'balanceOf',
-    args: [walletAddress],
-    query: {
-      enabled: !!walletAddress && walletAddress.startsWith('0x') && walletAddress.length === 42,
-    }
-  });
-
-  useEffect(() => {
-    if (error && onError) onError(error);
-  }, [error, onError]);
-
-  useEffect(() => {
-    if (data !== undefined && onBalance) {
-      onBalance(Number(data));
-    }
-  }, [data, onBalance]);
-
-  return null;
-}
-
-// ============================================================
 // GŁÓWNY KOMPONENT
 // ============================================================
 
@@ -245,6 +217,41 @@ function App() {
   const [allTyped, setAllTyped] = useState(false);
 
   const { isCelo, isBase } = useNetwork();
+
+  // ============================================================
+  // ODCZYT NFT — bezpośrednio w App (jak w BaseLeaderboardModal)
+  // z staleTime: 0 i gcTime: 0, żeby nie cache'owało błędnych danych
+  // ============================================================
+  const trimmedAddress = airdropAddress.trim();
+
+  const {
+    data: nftBalanceData,
+    error: nftReadError
+  } = useReadContract({
+    address: GENESIS_NFT_CONTRACT,
+    abi: NFT_ABI,
+    functionName: 'balanceOf',
+    args: [trimmedAddress],
+    query: {
+      enabled: trimmedAddress.startsWith('0x') && trimmedAddress.length === 42,
+      staleTime: 0,
+      gcTime: 0,
+    }
+  });
+
+  // Zapis NFT do stanu — tylko gdy adres poprawny
+  useEffect(() => {
+    if (nftBalanceData !== undefined) {
+      setNftCount(Number(nftBalanceData));
+    }
+  }, [nftBalanceData]);
+
+  // Zapis błędu NFT
+  useEffect(() => {
+    if (nftReadError) {
+      setNftError(nftReadError);
+    }
+  }, [nftReadError]);
 
   useEffect(() => {
     (async () => {
@@ -491,16 +498,6 @@ function App() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center p-4 relative">
         <NetworkBackground />
-
-        {airdropAddress &&
-          airdropAddress.trim().startsWith('0x') &&
-          airdropAddress.trim().length === 42 && (
-            <NftBalanceReader
-              walletAddress={airdropAddress.trim()}
-              onBalance={setNftCount}
-              onError={setNftError}
-            />
-          )}
 
         <style>{`
           .neon-checker-btn {
