@@ -8,8 +8,8 @@ const projectId = "e67a3e08b76fbba39a1f1fe1bbe6d287"
 const metadata = {
   name: 'HUB Chat',
   description: 'Decentralized Social Chat',
-  url: 'https://hub-portal-chat.vercel.app',
-  icons: ['https://hub-portal-chat.vercel.app/hublogo.svg']
+  url: 'https://www.hubecosystem.xyz',
+  icons: ['https://www.hubecosystem.xyz/hublogo.svg']
 }
 
 const soneiumNetwork = {
@@ -51,7 +51,7 @@ const arbitrumNetwork = {
 }
 
 const monadNetwork = {
-  id: 143, // Chain ID: 143 (0x8f)
+  id: 143,
   name: 'Monad',
   network: 'monad',
   nativeCurrency: {
@@ -61,7 +61,7 @@ const monadNetwork = {
   },
   rpcUrls: {
     default: { http: ['https://rpc.monad.xyz'] },
-    public: { 
+    public: {
       http: [
         'https://rpc.monad.xyz',
         'https://rpc1.monad.xyz',
@@ -69,7 +69,7 @@ const monadNetwork = {
         'https://rpc3.monad.xyz',
         'https://rpc4.monad.xyz',
         'https://monad-mainnet.api.onfinality.io/public'
-      ] 
+      ]
     },
   },
   blockExplorers: {
@@ -88,7 +88,7 @@ const wagmiAdapter = new WagmiAdapter({
     [polygon.id]: http(),
     [soneiumNetwork.id]: http('https://rpc.soneium.org'),
     [arbitrumNetwork.id]: http('https://arb1.arbitrum.io/rpc'),
-    [monadNetwork.id]: http('https://rpc.monad.xyz'), // Możesz zmienić na inny RPC jeśli chcesz
+    [monadNetwork.id]: http('https://rpc.monad.xyz'),
   },
   ssr: false
 })
