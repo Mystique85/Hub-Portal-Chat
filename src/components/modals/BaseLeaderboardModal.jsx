@@ -28,9 +28,9 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
   const { isCelo, isBase } = useNetwork();
   const { address } = useAccount();
 
-  // Nowe daty: 1 kwietnia - 31 października 2026
-  const startDate = new Date('2026-04-01T00:00:00');
-  const endDate = new Date('2026-10-31T23:59:59');
+  // Nowe daty: 25 października 2026 - 31 października 2027
+  const startDate = new Date('2026-10-25T00:00:00');
+  const endDate = new Date('2027-10-31T23:59:59');
   const MIN_TOKENS_REQUIRED = 100;
   const GENESIS_NFT_CONTRACT = "0xdAf7B15f939F6a8faf87d338010867883AAB366a";
   const TOTAL_REWARD_POOL = 20000; // $20,000 USDC
@@ -332,8 +332,8 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
               Base Leaderboard Coming Soon
             </h2>
             <p className="text-gray-300 mb-6">
-              The Base network leaderboard with $20,000 USDC rewards pool launches on April 1st, 2026!
-              The competition runs until October 31st, 2026 - get ready to compete!
+              The Base network leaderboard with $20,000 USDC rewards pool launches on October 25th, 2026!
+              The competition runs until October 31st, 2027 - get ready to compete!
             </p>
             <button 
               onClick={onClose}
@@ -370,7 +370,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
                 🏆 Base Leaderboard - Grand Season 2026
               </h2>
               <p className={`text-gray-400 ${isMobile ? 'text-xs mt-0.5' : 'text-xs mt-1'}`}>
-                April 1st - October 31st, 2026 • 7 Months of Competition
+                October 25th, 2026 - October 31st, 2027 • 12 Months of Competition
               </p>
             </div>
             <button 
@@ -579,7 +579,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
                 <div className="text-blue-400 font-bold mb-2">📊 How It Works</div>
                 <p className="text-gray-300 text-sm">
                   Rankings are based on total messages sent on the Base network through the HUB Chat contract.
-                  The leaderboard updates every 24 hours. Top 100 participants at the end of the season (October 31st, 2026) will receive USDC rewards!
+                  The leaderboard updates every 24 hours. Top 100 participants at the end of the season (October 31st, 2027) will receive USDC rewards!
                 </p>
                 <div className="grid grid-cols-3 gap-2 mt-3 text-xs">
                   <div className="bg-yellow-500/10 rounded p-2">
@@ -630,7 +630,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
               <ul className={`space-y-2 text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'}`}>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 mt-1">•</span>
-                  <span><strong>Season Duration:</strong> April 1st - October 31st, 2026 (7 months)</span>
+                  <span><strong>Season Duration:</strong> October 25th, 2026 - October 31st, 2027 (12 months)</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-purple-400 mt-1">•</span>
@@ -666,7 +666,7 @@ const BaseLeaderboardModal = ({ isOpen, onClose, currentUser, isMobile = false }
           isMobile ? 'p-2' : 'p-3'
         }`}>
           <div className={`text-center text-gray-400 ${isMobile ? 'text-[9px]' : 'text-[10px]'}`}>
-            <p>Base Network Leaderboard • Grand Season 2026: April 1 - October 31 • $20,000 USDC Total Rewards</p>
+            <p>Base Network Leaderboard • Grand Season 2026: October 25, 2026 - October 31, 2027 • $20,000 USDC Total Rewards</p>
             <p className={isMobile ? 'mt-0.5' : 'mt-1'}>Data updated every 24 hours • Rankings based on verified message count from HUB Chat contract</p>
             <p className="text-yellow-500/70 mt-1">🏆 Top 10 get MASSIVE rewards! 🏆</p>
             {userStatsError && (
